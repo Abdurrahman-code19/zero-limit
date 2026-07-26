@@ -91,8 +91,10 @@ export default function HomePage() {
                 <Image src="/primary-logo.png" alt="Zero Limit" width={140} height={40} className="h-8 w-auto" priority />
               )}
             </Link>
-            <div className="flex items-center gap-3">
-              <ThemeToggle />
+            <div className="flex items-center gap-4">
+              <div className="w-9 h-9">
+                <ThemeToggle />
+              </div>
               <Link href="/login" className="hidden md:inline-block text-[13px] tracking-widest uppercase hover:text-muted-foreground transition-colors duration-300">
                 Login
               </Link>
