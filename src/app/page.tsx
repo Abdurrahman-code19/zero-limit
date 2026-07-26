@@ -91,9 +91,6 @@ export default function HomePage() {
                 <Image src="/primary-logo.png" alt="Zero Limit" width={140} height={40} className="h-8 w-auto" priority />
               )}
             </Link>
-            <div className="hidden md:flex items-center gap-8 text-[13px] tracking-widest uppercase">
-              <Link href="/admin/login" className="hover:text-muted-foreground transition-colors duration-300">Admin</Link>
-            </div>
             <div className="flex items-center gap-3">
               <ThemeToggle />
               <Link href="/login" className="hidden md:inline-block text-[13px] tracking-widest uppercase hover:text-muted-foreground transition-colors duration-300">
@@ -385,17 +382,18 @@ export default function HomePage() {
                   </div>
                 </div>
                 {[
-                  { title: "Shop", links: ["New Arrivals", "Best Sellers", "Collections", "Sale"] },
-                  { title: "About", links: ["Our Story", "Careers", "Press"] },
-                  { title: "Help", links: ["Contact Us", "FAQs", "Shipping", "Returns"] },
-                  { title: "Legal", links: ["Privacy Policy", "Terms & Conditions"] },
+                  { title: "Shop", links: [{ label: "New Arrivals", href: "/shop?sort=newest" }, { label: "Best Sellers", href: "/shop?sort=popular" }, { label: "Collections", href: "/collections" }, { label: "Sale", href: "/shop?sale=true" }] },
+                  { title: "About", links: [{ label: "Our Story", href: "#" }, { label: "Careers", href: "#" }, { label: "Press", href: "#" }] },
+                  { title: "Help", links: [{ label: "Contact Us", href: "#" }, { label: "FAQs", href: "#" }, { label: "Shipping", href: "#" }, { label: "Returns", href: "#" }] },
+                  { title: "Legal", links: [{ label: "Privacy Policy", href: "#" }, { label: "Terms & Conditions", href: "#" }] },
+                  { title: "Account", links: [{ label: "Admin Dashboard", href: "/admin" }] },
                 ].map((group) => (
                   <div key={group.title}>
                     <h4 className="text-[12px] tracking-widest uppercase mb-4 font-semibold">{group.title}</h4>
                     <ul className="space-y-2">
                       {group.links.map((link) => (
-                        <li key={link}>
-                          <Link href="#" className="text-xs text-muted-foreground hover:text-foreground transition-colors">{link}</Link>
+                        <li key={link.label}>
+                          <Link href={link.href} className="text-xs text-muted-foreground hover:text-foreground transition-colors">{link.label}</Link>
                         </li>
                       ))}
                     </ul>
@@ -408,6 +406,7 @@ export default function HomePage() {
                   <Link href="#" className="hover:text-foreground transition-colors">Privacy</Link>
                   <Link href="#" className="hover:text-foreground transition-colors">Terms</Link>
                   <Link href="#" className="hover:text-foreground transition-colors">Cookies</Link>
+                  <Link href="/admin" className="hover:text-foreground transition-colors">Admin</Link>
                 </div>
               </div>
             </div>

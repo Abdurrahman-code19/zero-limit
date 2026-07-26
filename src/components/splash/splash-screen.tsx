@@ -1,7 +1,6 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import Image from "next/image"
 
 export function SplashScreen({ onComplete }: { onComplete: () => void }) {
   const [phase, setPhase] = useState<"enter" | "hold" | "exit">("enter")
@@ -39,13 +38,12 @@ export function SplashScreen({ onComplete }: { onComplete: () => void }) {
         {/* Rotating Logo */}
         <div className="splash-monogram">
           <div className="splash-logo-wrapper">
-            <Image
+            <img
               src="/Favicon.png"
               alt="Zero Limit"
               width={120}
               height={120}
               className="splash-logo-img"
-              priority
             />
             {/* Metallic shine overlay */}
             <div className="splash-shine-overlay" />
