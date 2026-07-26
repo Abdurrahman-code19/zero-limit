@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
+import Image from "next/image"
 
 export function SplashScreen({ onComplete }: { onComplete: () => void }) {
   const [phase, setPhase] = useState<"enter" | "hold" | "exit">("enter")
@@ -35,43 +36,20 @@ export function SplashScreen({ onComplete }: { onComplete: () => void }) {
 
       {/* Center content */}
       <div className="splash-content">
-        {/* ZL Monogram */}
+        {/* Rotating Logo */}
         <div className="splash-monogram">
-          <svg viewBox="0 0 120 120" className="splash-logo-svg">
-            <defs>
-              <linearGradient id="metallic" x1="0%" y1="0%" x2="100%" y2="100%">
-                <stop offset="0%" stopColor="#d4d4d4" />
-                <stop offset="30%" stopColor="#ffffff" />
-                <stop offset="50%" stopColor="#a3a3a3" />
-                <stop offset="70%" stopColor="#ffffff" />
-                <stop offset="100%" stopColor="#d4d4d4" />
-              </linearGradient>
-              <linearGradient id="shine" x1="0%" y1="0%" x2="100%" y2="0%">
-                <stop offset="0%" stopColor="transparent" />
-                <stop offset="45%" stopColor="transparent" />
-                <stop offset="50%" stopColor="rgba(255,255,255,0.6)" />
-                <stop offset="55%" stopColor="transparent" />
-                <stop offset="100%" stopColor="transparent" />
-              </linearGradient>
-            </defs>
-            <text
-              x="60"
-              y="72"
-              textAnchor="middle"
-              fill="url(#metallic)"
-              fontSize="52"
-              fontFamily="Georgia, 'Times New Roman', serif"
-              fontWeight="400"
-              letterSpacing="-2"
-            >
-              ZL
-            </text>
-            <rect
-              x="0" y="0" width="120" height="120"
-              fill="url(#shine)"
-              className="splash-shine-sweep"
+          <div className="splash-logo-wrapper">
+            <Image
+              src="/Favicon.png"
+              alt="Zero Limit"
+              width={120}
+              height={120}
+              className="splash-logo-img"
+              priority
             />
-          </svg>
+            {/* Metallic shine overlay */}
+            <div className="splash-shine-overlay" />
+          </div>
         </div>
 
         {/* Brand name */}

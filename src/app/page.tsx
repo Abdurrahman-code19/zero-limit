@@ -2,6 +2,7 @@
 
 import { useState, useCallback, useEffect, useRef } from "react"
 import Link from "next/link"
+import Image from "next/image"
 import { motion, AnimatePresence } from "framer-motion"
 import {
   ArrowRight, Instagram, ShoppingBag, Heart, Search, User,
@@ -81,15 +82,17 @@ export default function HomePage() {
 
           {/* ─── TOP NAV ─── */}
           <nav className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-6 md:px-12 py-5">
-            <Link href="/" className="text-lg md:text-xl font-bold tracking-[0.15em]">
-              ZERO LIMIT
+            <Link href="/" className="flex items-center">
+              <Image
+                src="/primary-logo.png"
+                alt="Zero Limit"
+                width={140}
+                height={40}
+                className="h-8 w-auto brightness-0 invert"
+                priority
+              />
             </Link>
             <div className="hidden md:flex items-center gap-8 text-[13px] tracking-widest uppercase">
-              <Link href="/home" className="hover:text-zinc-400 transition-colors duration-300">Home</Link>
-              <Link href="/collections" className="hover:text-zinc-400 transition-colors duration-300">Collections</Link>
-              <Link href="/shop" className="hover:text-zinc-400 transition-colors duration-300">Shop</Link>
-              <Link href="/about" className="hover:text-zinc-400 transition-colors duration-300">About</Link>
-              <Link href="/contact" className="hover:text-zinc-400 transition-colors duration-300">Contact</Link>
               <Link href="/admin/login" className="hover:text-zinc-400 transition-colors duration-300">Admin</Link>
             </div>
             <div className="flex items-center gap-4">
@@ -385,7 +388,13 @@ export default function HomePage() {
               <div className="grid grid-cols-2 md:grid-cols-5 gap-8 mb-12">
                 {/* Brand */}
                 <div className="col-span-2 md:col-span-1">
-                  <h3 className="text-lg font-bold tracking-[0.15em] mb-4">ZERO LIMIT</h3>
+                  <Image
+                    src="/secondary-logo.png"
+                    alt="Zero Limit"
+                    width={120}
+                    height={36}
+                    className="h-7 w-auto brightness-0 invert mb-4"
+                  />
                   <p className="text-xs text-zinc-500 leading-relaxed mb-6">
                     Beyond Limits.<br />Beyond Style.
                   </p>

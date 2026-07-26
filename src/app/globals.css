@@ -147,16 +147,40 @@ body {
   to { opacity: 1; transform: translateY(0) scale(1); }
 }
 
-/* Monogram */
+/* Rotating Logo */
 .splash-monogram {
   width: 120px;
   height: 120px;
   animation: monogramSpin 8s linear infinite;
 }
 
-.splash-logo-svg {
+.splash-logo-wrapper {
+  position: relative;
   width: 100%;
   height: 100%;
+  border-radius: 50%;
+  overflow: hidden;
+}
+
+.splash-logo-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Metallic shine overlay */
+.splash-shine-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    105deg,
+    transparent 40%,
+    rgba(255, 255, 255, 0.4) 45%,
+    rgba(255, 255, 255, 0.6) 50%,
+    rgba(255, 255, 255, 0.4) 55%,
+    transparent 60%
+  );
+  animation: shineSweep 3s ease-in-out infinite;
 }
 
 @keyframes monogramSpin {
@@ -164,14 +188,9 @@ body {
   to { transform: rotate(360deg); }
 }
 
-/* Metallic shine sweep */
-.splash-shine-sweep {
-  animation: shineSweep 3s ease-in-out infinite;
-}
-
 @keyframes shineSweep {
-  0%, 100% { transform: translateX(-120px); }
-  50% { transform: translateX(120px); }
+  0%, 100% { transform: translateX(-150%); }
+  50% { transform: translateX(150%); }
 }
 
 /* Brand text */
