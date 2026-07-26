@@ -11,6 +11,7 @@ import {
 import { Button } from "@/components/ui/button"
 import { SplashScreen } from "@/components/splash/splash-screen"
 import { LandingNav } from "@/components/layout/landing-nav"
+import { BackToTop } from "@/components/layout/back-to-top"
 import { useTheme } from "@/components/theme/theme-provider"
 import { useCartStore } from "@/store/cart"
 
@@ -390,6 +391,7 @@ export default function HomePage() {
           </footer>
         </div>
       </div>
+      <BackToTop />
     </>
   )
 }
