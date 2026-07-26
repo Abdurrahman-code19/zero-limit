@@ -7,11 +7,10 @@ import { motion, AnimatePresence } from "framer-motion"
 import {
   ArrowRight, Instagram, ShoppingBag, Heart, Search,
   ChevronLeft, ChevronRight, Shield, RotateCcw, Truck, Award,
-  Menu
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { SplashScreen } from "@/components/splash/splash-screen"
-import { ThemeToggle } from "@/components/theme/theme-toggle"
+import { LandingNav } from "@/components/layout/landing-nav"
 import { useTheme } from "@/components/theme/theme-provider"
 import { useCartStore } from "@/store/cart"
 
@@ -83,31 +82,7 @@ export default function HomePage() {
         <div className="flex flex-col bg-background text-foreground min-h-screen">
 
           {/* ─── TOP NAV ─── */}
-          <nav className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-6 md:px-12 py-5 bg-background/80 backdrop-blur-md border-b border-border/50">
-            <Link href="/" className="flex items-center">
-              {isDark ? (
-                <Image src="/primary-logo.png" alt="Zero Limit" width={140} height={40} className="h-8 w-auto brightness-0 invert" priority />
-              ) : (
-                <Image src="/primary-logo.png" alt="Zero Limit" width={140} height={40} className="h-8 w-auto" priority />
-              )}
-            </Link>
-            <div className="flex items-center gap-4">
-              <div className="w-9 h-9">
-                <ThemeToggle />
-              </div>
-              <Link href="/login" className="hidden md:inline-block text-[13px] tracking-widest uppercase hover:text-muted-foreground transition-colors duration-300">
-                Login
-              </Link>
-              <Link href="/register" className="hidden md:inline-block">
-                <Button size="sm" variant="outline" className="border-border text-foreground hover:bg-foreground hover:text-background text-[13px] tracking-widest uppercase rounded-none px-5">
-                  Sign Up
-                </Button>
-              </Link>
-              <button className="md:hidden" aria-label="Menu">
-                <Menu className="h-5 w-5" />
-              </button>
-            </div>
-          </nav>
+          <LandingNav />
 
           {/* ─── HERO SECTION ─── */}
           <section className="relative h-screen flex">
