@@ -5,18 +5,20 @@ import Link from "next/link"
 import Image from "next/image"
 import { motion, AnimatePresence } from "framer-motion"
 import {
-  ArrowRight, Instagram, ShoppingBag, Heart, Search, User,
+  ArrowRight, Instagram, ShoppingBag, Heart, Search,
   ChevronLeft, ChevronRight, Shield, RotateCcw, Truck, Award,
-  Menu, X
+  Menu
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { SplashScreen } from "@/components/splash/splash-screen"
+import { ThemeToggle } from "@/components/theme/theme-toggle"
+import { useTheme } from "@/components/theme/theme-provider"
 import { useCartStore } from "@/store/cart"
 
 const HERO_SLIDES = [
-  { id: 1, label: "Streetwear Redefined", accent: "bg-zinc-900" },
-  { id: 2, label: "Luxury Essentials", accent: "bg-stone-900" },
-  { id: 3, label: "Limited Drops", accent: "bg-neutral-900" },
+  { id: 1, label: "Streetwear Redefined", light: "bg-zinc-200", dark: "bg-zinc-900" },
+  { id: 2, label: "Luxury Essentials", light: "bg-stone-200", dark: "bg-stone-900" },
+  { id: 3, label: "Limited Drops", light: "bg-neutral-200", dark: "bg-neutral-900" },
 ]
 
 const FEATURES = [
@@ -48,6 +50,8 @@ export default function HomePage() {
   const [currentSlide, setCurrentSlide] = useState(0)
   const [isDragging, setIsDragging] = useState(false)
   const dragStartX = useRef(0)
+  const { theme } = useTheme()
+  const isDark = theme === "dark"
   const itemCount = useCartStore((s) => s.getItemCount())
 
   const handleSplashComplete = useCallback(() => setSplashDone(true), [])
@@ -73,38 +77,34 @@ export default function HomePage() {
 
   return (
     <>
-      {/* Splash Screen */}
       {!splashDone && <SplashScreen onComplete={handleSplashComplete} />}
 
-      {/* Landing Page */}
       <div className={`transition-opacity duration-1000 ${splashDone ? "opacity-100" : "opacity-0 pointer-events-none"}`}>
-        <div className="flex flex-col bg-black text-white min-h-screen">
+        <div className="flex flex-col bg-background text-foreground min-h-screen">
 
           {/* ─── TOP NAV ─── */}
-          <nav className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-6 md:px-12 py-5">
+          <nav className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-6 md:px-12 py-5 bg-background/80 backdrop-blur-md border-b border-border/50">
             <Link href="/" className="flex items-center">
-              <Image
-                src="/primary-logo.png"
-                alt="Zero Limit"
-                width={140}
-                height={40}
-                className="h-8 w-auto brightness-0 invert"
-                priority
-              />
+              {isDark ? (
+                <Image src="/primary-logo.png" alt="Zero Limit" width={140} height={40} className="h-8 w-auto brightness-0 invert" priority />
+              ) : (
+                <Image src="/primary-logo.png" alt="Zero Limit" width={140} height={40} className="h-8 w-auto" priority />
+              )}
             </Link>
             <div className="hidden md:flex items-center gap-8 text-[13px] tracking-widest uppercase">
-              <Link href="/admin/login" className="hover:text-zinc-400 transition-colors duration-300">Admin</Link>
+              <Link href="/admin/login" className="hover:text-muted-foreground transition-colors duration-300">Admin</Link>
             </div>
-            <div className="flex items-center gap-4">
-              <Link href="/login" className="hidden md:inline-block text-[13px] tracking-widest uppercase hover:text-zinc-400 transition-colors duration-300">
+            <div className="flex items-center gap-3">
+              <ThemeToggle />
+              <Link href="/login" className="hidden md:inline-block text-[13px] tracking-widest uppercase hover:text-muted-foreground transition-colors duration-300">
                 Login
               </Link>
               <Link href="/register" className="hidden md:inline-block">
-                <Button size="sm" variant="outline" className="border-white/30 text-white hover:bg-white hover:text-black text-[13px] tracking-widest uppercase rounded-none px-5">
+                <Button size="sm" variant="outline" className="border-border text-foreground hover:bg-foreground hover:text-background text-[13px] tracking-widest uppercase rounded-none px-5">
                   Sign Up
                 </Button>
               </Link>
-              <button className="md:hidden text-white" aria-label="Menu">
+              <button className="md:hidden" aria-label="Menu">
                 <Menu className="h-5 w-5" />
               </button>
             </div>
@@ -112,27 +112,26 @@ export default function HomePage() {
 
           {/* ─── HERO SECTION ─── */}
           <section className="relative h-screen flex">
-            {/* Left: Brand */}
             <div className="w-full md:w-1/2 flex flex-col justify-center px-8 md:px-16 lg:px-24 z-10">
               <motion.div
                 initial={{ opacity: 0, y: 30 }}
                 animate={{ opacity: splashDone ? 1 : 0, y: splashDone ? 0 : 30 }}
                 transition={{ duration: 0.8, delay: 0.2 }}
               >
-                <p className="text-[11px] tracking-[0.4em] uppercase text-zinc-500 mb-6">Premium Fashion</p>
+                <p className="text-[11px] tracking-[0.4em] uppercase text-muted-foreground mb-6">Premium Fashion</p>
                 <h1 className="text-5xl md:text-7xl lg:text-8xl font-light leading-[0.9] tracking-tight mb-6">
                   ZERO<br />
                   <span className="font-bold italic">LIMIT</span>
                 </h1>
-                <p className="text-lg md:text-xl text-zinc-400 font-light max-w-md mb-10 leading-relaxed">
+                <p className="text-lg md:text-xl text-muted-foreground font-light max-w-md mb-10 leading-relaxed">
                   Beyond Limits.<br />Beyond Style.
                 </p>
-                <p className="text-sm text-zinc-500 max-w-sm mb-10 leading-relaxed">
-                  Discover curated fashion pieces that define contemporary elegance. 
+                <p className="text-sm text-muted-foreground/70 max-w-sm mb-10 leading-relaxed">
+                  Discover curated fashion pieces that define contemporary elegance.
                   Each piece crafted for those who refuse to blend in.
                 </p>
                 <Link href="/shop">
-                  <Button className="bg-white text-black hover:bg-zinc-200 text-[13px] tracking-widest uppercase rounded-none px-8 py-6 group transition-all duration-300">
+                  <Button className="bg-foreground text-background hover:bg-foreground/80 text-[13px] tracking-widest uppercase rounded-none px-8 py-6 group transition-all duration-300">
                     Explore Collection
                     <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
                   </Button>
@@ -153,58 +152,53 @@ export default function HomePage() {
                   {HERO_SLIDES.map((slide, i) => (
                     <motion.div
                       key={slide.id}
-                      className={`absolute inset-0 ${slide.accent}`}
+                      className={`absolute inset-0 ${isDark ? slide.dark : slide.light}`}
                       initial={{ clipPath: "polygon(15% 0, 100% 0, 100% 100%, 0% 100%)", opacity: 0 }}
                       animate={i === currentSlide
                         ? { clipPath: "polygon(15% 0, 100% 0, 100% 100%, 0% 100%)", opacity: 1, scale: isDragging ? 1 : [1, 1.03] }
                         : { clipPath: "polygon(15% 0, 100% 0, 100% 100%, 0% 100%)", opacity: 0, scale: 1.05 }}
                       transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
                     >
-                      {/* Abstract fashion imagery placeholder */}
                       <div className="absolute inset-0 flex items-center justify-center">
                         <div className="text-center">
-                          <p className="text-[11px] tracking-[0.5em] uppercase text-zinc-600 mb-4">Collection</p>
-                          <p className="text-4xl font-light tracking-tight text-zinc-300">{slide.label}</p>
-                          <div className="mt-8 w-16 h-px bg-white/20 mx-auto" />
+                          <p className={`text-[11px] tracking-[0.5em] uppercase mb-4 ${isDark ? "text-zinc-600" : "text-zinc-400"}`}>Collection</p>
+                          <p className={`text-4xl font-light tracking-tight ${isDark ? "text-zinc-300" : "text-zinc-600"}`}>{slide.label}</p>
+                          <div className={`mt-8 w-16 h-px mx-auto ${isDark ? "bg-white/20" : "bg-black/20"}`} />
                         </div>
                       </div>
                     </motion.div>
                   ))}
                 </AnimatePresence>
 
-                {/* Slide indicators */}
                 <div className="absolute bottom-12 right-12 flex gap-3 z-10">
                   {HERO_SLIDES.map((_, i) => (
                     <button
                       key={i}
                       onClick={() => setCurrentSlide(i)}
-                      className={`w-8 h-[2px] transition-all duration-500 ${i === currentSlide ? "bg-white w-12" : "bg-white/30 hover:bg-white/50"}`}
+                      className={`h-[2px] transition-all duration-500 ${i === currentSlide ? `w-12 ${isDark ? "bg-white" : "bg-black"}` : `w-8 ${isDark ? "bg-white/30 hover:bg-white/50" : "bg-black/30 hover:bg-black/50"}`}`}
                       aria-label={`Slide ${i + 1}`}
                     />
                   ))}
                 </div>
 
-                {/* Nav arrows */}
                 <div className="absolute bottom-12 left-12 flex gap-2 z-10">
-                  <button
-                    onClick={() => setCurrentSlide((p) => (p - 1 + HERO_SLIDES.length) % HERO_SLIDES.length)}
-                    className="w-10 h-10 border border-white/20 flex items-center justify-center hover:bg-white hover:text-black transition-all duration-300"
-                    aria-label="Previous slide"
-                  >
-                    <ChevronLeft className="h-4 w-4" />
-                  </button>
-                  <button
-                    onClick={() => setCurrentSlide((p) => (p + 1) % HERO_SLIDES.length)}
-                    className="w-10 h-10 border border-white/20 flex items-center justify-center hover:bg-white hover:text-black transition-all duration-300"
-                    aria-label="Next slide"
-                  >
-                    <ChevronRight className="h-4 w-4" />
-                  </button>
+                  {[ChevronLeft, ChevronRight].map((Icon, idx) => (
+                    <button
+                      key={idx}
+                      onClick={() => setCurrentSlide((p) => idx === 0
+                        ? (p - 1 + HERO_SLIDES.length) % HERO_SLIDES.length
+                        : (p + 1) % HERO_SLIDES.length)}
+                      className={`w-10 h-10 border flex items-center justify-center transition-all duration-300 ${isDark ? "border-white/20 hover:bg-white hover:text-black" : "border-black/20 hover:bg-black hover:text-white"}`}
+                      aria-label={idx === 0 ? "Previous slide" : "Next slide"}
+                    >
+                      <Icon className="h-4 w-4" />
+                    </button>
+                  ))}
                 </div>
               </div>
             </div>
 
-            {/* Bottom-right social icons */}
+            {/* Social icons */}
             <div className="fixed bottom-8 right-8 z-50 flex flex-col gap-4">
               {[
                 { icon: Instagram, label: "Instagram", href: "#" },
@@ -223,7 +217,7 @@ export default function HomePage() {
                   href={social.href}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="w-10 h-10 border border-white/20 flex items-center justify-center hover:bg-white hover:text-black transition-all duration-300 group"
+                  className={`w-10 h-10 border flex items-center justify-center transition-all duration-300 group ${isDark ? "border-white/20 hover:bg-white hover:text-black" : "border-black/20 hover:bg-black hover:text-white"}`}
                   aria-label={social.label}
                 >
                   <social.icon className="h-4 w-4" />
@@ -233,7 +227,7 @@ export default function HomePage() {
           </section>
 
           {/* ─── BRAND HIGHLIGHTS ─── */}
-          <section className="py-20 md:py-28 border-t border-white/10">
+          <section className="py-20 md:py-28 border-t border-border">
             <div className="container mx-auto px-6 md:px-12">
               <div className="grid grid-cols-2 md:grid-cols-4 gap-8 md:gap-12">
                 {FEATURES.map((feat) => (
@@ -245,11 +239,11 @@ export default function HomePage() {
                     transition={{ duration: 0.6 }}
                     className="text-center group"
                   >
-                    <div className="w-14 h-14 border border-white/20 flex items-center justify-center mx-auto mb-5 group-hover:bg-white group-hover:text-black transition-all duration-500">
+                    <div className="w-14 h-14 border border-border flex items-center justify-center mx-auto mb-5 group-hover:bg-foreground group-hover:text-background transition-all duration-500">
                       <feat.icon className="h-6 w-6" />
                     </div>
                     <h3 className="text-sm font-semibold tracking-wider uppercase mb-2">{feat.title}</h3>
-                    <p className="text-xs text-zinc-500 leading-relaxed">{feat.desc}</p>
+                    <p className="text-xs text-muted-foreground leading-relaxed">{feat.desc}</p>
                   </motion.div>
                 ))}
               </div>
@@ -261,10 +255,10 @@ export default function HomePage() {
             <div className="container mx-auto px-6 md:px-12">
               <div className="flex items-end justify-between mb-12">
                 <div>
-                  <p className="text-[11px] tracking-[0.4em] uppercase text-zinc-500 mb-3">Curated For You</p>
+                  <p className="text-[11px] tracking-[0.4em] uppercase text-muted-foreground mb-3">Curated For You</p>
                   <h2 className="text-3xl md:text-4xl font-light">Collections</h2>
                 </div>
-                <Link href="/collections" className="text-[12px] tracking-widest uppercase text-zinc-400 hover:text-white transition-colors flex items-center gap-2 group">
+                <Link href="/collections" className="text-[12px] tracking-widest uppercase text-muted-foreground hover:text-foreground transition-colors flex items-center gap-2 group">
                   View All
                   <ArrowRight className="h-3 w-3 group-hover:translate-x-1 transition-transform" />
                 </Link>
@@ -279,17 +273,14 @@ export default function HomePage() {
                     transition={{ duration: 0.6, delay: i * 0.15 }}
                   >
                     <Link href={`/collections/${col.slug}`}>
-                      <div className="group relative aspect-[3/4] overflow-hidden bg-zinc-900 cursor-pointer">
-                        {/* Gradient overlay */}
-                        <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent z-10" />
-                        {/* Hover zoom */}
-                        <div className="absolute inset-0 bg-zinc-800 scale-100 group-hover:scale-110 transition-transform duration-700 ease-out" />
-                        {/* Content */}
+                      <div className="group relative aspect-[3/4] overflow-hidden bg-muted cursor-pointer">
+                        <div className={`absolute inset-0 bg-gradient-to-t via-black/40 to-transparent z-10 ${isDark ? "from-black" : "from-black/60"}`} />
+                        <div className="absolute inset-0 bg-muted group-hover:scale-110 transition-transform duration-700 ease-out" />
                         <div className="absolute bottom-0 left-0 right-0 p-8 z-20">
                           <p className="text-[10px] tracking-[0.5em] uppercase text-zinc-400 mb-2">Collection {String(i + 1).padStart(2, "0")}</p>
-                          <h3 className="text-2xl font-light mb-2">{col.name}</h3>
+                          <h3 className="text-2xl font-light mb-2 text-white">{col.name}</h3>
                           <p className="text-sm text-zinc-400 mb-6">{col.desc}</p>
-                          <span className="inline-flex items-center gap-2 text-[12px] tracking-widest uppercase border-b border-white/30 pb-1 group-hover:border-white transition-colors duration-300">
+                          <span className="inline-flex items-center gap-2 text-[12px] tracking-widest uppercase border-b border-white/30 pb-1 group-hover:border-white transition-colors duration-300 text-white">
                             Shop Now
                             <ArrowRight className="h-3 w-3 group-hover:translate-x-1 transition-transform" />
                           </span>
@@ -303,14 +294,14 @@ export default function HomePage() {
           </section>
 
           {/* ─── NEW ARRIVALS ─── */}
-          <section className="py-20 md:py-28 border-t border-white/10">
+          <section className="py-20 md:py-28 border-t border-border">
             <div className="container mx-auto px-6 md:px-12">
               <div className="flex items-end justify-between mb-12">
                 <div>
-                  <p className="text-[11px] tracking-[0.4em] uppercase text-zinc-500 mb-3">Just Dropped</p>
+                  <p className="text-[11px] tracking-[0.4em] uppercase text-muted-foreground mb-3">Just Dropped</p>
                   <h2 className="text-3xl md:text-4xl font-light">New Arrivals</h2>
                 </div>
-                <Link href="/shop?sort=newest" className="text-[12px] tracking-widest uppercase text-zinc-400 hover:text-white transition-colors flex items-center gap-2 group">
+                <Link href="/shop?sort=newest" className="text-[12px] tracking-widest uppercase text-muted-foreground hover:text-foreground transition-colors flex items-center gap-2 group">
                   View All
                   <ArrowRight className="h-3 w-3 group-hover:translate-x-1 transition-transform" />
                 </Link>
@@ -326,33 +317,25 @@ export default function HomePage() {
                   >
                     <Link href={`/product/${item.id}`}>
                       <div className="group cursor-pointer">
-                        {/* Image area */}
-                        <div className="relative aspect-[3/4] bg-zinc-900 overflow-hidden mb-4">
-                          <div className="absolute inset-0 bg-zinc-800 group-hover:scale-105 transition-transform duration-700 ease-out" />
-                          {/* Tag */}
+                        <div className="relative aspect-[3/4] bg-muted overflow-hidden mb-4">
+                          <div className="absolute inset-0 bg-muted group-hover:scale-105 transition-transform duration-700 ease-out" />
                           {item.tag && (
-                            <span className="absolute top-3 left-3 z-10 text-[10px] tracking-wider uppercase bg-white text-black px-2 py-1">
+                            <span className="absolute top-3 left-3 z-10 text-[10px] tracking-wider uppercase bg-foreground text-background px-2 py-1">
                               {item.tag}
                             </span>
                           )}
-                          {/* Hover overlay */}
-                          <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-colors duration-500 z-10 flex items-center justify-center opacity-0 group-hover:opacity-100">
+                          <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 dark:group-hover:bg-black/30 transition-colors duration-500 z-10 flex items-center justify-center opacity-0 group-hover:opacity-100">
                             <div className="flex gap-2">
-                              <button className="w-10 h-10 bg-white text-black flex items-center justify-center hover:bg-zinc-200 transition-colors" aria-label="Add to wishlist">
-                                <Heart className="h-4 w-4" />
-                              </button>
-                              <button className="w-10 h-10 bg-white text-black flex items-center justify-center hover:bg-zinc-200 transition-colors" aria-label="Quick view">
-                                <Search className="h-4 w-4" />
-                              </button>
-                              <button className="w-10 h-10 bg-white text-black flex items-center justify-center hover:bg-zinc-200 transition-colors" aria-label="Add to cart">
-                                <ShoppingBag className="h-4 w-4" />
-                              </button>
+                              {[Heart, Search, ShoppingBag].map((Icon, idx) => (
+                                <button key={idx} className="w-10 h-10 bg-background text-foreground flex items-center justify-center hover:bg-background/80 transition-colors" aria-label="Action">
+                                  <Icon className="h-4 w-4" />
+                                </button>
+                              ))}
                             </div>
                           </div>
                         </div>
-                        {/* Info */}
-                        <h4 className="text-sm font-medium mb-1 group-hover:text-zinc-300 transition-colors">{item.name}</h4>
-                        <p className="text-sm text-zinc-500">${item.price}</p>
+                        <h4 className="text-sm font-medium mb-1 group-hover:text-muted-foreground transition-colors">{item.name}</h4>
+                        <p className="text-sm text-muted-foreground">${item.price}</p>
                       </div>
                     </Link>
                   </motion.div>
@@ -362,20 +345,20 @@ export default function HomePage() {
           </section>
 
           {/* ─── NEWSLETTER ─── */}
-          <section className="py-24 md:py-32 border-t border-white/10">
+          <section className="py-24 md:py-32 border-t border-border">
             <div className="container mx-auto px-6 md:px-12 text-center">
-              <p className="text-[11px] tracking-[0.4em] uppercase text-zinc-500 mb-4">Stay Connected</p>
+              <p className="text-[11px] tracking-[0.4em] uppercase text-muted-foreground mb-4">Stay Connected</p>
               <h2 className="text-3xl md:text-4xl font-light mb-4">Become Part of Zero Limit</h2>
-              <p className="text-sm text-zinc-500 max-w-md mx-auto mb-10">
+              <p className="text-sm text-muted-foreground max-w-md mx-auto mb-10">
                 Exclusive drops, early access, and style inspiration delivered to your inbox.
               </p>
               <form className="flex flex-col sm:flex-row gap-3 max-w-lg mx-auto" onSubmit={(e) => e.preventDefault()}>
                 <input
                   type="email"
                   placeholder="Email Address"
-                  className="flex-1 bg-transparent border border-white/20 px-5 py-4 text-sm text-white placeholder:text-zinc-600 focus:outline-none focus:border-white transition-colors"
+                  className="flex-1 bg-transparent border border-border px-5 py-4 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-foreground transition-colors"
                 />
-                <Button type="submit" className="bg-white text-black hover:bg-zinc-200 text-[13px] tracking-widest uppercase rounded-none px-8 py-4">
+                <Button type="submit" className="bg-foreground text-background hover:bg-foreground/80 text-[13px] tracking-widest uppercase rounded-none px-8 py-4">
                   Subscribe
                 </Button>
               </form>
@@ -383,30 +366,24 @@ export default function HomePage() {
           </section>
 
           {/* ─── FOOTER ─── */}
-          <footer className="border-t border-white/10 py-16">
+          <footer className="border-t border-border py-16">
             <div className="container mx-auto px-6 md:px-12">
               <div className="grid grid-cols-2 md:grid-cols-5 gap-8 mb-12">
-                {/* Brand */}
                 <div className="col-span-2 md:col-span-1">
-                  <Image
-                    src="/secondary-logo.png"
-                    alt="Zero Limit"
-                    width={120}
-                    height={36}
-                    className="h-7 w-auto brightness-0 invert mb-4"
-                  />
-                  <p className="text-xs text-zinc-500 leading-relaxed mb-6">
+                  {isDark ? (
+                    <Image src="/secondary-logo.png" alt="Zero Limit" width={120} height={36} className="h-7 w-auto brightness-0 invert mb-4" />
+                  ) : (
+                    <Image src="/secondary-logo.png" alt="Zero Limit" width={120} height={36} className="h-7 w-auto mb-4" />
+                  )}
+                  <p className="text-xs text-muted-foreground leading-relaxed mb-6">
                     Beyond Limits.<br />Beyond Style.
                   </p>
                   <div className="flex gap-3">
-                    {[Instagram].map((Icon, i) => (
-                      <a key={i} href="#" className="w-8 h-8 border border-white/20 flex items-center justify-center hover:bg-white hover:text-black transition-all duration-300">
-                        <Icon className="h-3.5 w-3.5" />
-                      </a>
-                    ))}
+                    <a href="#" className={`w-8 h-8 border flex items-center justify-center transition-all duration-300 ${isDark ? "border-white/20 hover:bg-white hover:text-black" : "border-black/20 hover:bg-black hover:text-white"}`}>
+                      <Instagram className="h-3.5 w-3.5" />
+                    </a>
                   </div>
                 </div>
-                {/* Links */}
                 {[
                   { title: "Shop", links: ["New Arrivals", "Best Sellers", "Collections", "Sale"] },
                   { title: "About", links: ["Our Story", "Careers", "Press"] },
@@ -418,19 +395,19 @@ export default function HomePage() {
                     <ul className="space-y-2">
                       {group.links.map((link) => (
                         <li key={link}>
-                          <Link href="#" className="text-xs text-zinc-500 hover:text-white transition-colors">{link}</Link>
+                          <Link href="#" className="text-xs text-muted-foreground hover:text-foreground transition-colors">{link}</Link>
                         </li>
                       ))}
                     </ul>
                   </div>
                 ))}
               </div>
-              <div className="border-t border-white/10 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
-                <p className="text-[11px] text-zinc-600">&copy; {new Date().getFullYear()} Zero Limit. All rights reserved.</p>
-                <div className="flex gap-4 text-[11px] text-zinc-600">
-                  <Link href="#" className="hover:text-white transition-colors">Privacy</Link>
-                  <Link href="#" className="hover:text-white transition-colors">Terms</Link>
-                  <Link href="#" className="hover:text-white transition-colors">Cookies</Link>
+              <div className="border-t border-border pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
+                <p className="text-[11px] text-muted-foreground">&copy; {new Date().getFullYear()} Zero Limit. All rights reserved.</p>
+                <div className="flex gap-4 text-[11px] text-muted-foreground">
+                  <Link href="#" className="hover:text-foreground transition-colors">Privacy</Link>
+                  <Link href="#" className="hover:text-foreground transition-colors">Terms</Link>
+                  <Link href="#" className="hover:text-foreground transition-colors">Cookies</Link>
                 </div>
               </div>
             </div>

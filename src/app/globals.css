@@ -149,8 +149,8 @@ body {
 
 /* Rotating Logo */
 .splash-monogram {
-  width: 120px;
-  height: 120px;
+  width: 140px;
+  height: 140px;
   animation: monogramSpin 8s linear infinite;
 }
 
@@ -160,12 +160,16 @@ body {
   height: 100%;
   border-radius: 50%;
   overflow: hidden;
+  background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+  box-shadow: 0 0 60px rgba(255,255,255,0.08), 0 0 120px rgba(255,255,255,0.04);
 }
 
 .splash-logo-img {
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  object-fit: contain;
+  padding: 12px;
+  filter: brightness(1.1) contrast(1.1);
 }
 
 /* Metallic shine overlay */
