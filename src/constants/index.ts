@@ -3,11 +3,7 @@ export const SITE_DESCRIPTION = 'Premium Fashion E-commerce Platform'
 export const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'
 
 export const NAV_LINKS = [
-  { label: 'Home', href: '/home' },
-  { label: 'Collections', href: '/collections' },
-  { label: 'Shop', href: '/shop' },
-  { label: 'About', href: '/about' },
-  { label: 'Contact', href: '/contact' },
+  { label: 'Home', href: '/' },
 ]
 
 export const COLLECTIONS = [

@@ -22,7 +22,7 @@ export default function CartPage() {
         <p className="text-muted-foreground mb-6">
           Looks like you haven&apos;t added anything to your cart yet.
         </p>
-        <Link href="/shop">
+        <Link href="/">
           <Button>
             <ArrowLeft className="h-4 w-4 mr-2" />
             Continue Shopping
@@ -153,7 +153,7 @@ export default function CartPage() {
             </Link>
 
             <Link
-              href="/shop"
+              href="/"
               className="block mt-4 text-center text-sm text-muted-foreground hover:text-foreground"
             >
               Continue Shopping

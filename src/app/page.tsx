@@ -105,7 +105,7 @@ export default function HomePage() {
                   Discover curated fashion pieces that define contemporary elegance.
                   Each piece crafted for those who refuse to blend in.
                 </p>
-                <Link href="/shop">
+                <Link href="/login">
                   <Button className="bg-foreground text-background hover:bg-foreground/80 text-[13px] tracking-widest uppercase rounded-none px-8 py-6 group transition-all duration-300">
                     Explore Collection
                     <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
@@ -233,7 +233,7 @@ export default function HomePage() {
                   <p className="text-[11px] tracking-[0.4em] uppercase text-muted-foreground mb-3">Curated For You</p>
                   <h2 className="text-3xl md:text-4xl font-light">Collections</h2>
                 </div>
-                <Link href="/collections" className="text-[12px] tracking-widest uppercase text-muted-foreground hover:text-foreground transition-colors flex items-center gap-2 group">
+                <Link href="/login" className="text-[12px] tracking-widest uppercase text-muted-foreground hover:text-foreground transition-colors flex items-center gap-2 group">
                   View All
                   <ArrowRight className="h-3 w-3 group-hover:translate-x-1 transition-transform" />
                 </Link>
@@ -247,7 +247,7 @@ export default function HomePage() {
                     viewport={{ once: true }}
                     transition={{ duration: 0.6, delay: i * 0.15 }}
                   >
-                    <Link href={`/collections/${col.slug}`}>
+                    <Link href="/login">
                       <div className="group relative aspect-[3/4] overflow-hidden bg-muted cursor-pointer">
                         <div className={`absolute inset-0 bg-gradient-to-t via-black/40 to-transparent z-10 ${isDark ? "from-black" : "from-black/60"}`} />
                         <div className="absolute inset-0 bg-muted group-hover:scale-110 transition-transform duration-700 ease-out" />
@@ -276,7 +276,7 @@ export default function HomePage() {
                   <p className="text-[11px] tracking-[0.4em] uppercase text-muted-foreground mb-3">Just Dropped</p>
                   <h2 className="text-3xl md:text-4xl font-light">New Arrivals</h2>
                 </div>
-                <Link href="/shop?sort=newest" className="text-[12px] tracking-widest uppercase text-muted-foreground hover:text-foreground transition-colors flex items-center gap-2 group">
+                <Link href="/login" className="text-[12px] tracking-widest uppercase text-muted-foreground hover:text-foreground transition-colors flex items-center gap-2 group">
                   View All
                   <ArrowRight className="h-3 w-3 group-hover:translate-x-1 transition-transform" />
                 </Link>
@@ -360,11 +360,9 @@ export default function HomePage() {
                   </div>
                 </div>
                 {[
-                  { title: "Shop", links: [{ label: "New Arrivals", href: "/shop?sort=newest" }, { label: "Best Sellers", href: "/shop?sort=popular" }, { label: "Collections", href: "/collections" }, { label: "Sale", href: "/shop?sale=true" }] },
-                  { title: "About", links: [{ label: "Our Story", href: "#" }, { label: "Careers", href: "#" }, { label: "Press", href: "#" }] },
+                  { title: "Account", links: [{ label: "Sign In", href: "/login" }, { label: "Create Account", href: "/register" }, { label: "Admin Dashboard", href: "/admin/login" }] },
                   { title: "Help", links: [{ label: "Contact Us", href: "#" }, { label: "FAQs", href: "#" }, { label: "Shipping", href: "#" }, { label: "Returns", href: "#" }] },
                   { title: "Legal", links: [{ label: "Privacy Policy", href: "#" }, { label: "Terms & Conditions", href: "#" }] },
-                  { title: "Account", links: [{ label: "Admin Dashboard", href: "/admin" }] },
                 ].map((group) => (
                   <div key={group.title}>
                     <h4 className="text-[12px] tracking-widest uppercase mb-4 font-semibold">{group.title}</h4>
@@ -381,10 +379,8 @@ export default function HomePage() {
               <div className="border-t border-border pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
                 <p className="text-[11px] text-muted-foreground">&copy; {new Date().getFullYear()} Zero Limit. All rights reserved.</p>
                 <div className="flex gap-4 text-[11px] text-muted-foreground">
-                  <Link href="#" className="hover:text-foreground transition-colors">Privacy</Link>
-                  <Link href="#" className="hover:text-foreground transition-colors">Terms</Link>
-                  <Link href="#" className="hover:text-foreground transition-colors">Cookies</Link>
-                  <Link href="/admin" className="hover:text-foreground transition-colors">Admin</Link>
+                  <Link href="/login" className="hover:text-foreground transition-colors">Sign In</Link>
+                  <Link href="/admin/login" className="hover:text-foreground transition-colors">Admin</Link>
                 </div>
               </div>
             </div>
