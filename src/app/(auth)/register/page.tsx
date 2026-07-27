@@ -30,26 +30,38 @@ export default function RegisterPage() {
     setIsLoading(true)
     setError(null)
 
-    const { error: authError } = await supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        data: {
-          first_name: firstName,
-          last_name: lastName,
-          full_name: `${firstName} ${lastName}`,
-        },
-      },
-    })
+    try {
+      const res = await fetch("/api/auth/signup", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email,
+          password,
+          firstName,
+          lastName,
+        }),
+      })
 
-    if (authError) {
-      setError(authError.message)
+      const data = await res.json()
+
+      if (!res.ok) {
+        setError(data.error || "Something went wrong")
+        setIsLoading(false)
+        return
+      }
+
+      if (data.session) {
+        router.push("/")
+        router.refresh()
+        return
+      }
+
+      setSuccess(true)
+    } catch {
+      setError("Network error. Please try again.")
+    } finally {
       setIsLoading(false)
-      return
     }
-
-    setSuccess(true)
-    setIsLoading(false)
   }
 
   const handleGoogleLogin = async () => {

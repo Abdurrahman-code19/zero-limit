@@ -36,7 +36,11 @@ export default function LoginPage() {
     })
 
     if (authError) {
-      setError(authError.message)
+      if (authError.message.includes("Email not confirmed")) {
+        setError("Please check your email and confirm your account before signing in.")
+      } else {
+        setError(authError.message)
+      }
       setIsLoading(false)
       return
     }

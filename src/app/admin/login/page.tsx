@@ -3,9 +3,11 @@
 import { useState } from "react"
 import Link from "next/link"
 import Image from "next/image"
+import { useRouter } from "next/navigation"
 import { Eye, EyeOff, Lock, Mail } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
+import { createClient } from "@/lib/supabase/client"
 
 export default function AdminLoginPage() {
   const [email, setEmail] = useState("")
@@ -13,28 +15,50 @@ export default function AdminLoginPage() {
   const [showPassword, setShowPassword] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState("")
+  const router = useRouter()
+  const supabase = createClient()
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setIsLoading(true)
     setError("")
 
-    // Simulate login — replace with Supabase auth
-    await new Promise((resolve) => setTimeout(resolve, 1500))
+    const { data, error: authError } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    })
 
-    if (email === "zerolimitunlimited@gmail.com" && password === "Zero_Limitv1") {
-      window.location.href = "/admin/dashboard"
-    } else {
-      setError("Invalid email or password")
+    if (authError) {
+      if (authError.message.includes("Email not confirmed")) {
+        setError("Please check your email and confirm your account before signing in.")
+      } else {
+        setError("Invalid email or password")
+      }
       setIsLoading(false)
+      return
     }
+
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("role")
+      .eq("id", data.user.id)
+      .single()
+
+    if (!profile || (profile.role !== "admin" && profile.role !== "super_admin")) {
+      await supabase.auth.signOut()
+      setError("Access denied. Admin account required.")
+      setIsLoading(false)
+      return
+    }
+
+    router.push("/admin/dashboard")
+    router.refresh()
   }
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-muted/30 px-4">
       <div className="w-full max-w-md">
         <div className="bg-background border rounded-xl p-8 shadow-sm">
-          {/* Logo */}
           <div className="flex justify-center mb-8">
             <Link href="/">
               <Image
@@ -68,7 +92,7 @@ export default function AdminLoginPage() {
                 <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <Input
                   type="email"
-                  placeholder="zerolimitunlimited@gmail.com"
+                  placeholder="admin@zerolimit.com"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   className="pl-10"
