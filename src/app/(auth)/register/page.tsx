@@ -3,11 +3,13 @@
 import { useState } from "react"
 import Link from "next/link"
 import Image from "next/image"
+import { useRouter } from "next/navigation"
 import { motion } from "framer-motion"
-import { Eye, EyeOff, Mail, Lock, User, ArrowRight } from "lucide-react"
+import { Eye, EyeOff, Mail, Lock, User, ArrowRight, AlertCircle, CheckCircle } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { useTheme } from "@/components/theme/theme-provider"
+import { createClient } from "@/lib/supabase/client"
 
 export default function RegisterPage() {
   const [showPassword, setShowPassword] = useState(false)
@@ -16,14 +18,80 @@ export default function RegisterPage() {
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [isLoading, setIsLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  const [success, setSuccess] = useState(false)
   const { theme } = useTheme()
   const isDark = theme === "dark"
+  const router = useRouter()
+  const supabase = createClient()
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setIsLoading(true)
-    await new Promise((resolve) => setTimeout(resolve, 1500))
+    setError(null)
+
+    const { error: authError } = await supabase.auth.signUp({
+      email,
+      password,
+      options: {
+        data: {
+          first_name: firstName,
+          last_name: lastName,
+          full_name: `${firstName} ${lastName}`,
+        },
+      },
+    })
+
+    if (authError) {
+      setError(authError.message)
+      setIsLoading(false)
+      return
+    }
+
+    setSuccess(true)
     setIsLoading(false)
+  }
+
+  const handleGoogleLogin = async () => {
+    setIsLoading(true)
+    setError(null)
+
+    const { error: authError } = await supabase.auth.signInWithOAuth({
+      provider: "google",
+      options: {
+        redirectTo: `${window.location.origin}/auth/callback`,
+      },
+    })
+
+    if (authError) {
+      setError(authError.message)
+      setIsLoading(false)
+    }
+  }
+
+  if (success) {
+    return (
+      <div className="min-h-screen flex items-center justify-center px-6">
+        <motion.div
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          className="text-center max-w-md"
+        >
+          <div className="w-16 h-16 mx-auto mb-6 rounded-full bg-green-500/10 flex items-center justify-center">
+            <CheckCircle className="h-8 w-8 text-green-500" />
+          </div>
+          <h1 className="text-2xl font-bold mb-3">Check your email</h1>
+          <p className="text-muted-foreground mb-8">
+            We sent a confirmation link to <strong>{email}</strong>. Click the link to activate your account.
+          </p>
+          <Link href="/login">
+            <Button className="h-12 text-[13px] tracking-widest uppercase">
+              Back to Sign In
+            </Button>
+          </Link>
+        </motion.div>
+      </div>
+    )
   }
 
   return (
@@ -52,7 +120,6 @@ export default function RegisterPage() {
           </motion.div>
         </div>
 
-        {/* Decorative grid */}
         <div className="absolute inset-0 opacity-[0.03]" style={{
           backgroundImage: `linear-gradient(${isDark ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.1)"} 1px, transparent 1px), linear-gradient(90deg, ${isDark ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.1)"} 1px, transparent 1px)`,
           backgroundSize: "60px 60px"
@@ -82,6 +149,13 @@ export default function RegisterPage() {
           <p className="text-muted-foreground mb-8">
             Start your journey with Zero Limit
           </p>
+
+          {error && (
+            <div className="mb-6 p-4 rounded-lg bg-red-500/10 border border-red-500/20 flex items-start gap-3">
+              <AlertCircle className="h-5 w-5 text-red-500 shrink-0 mt-0.5" />
+              <p className="text-sm text-red-500">{error}</p>
+            </div>
+          )}
 
           <form onSubmit={handleSubmit} className="space-y-5">
             <div className="grid grid-cols-2 gap-4">
@@ -201,7 +275,13 @@ export default function RegisterPage() {
             </div>
           </div>
 
-          <Button variant="outline" className="w-full h-12" type="button">
+          <Button
+            variant="outline"
+            className="w-full h-12"
+            type="button"
+            onClick={handleGoogleLogin}
+            disabled={isLoading}
+          >
             <svg className="h-5 w-5 mr-3" viewBox="0 0 24 24">
               <path
                 d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"

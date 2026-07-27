@@ -3,25 +3,63 @@
 import { useState } from "react"
 import Link from "next/link"
 import Image from "next/image"
+import { useRouter, useSearchParams } from "next/navigation"
 import { motion } from "framer-motion"
-import { Eye, EyeOff, Mail, Lock, ArrowRight } from "lucide-react"
+import { Eye, EyeOff, Mail, Lock, ArrowRight, AlertCircle } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { useTheme } from "@/components/theme/theme-provider"
+import { createClient } from "@/lib/supabase/client"
 
 export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false)
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [isLoading, setIsLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  const [message, setMessage] = useState<string | null>(null)
   const { theme } = useTheme()
   const isDark = theme === "dark"
+  const router = useRouter()
+  const searchParams = useSearchParams()
+  const redirect = searchParams.get("redirect") || "/"
+  const supabase = createClient()
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setIsLoading(true)
-    await new Promise((resolve) => setTimeout(resolve, 1500))
-    setIsLoading(false)
+    setError(null)
+
+    const { error: authError } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    })
+
+    if (authError) {
+      setError(authError.message)
+      setIsLoading(false)
+      return
+    }
+
+    router.push(redirect)
+    router.refresh()
+  }
+
+  const handleGoogleLogin = async () => {
+    setIsLoading(true)
+    setError(null)
+
+    const { error: authError } = await supabase.auth.signInWithOAuth({
+      provider: "google",
+      options: {
+        redirectTo: `${window.location.origin}/auth/callback`,
+      },
+    })
+
+    if (authError) {
+      setError(authError.message)
+      setIsLoading(false)
+    }
   }
 
   return (
@@ -49,6 +87,19 @@ export default function LoginPage() {
           <p className="text-muted-foreground mb-8">
             Sign in to your account to continue
           </p>
+
+          {error && (
+            <div className="mb-6 p-4 rounded-lg bg-red-500/10 border border-red-500/20 flex items-start gap-3">
+              <AlertCircle className="h-5 w-5 text-red-500 shrink-0 mt-0.5" />
+              <p className="text-sm text-red-500">{error}</p>
+            </div>
+          )}
+
+          {message && (
+            <div className="mb-6 p-4 rounded-lg bg-green-500/10 border border-green-500/20">
+              <p className="text-sm text-green-600 dark:text-green-400">{message}</p>
+            </div>
+          )}
 
           <form onSubmit={handleSubmit} className="space-y-5">
             <div>
@@ -131,7 +182,13 @@ export default function LoginPage() {
             </div>
           </div>
 
-          <Button variant="outline" className="w-full h-12" type="button">
+          <Button
+            variant="outline"
+            className="w-full h-12"
+            type="button"
+            onClick={handleGoogleLogin}
+            disabled={isLoading}
+          >
             <svg className="h-5 w-5 mr-3" viewBox="0 0 24 24">
               <path
                 d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
@@ -188,7 +245,6 @@ export default function LoginPage() {
           </motion.div>
         </div>
 
-        {/* Decorative grid */}
         <div className="absolute inset-0 opacity-[0.03]" style={{
           backgroundImage: `linear-gradient(${isDark ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.1)"} 1px, transparent 1px), linear-gradient(90deg, ${isDark ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.1)"} 1px, transparent 1px)`,
           backgroundSize: "60px 60px"
