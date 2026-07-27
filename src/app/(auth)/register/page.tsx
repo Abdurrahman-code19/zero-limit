@@ -30,7 +30,7 @@ export default function RegisterPage() {
     <div className="min-h-screen flex">
       {/* Left: Visual */}
       <div className="hidden lg:flex flex-1 relative overflow-hidden order-first">
-        <div className={`absolute inset-0 ${isDark ? "bg-zinc-900" : "bg-zinc-100"}`} />
+        <div className={`absolute inset-0 ${isDark ? "bg-zinc-900" : "bg-stone-100"}`} />
         <div className="absolute inset-0 flex items-center justify-center p-12">
           <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
@@ -38,8 +38,8 @@ export default function RegisterPage() {
             transition={{ duration: 0.8, delay: 0.3 }}
             className="text-center max-w-sm"
           >
-            <div className="w-20 h-20 border-2 border-current mx-auto mb-8 flex items-center justify-center">
-              <span className="text-3xl font-bold italic">ZL</span>
+            <div className="w-20 h-20 mx-auto mb-8 flex items-center justify-center overflow-hidden rounded-full bg-foreground/5">
+              <img src="/Favicon.png" alt="Zero Limit" className="w-16 h-16 object-contain" />
             </div>
             <h2 className={`text-4xl font-light mb-4 ${isDark ? "text-zinc-300" : "text-zinc-700"}`}>
               Join the Movement.
