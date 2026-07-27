@@ -22,7 +22,7 @@ export default function AdminLoginPage() {
     // Simulate login — replace with Supabase auth
     await new Promise((resolve) => setTimeout(resolve, 1500))
 
-    if (email === "admin@zerolimit.com" && password === "admin123") {
+    if (email === "zerolimitunlimited@gmail.com" && password === "Zero_Limitv1") {
       window.location.href = "/admin/dashboard"
     } else {
       setError("Invalid email or password")
@@ -68,7 +68,7 @@ export default function AdminLoginPage() {
                 <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <Input
                   type="email"
-                  placeholder="admin@zerolimit.com"
+                  placeholder="zerolimitunlimited@gmail.com"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   className="pl-10"
