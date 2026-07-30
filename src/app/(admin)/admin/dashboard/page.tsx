@@ -1,10 +1,25 @@
 "use client"
 
-import { DollarSign, ShoppingCart, Package, Users, TrendingUp, ArrowUpRight, ArrowDownRight } from "lucide-react"
+import {
+  DollarSign,
+  ShoppingCart,
+  Users,
+  Package,
+  TrendingUp,
+  ArrowUpRight,
+  ArrowDownRight,
+  AlertTriangle,
+  Clock,
+  Eye,
+  CreditCard,
+  ChevronRight,
+} from "lucide-react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
+import { Separator } from "@/components/ui/separator"
 import { formatCurrency, formatDate } from "@/utils"
 
-// Mock data
 const stats = [
   {
     title: "Total Revenue",
@@ -21,17 +36,17 @@ const stats = [
     format: "number" as const,
   },
   {
-    title: "Products",
-    value: 48,
-    change: 4.1,
-    icon: Package,
-    format: "number" as const,
-  },
-  {
-    title: "Customers",
+    title: "Total Customers",
     value: 892,
     change: 15.3,
     icon: Users,
+    format: "number" as const,
+  },
+  {
+    title: "Total Products",
+    value: 48,
+    change: 4.1,
+    icon: Package,
     format: "number" as const,
   },
 ]
@@ -42,21 +57,30 @@ const recentOrders = [
   { id: "ZL-003", customer: "Mike Johnson", total: 85000, status: "processing", date: "2024-01-26" },
   { id: "ZL-004", customer: "Sarah Williams", total: 18000, status: "pending", date: "2024-01-25" },
   { id: "ZL-005", customer: "Chris Brown", total: 45000, status: "delivered", date: "2024-01-24" },
+  { id: "ZL-006", customer: "Emily Davis", total: 72000, status: "processing", date: "2024-01-23" },
 ]
 
-const topProducts = [
-  { name: "Premium Oversized Hoodie", sold: 45, revenue: 2025000 },
-  { name: "Streetwear Cargo Pants", sold: 38, revenue: 1330000 },
-  { name: "Luxury Bomber Jacket", sold: 22, revenue: 1870000 },
-  { name: "Minimalist White Tee", sold: 56, revenue: 1008000 },
+const lowStockProducts = [
+  { name: "Luxury Bomber Jacket", stock: 3, threshold: 10, category: "Jackets" },
+  { name: "Essential Sneakers", stock: 0, threshold: 15, category: "Footwear" },
+  { name: "Premium Oversized Hoodie", stock: 5, threshold: 20, category: "Hoodies" },
+  { name: "Slim Fit Denim Jeans", stock: 2, threshold: 12, category: "Pants" },
 ]
 
-const statusColors: Record<string, string> = {
-  pending: "bg-yellow-100 text-yellow-800",
-  processing: "bg-blue-100 text-blue-800",
-  shipped: "bg-purple-100 text-purple-800",
-  delivered: "bg-green-100 text-green-800",
-  cancelled: "bg-red-100 text-red-800",
+const recentActivity = [
+  { action: "New order placed", detail: "ZL-007 by Alex Turner", time: "5 minutes ago" },
+  { action: "Product updated", detail: "Premium Oversized Hoodie price changed", time: "1 hour ago" },
+  { action: "New user registered", detail: "Taylor Swift created an account", time: "2 hours ago" },
+  { action: "Order shipped", detail: "ZL-004 marked as shipped", time: "3 hours ago" },
+  { action: "Review submitted", detail: "5-star review on Streetwear Cargo Pants", time: "5 hours ago" },
+]
+
+const statusBadge: Record<string, "success" | "secondary" | "warning" | "default" | "destructive"> = {
+  delivered: "success",
+  shipped: "default",
+  processing: "secondary",
+  pending: "warning",
+  cancelled: "destructive",
 }
 
 export default function AdminDashboard() {
@@ -69,7 +93,6 @@ export default function AdminDashboard() {
         </div>
       </div>
 
-      {/* Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         {stats.map((stat) => {
           const Icon = stat.icon
@@ -107,35 +130,92 @@ export default function AdminDashboard() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Recent Orders */}
         <Card className="lg:col-span-2">
           <CardHeader className="flex flex-row items-center justify-between">
-            <CardTitle>Recent Orders</CardTitle>
-            <a href="/admin/orders" className="text-sm text-primary hover:underline">
-              View All
-            </a>
+            <CardTitle>Sales Analytics</CardTitle>
+            <div className="flex items-center gap-2">
+              <Badge variant="secondary">This Month</Badge>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <div className="h-64 flex items-center justify-center bg-muted/50 rounded-lg border border-dashed">
+              <div className="text-center">
+                <TrendingUp className="h-12 w-12 mx-auto text-muted-foreground mb-2" />
+                <p className="text-muted-foreground font-medium">Sales Analytics Chart</p>
+                <p className="text-sm text-muted-foreground/60 mt-1">
+                  Connect a charting library to visualize revenue trends
+                </p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Low Stock Products</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
+              {lowStockProducts.map((product) => (
+                <div key={product.name} className="flex items-center justify-between">
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium truncate">{product.name}</p>
+                    <p className="text-xs text-muted-foreground">{product.category}</p>
+                  </div>
+                  <div className="flex items-center gap-2 ml-4">
+                    <span
+                      className={`text-sm font-bold ${
+                        product.stock === 0 ? "text-destructive" : "text-amber-500"
+                      }`}
+                    >
+                      {product.stock}
+                    </span>
+                    <AlertTriangle
+                      className={`h-4 w-4 ${
+                        product.stock === 0 ? "text-destructive" : "text-amber-500"
+                      }`}
+                    />
+                  </div>
+                </div>
+              ))}
+              <Button variant="outline" size="sm" className="w-full mt-2">
+                View Inventory
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between">
+            <CardTitle>Recent Orders</CardTitle>
+            <Button variant="ghost" size="sm" className="text-muted-foreground">
+              View All
+              <ChevronRight className="h-4 w-4 ml-1" />
+            </Button>
+          </CardHeader>
+          <CardContent className="p-0">
+            <div className="divide-y">
               {recentOrders.map((order) => (
                 <div
                   key={order.id}
-                  className="flex items-center justify-between p-3 rounded-lg hover:bg-muted"
+                  className="flex items-center justify-between p-4 hover:bg-muted/50"
                 >
-                  <div className="flex items-center gap-4">
-                    <div className="w-10 h-10 bg-muted rounded-lg flex items-center justify-center">
-                      <ShoppingCart className="h-5 w-5 text-muted-foreground" />
+                  <div className="flex items-center gap-3">
+                    <div className="w-9 h-9 bg-muted rounded-lg flex items-center justify-center">
+                      <ShoppingCart className="h-4 w-4 text-muted-foreground" />
                     </div>
                     <div>
-                      <p className="font-medium">{order.id}</p>
-                      <p className="text-sm text-muted-foreground">{order.customer}</p>
+                      <p className="text-sm font-medium">{order.id}</p>
+                      <p className="text-xs text-muted-foreground">{order.customer}</p>
                     </div>
                   </div>
-                  <div className="text-right">
-                    <p className="font-medium">{formatCurrency(order.total)}</p>
-                    <span className={`inline-block px-2 py-1 text-xs rounded-full ${statusColors[order.status]}`}>
+                  <div className="flex items-center gap-4">
+                    <span className="text-sm font-medium">{formatCurrency(order.total)}</span>
+                    <Badge variant={statusBadge[order.status]} className="text-xs">
                       {order.status}
-                    </span>
+                    </Badge>
                   </div>
                 </div>
               ))}
@@ -143,49 +223,27 @@ export default function AdminDashboard() {
           </CardContent>
         </Card>
 
-        {/* Top Products */}
         <Card>
-          <CardHeader>
-            <CardTitle>Top Products</CardTitle>
+          <CardHeader className="flex flex-row items-center justify-between">
+            <CardTitle>Latest Activity</CardTitle>
+            <Badge variant="secondary">Live</Badge>
           </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              {topProducts.map((product, index) => (
-                <div key={product.name} className="flex items-center gap-4">
-                  <span className="text-lg font-bold text-muted-foreground">
-                    {index + 1}
-                  </span>
+          <CardContent className="p-0">
+            <div className="divide-y">
+              {recentActivity.map((activity, i) => (
+                <div key={i} className="flex items-start gap-3 p-4 hover:bg-muted/50">
+                  <div className="w-2 h-2 mt-2 rounded-full bg-primary shrink-0" />
                   <div className="flex-1 min-w-0">
-                    <p className="font-medium truncate">{product.name}</p>
-                    <p className="text-sm text-muted-foreground">
-                      {product.sold} sold
-                    </p>
+                    <p className="text-sm font-medium">{activity.action}</p>
+                    <p className="text-xs text-muted-foreground truncate">{activity.detail}</p>
                   </div>
-                  <p className="font-medium">{formatCurrency(product.revenue)}</p>
+                  <span className="text-xs text-muted-foreground shrink-0">{activity.time}</span>
                 </div>
               ))}
             </div>
           </CardContent>
         </Card>
       </div>
-
-      {/* Revenue Chart Placeholder */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Revenue Overview</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="h-64 flex items-center justify-center bg-muted rounded-lg">
-            <div className="text-center">
-              <TrendingUp className="h-12 w-12 mx-auto text-muted-foreground mb-2" />
-              <p className="text-muted-foreground">Revenue chart will be displayed here</p>
-              <p className="text-sm text-muted-foreground">
-                Connect to a charting library to visualize data
-              </p>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
     </div>
   )
 }

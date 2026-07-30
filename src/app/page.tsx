@@ -105,7 +105,7 @@ export default function HomePage() {
                   Discover curated fashion pieces that define contemporary elegance.
                   Each piece crafted for those who refuse to blend in.
                 </p>
-                <Link href="/login">
+                <Link href="/store">
                   <Button className="bg-foreground text-background hover:bg-foreground/80 text-[13px] tracking-widest uppercase rounded-none px-8 py-6 group transition-all duration-300">
                     Explore Collection
                     <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
@@ -233,7 +233,7 @@ export default function HomePage() {
                   <p className="text-[11px] tracking-[0.4em] uppercase text-muted-foreground mb-3">Curated For You</p>
                   <h2 className="text-3xl md:text-4xl font-light">Collections</h2>
                 </div>
-                <Link href="/login" className="text-[12px] tracking-widest uppercase text-muted-foreground hover:text-foreground transition-colors flex items-center gap-2 group">
+                <Link href="/store" className="text-[12px] tracking-widest uppercase text-muted-foreground hover:text-foreground transition-colors flex items-center gap-2 group">
                   View All
                   <ArrowRight className="h-3 w-3 group-hover:translate-x-1 transition-transform" />
                 </Link>
@@ -276,7 +276,7 @@ export default function HomePage() {
                   <p className="text-[11px] tracking-[0.4em] uppercase text-muted-foreground mb-3">Just Dropped</p>
                   <h2 className="text-3xl md:text-4xl font-light">New Arrivals</h2>
                 </div>
-                <Link href="/login" className="text-[12px] tracking-widest uppercase text-muted-foreground hover:text-foreground transition-colors flex items-center gap-2 group">
+                <Link href="/store" className="text-[12px] tracking-widest uppercase text-muted-foreground hover:text-foreground transition-colors flex items-center gap-2 group">
                   View All
                   <ArrowRight className="h-3 w-3 group-hover:translate-x-1 transition-transform" />
                 </Link>

@@ -36,17 +36,15 @@ export async function updateSession(request: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser()
 
-  const protectedRoutes = ['/checkout', '/orders', '/profile', '/wishlist']
-  const adminRoutes = ['/admin']
+  const protectedRoutes = ['/orders', '/profile', '/wishlist']
   const authRoutes = ['/login', '/register', '/forgot-password', '/reset-password']
+  const adminRoute = '/admin'
 
   const isProtectedRoute = protectedRoutes.some(route =>
     request.nextUrl.pathname.startsWith(route)
   )
 
-  const isAdminRoute = adminRoutes.some(route =>
-    request.nextUrl.pathname.startsWith(route)
-  )
+  const isAdminRoute = request.nextUrl.pathname.startsWith(adminRoute)
 
   const isAuthRoute = authRoutes.some(route =>
     request.nextUrl.pathname.startsWith(route)

@@ -30,38 +30,32 @@ export default function RegisterPage() {
     setIsLoading(true)
     setError(null)
 
-    try {
-      const res = await fetch("/api/auth/signup", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          email,
-          password,
-          firstName,
-          lastName,
-        }),
-      })
+    const { data, error: signUpError } = await supabase.auth.signUp({
+      email,
+      password,
+      options: {
+        data: {
+          first_name: firstName,
+          last_name: lastName,
+          full_name: `${firstName} ${lastName}`.trim(),
+        },
+      },
+    })
 
-      const data = await res.json()
-
-      if (!res.ok) {
-        setError(data.error || "Something went wrong")
-        setIsLoading(false)
-        return
-      }
-
-      if (data.session) {
-        router.push("/")
-        router.refresh()
-        return
-      }
-
-      setSuccess(true)
-    } catch {
-      setError("Network error. Please try again.")
-    } finally {
+    if (signUpError) {
+      setError(signUpError.message)
       setIsLoading(false)
+      return
     }
+
+    if (data.session) {
+      router.push("/")
+      router.refresh()
+      return
+    }
+
+    setSuccess(true)
+    setIsLoading(false)
   }
 
   const handleGoogleLogin = async () => {
@@ -108,7 +102,6 @@ export default function RegisterPage() {
 
   return (
     <div className="min-h-screen flex">
-      {/* Left: Visual */}
       <div className="hidden lg:flex flex-1 relative overflow-hidden order-first">
         <div className={`absolute inset-0 ${isDark ? "bg-zinc-900" : "bg-stone-100"}`} />
         <div className="absolute inset-0 flex items-center justify-center p-12">
@@ -138,7 +131,6 @@ export default function RegisterPage() {
         }} />
       </div>
 
-      {/* Right: Form */}
       <div className="flex-1 flex items-center justify-center px-6 py-12">
         <motion.div
           initial={{ opacity: 0, x: 30 }}
