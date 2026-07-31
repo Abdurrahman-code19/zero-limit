@@ -12,11 +12,18 @@ export async function setupAdminUser() {
   const email = "zerolimitunlimited@gmail.com"
   const password = "Zero_Limitv1"
 
-  const { data: existingUser } = await supabaseAdmin.auth.admin.getUserByEmail(email)
+  const { data: listData, error: listError } = await supabaseAdmin.auth.admin.listUsers({
+    page: 1,
+    perPage: 1000,
+  })
 
-  if (existingUser?.user) {
+  if (listError) return { error: listError.message }
+
+  const existingUser = listData.users.find((user) => user.email === email)
+
+  if (existingUser) {
     const { error: updateError } = await supabaseAdmin.auth.admin.updateUserById(
-      existingUser.user.id,
+      existingUser.id,
       { password, email_confirm: true }
     )
 
@@ -24,7 +31,7 @@ export async function setupAdminUser() {
 
     await supabaseAdmin
       .from("profiles")
-      .upsert({ id: existingUser.user.id, email, role: "super_admin", first_name: "Admin", last_name: "User" })
+      .upsert({ id: existingUser.id, email, role: "super_admin", first_name: "Admin", last_name: "User" })
 
     return { success: true, message: "Admin user updated" }
   }
