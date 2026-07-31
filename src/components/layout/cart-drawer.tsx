@@ -1,6 +1,5 @@
 "use client"
 
-import Image from "next/image"
 import Link from "next/link"
 import { Minus, Plus, Trash2, X, ShoppingBag } from "lucide-react"
 import { Button } from "@/components/ui/button"
@@ -58,16 +57,11 @@ export function CartDrawer({ open, onClose }: CartDrawerProps) {
                 <p className="text-sm text-muted-foreground mt-1">
                   Add items to get started
                 </p>
-                <Button
-                  variant="outline"
-                  className="mt-4"
-                  onClick={() => {
-                    onClose()
-                    window.location.href = "/shop"
-                  }}
-                >
-                  Browse Shop
-                </Button>
+                <Link href="/shop" onClick={onClose}>
+                  <Button variant="outline" className="mt-4">
+                    Browse Shop
+                  </Button>
+                </Link>
               </div>
             ) : (
               <div className="space-y-4">
@@ -78,11 +72,10 @@ export function CartDrawer({ open, onClose }: CartDrawerProps) {
                   >
                     <div className="relative w-20 h-24 bg-muted rounded-md overflow-hidden shrink-0">
                       {item.product.images[0] ? (
-                        <Image
+                        <img
                           src={item.product.images[0]}
                           alt={item.product.name}
-                          fill
-                          className="object-cover"
+                          className="absolute inset-0 w-full h-full object-cover"
                         />
                       ) : (
                         <div className="w-full h-full flex items-center justify-center text-muted-foreground text-xs">

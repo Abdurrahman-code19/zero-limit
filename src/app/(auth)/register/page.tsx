@@ -49,7 +49,7 @@ export default function RegisterPage() {
     }
 
     if (data.session) {
-      router.push("/")
+      router.push("/profile")
       router.refresh()
       return
     }
@@ -65,7 +65,10 @@ export default function RegisterPage() {
     const { error: authError } = await supabase.auth.signInWithOAuth({
       provider: "google",
       options: {
-        redirectTo: `${window.location.origin}/auth/callback`,
+        redirectTo:
+          typeof window !== "undefined"
+            ? `${window.location.origin}/auth/callback`
+            : undefined,
       },
     })
 
@@ -112,7 +115,7 @@ export default function RegisterPage() {
             className="text-center max-w-sm"
           >
             <div className="w-20 h-20 mx-auto mb-8 flex items-center justify-center overflow-hidden rounded-full bg-foreground/5">
-              <img src="/Favicon.png" alt="Zero Limit" className="w-16 h-16 object-contain" />
+              <img src="/favicon.png" alt="Zero Limit" className="w-16 h-16 object-contain" />
             </div>
             <h2 className={`text-4xl font-light mb-4 ${isDark ? "text-zinc-300" : "text-zinc-700"}`}>
               Join the Movement.

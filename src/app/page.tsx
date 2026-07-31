@@ -14,6 +14,7 @@ import { LandingNav } from "@/components/layout/landing-nav"
 import { BackToTop } from "@/components/layout/back-to-top"
 import { useTheme } from "@/components/theme/theme-provider"
 import { useCartStore } from "@/store/cart"
+import { PRODUCTS } from "@/lib/products"
 
 const HERO_SLIDES = [
   { id: 1, label: "Streetwear Redefined", light: "bg-zinc-200", dark: "bg-zinc-900" },
@@ -34,19 +35,20 @@ const COLLECTIONS = [
   { name: "Limited Edition", slug: "limited-edition", desc: "Exclusive drops, once gone forever" },
 ]
 
-const NEW_ARRIVALS = [
-  { id: 1, name: "Minimalist Tailored Blazer", price: 289, tag: "NEW" },
-  { id: 2, name: "Urban Classic Sneakers", price: 165, tag: "HOT" },
-  { id: 3, name: "Signature Crossbody Bag", price: 195, tag: "NEW" },
-  { id: 4, name: "Merino Wool Knit Sweater", price: 145, tag: "" },
-  { id: 5, name: "Cargo Utility Jacket", price: 225, tag: "NEW" },
-  { id: 6, name: "Slim Fit Denim", price: 120, tag: "" },
-  { id: 7, name: "Oversized Graphic Tee", price: 65, tag: "HOT" },
-  { id: 8, name: "Leather Chelsea Boots", price: 245, tag: "NEW" },
-]
+const NEW_ARRIVALS = PRODUCTS.map((p, i) => ({
+  id: p.id,
+  slug: p.slug,
+  name: p.name,
+  price: p.price,
+  image: p.images[0],
+  tag: p.is_featured && i < 3 ? "HOT" : p.is_featured ? "" : "NEW",
+}))
 
 export default function HomePage() {
-  const [splashDone, setSplashDone] = useState(false)
+  const [splashDone, setSplashDone] = useState(() => {
+    if (typeof window === "undefined") return false
+    return window.sessionStorage.getItem("zl-splash-seen") === "1"
+  })
   const [currentSlide, setCurrentSlide] = useState(0)
   const [isDragging, setIsDragging] = useState(false)
   const dragStartX = useRef(0)
@@ -54,7 +56,12 @@ export default function HomePage() {
   const isDark = theme === "dark"
   const itemCount = useCartStore((s) => s.getItemCount())
 
-  const handleSplashComplete = useCallback(() => setSplashDone(true), [])
+  const handleSplashComplete = useCallback(() => {
+    if (typeof window !== "undefined") {
+      window.sessionStorage.setItem("zl-splash-seen", "1")
+    }
+    setSplashDone(true)
+  }, [])
 
   useEffect(() => {
     if (!splashDone) return
@@ -290,10 +297,14 @@ export default function HomePage() {
                     viewport={{ once: true }}
                     transition={{ duration: 0.5, delay: i * 0.08 }}
                   >
-                    <Link href={`/product/${item.id}`}>
+                    <Link href={`/product/${item.slug}`}>
                       <div className="group cursor-pointer">
                         <div className="relative aspect-[3/4] bg-muted overflow-hidden mb-4">
-                          <div className="absolute inset-0 bg-muted group-hover:scale-105 transition-transform duration-700 ease-out" />
+                          <img
+                            src={item.image}
+                            alt={item.name}
+                            className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
+                          />
                           {item.tag && (
                             <span className="absolute top-3 left-3 z-10 text-[10px] tracking-wider uppercase bg-foreground text-background px-2 py-1">
                               {item.tag}

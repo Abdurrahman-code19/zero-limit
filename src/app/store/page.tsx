@@ -9,6 +9,8 @@ import {
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
+import { PRODUCTS } from "@/lib/products"
+import type { Product } from "@/types"
 
 const CATEGORIES = [
   { name: "New Arrivals", href: "/shop?category=new-arrivals", emoji: "👕" },
@@ -24,20 +26,6 @@ const FEATURED_COLLECTIONS = [
   { name: "Luxury", desc: "Refined elegance", color: "bg-stone-800" },
   { name: "Limited Edition", desc: "Once gone forever", color: "bg-neutral-800" },
 ]
-
-const PRODUCTS = Array.from({ length: 8 }, (_, i) => ({
-  id: i + 1,
-  name: [
-    "Minimalist Tailored Blazer", "Urban Classic Sneakers", 
-    "Signature Crossbody Bag", "Merino Wool Knit Sweater",
-    "Cargo Utility Jacket", "Slim Fit Denim",
-    "Oversized Graphic Tee", "Leather Chelsea Boots"
-  ][i],
-  price: [289, 165, 195, 145, 225, 120, 65, 245][i],
-  rating: 4.5,
-  colors: ["#000", "#fff", "#c0392b", "#2c3e50"].slice(0, (i % 3) + 2),
-  tag: ["NEW", "HOT", "NEW", "", "NEW", "", "HOT", "NEW"][i],
-}))
 
 const QUICK_ACTIONS = [
   { icon: Truck, label: "Track My Order", href: "/orders" },
@@ -314,7 +302,8 @@ export default function StorePage() {
   )
 }
 
-function ProductCard({ item, index }: { item: { id: number; name: string; price: number; rating: number; colors: string[]; tag: string }; index: number }) {
+function ProductCard({ item, index }: { item: Product; index: number }) {
+  const tag = item.is_featured ? "HOT" : ""
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -322,12 +311,17 @@ function ProductCard({ item, index }: { item: { id: number; name: string; price:
       viewport={{ once: true }}
       transition={{ duration: 0.5, delay: index * 0.08 }}
     >
-      <Link href={`/shop`} className="group block">
+      <Link href={`/product/${item.slug}`} className="group block">
         <div className="relative aspect-[3/4] bg-muted overflow-hidden mb-3">
+          <img
+            src={item.images[0]}
+            alt={item.name}
+            className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
+          />
           <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity z-10" />
-          {item.tag && (
+          {tag && (
             <Badge className="absolute top-3 left-3 z-20 bg-foreground text-background text-[9px] tracking-wider uppercase rounded-none">
-              {item.tag}
+              {tag}
             </Badge>
           )}
           <div className="absolute top-3 right-3 z-20 opacity-0 group-hover:opacity-100 transition-opacity">
@@ -339,9 +333,9 @@ function ProductCard({ item, index }: { item: { id: number; name: string; price:
         <div className="space-y-1">
           <div className="flex items-center gap-0.5">
             {Array.from({ length: 5 }).map((_, i) => (
-              <Star key={i} className={`h-3 w-3 ${i < Math.floor(item.rating) ? "text-yellow-500 fill-yellow-500" : "text-muted-foreground"}`} />
+              <Star key={i} className={`h-3 w-3 ${i < 4 ? "text-yellow-500 fill-yellow-500" : "text-muted-foreground"}`} />
             ))}
-            <span className="text-xs text-muted-foreground ml-1">{item.rating}</span>
+            <span className="text-xs text-muted-foreground ml-1">4.8</span>
           </div>
           <h4 className="text-sm font-medium group-hover:text-muted-foreground transition-colors">{item.name}</h4>
           <p className="text-sm font-semibold">${item.price}</p>

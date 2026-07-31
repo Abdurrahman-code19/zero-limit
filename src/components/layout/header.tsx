@@ -3,19 +3,65 @@
 import { useState, useEffect } from "react"
 import Link from "next/link"
 import Image from "next/image"
-import { Menu, X, ShoppingBag, Heart, Search, User } from "lucide-react"
+import { useRouter } from "next/navigation"
+import { Menu, X, ShoppingBag, Heart, Search, User, LogOut } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { useCartStore } from "@/store/cart"
 import { ThemeToggle } from "@/components/theme/theme-toggle"
 import { CartDrawer } from "@/components/layout/cart-drawer"
 import { SearchOverlay } from "@/components/layout/search-overlay"
+import { createClient } from "@/lib/supabase/client"
 
 export function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [isCartOpen, setIsCartOpen] = useState(false)
   const [isSearchOpen, setIsSearchOpen] = useState(false)
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false)
+  const [user, setUser] = useState<{ name: string; email: string } | null>(null)
   const itemCount = useCartStore((state) => state.getItemCount())
+  const router = useRouter()
+
+  useEffect(() => {
+    const supabase = createClient()
+    let active = true
+
+    supabase.auth.getUser().then(({ data }) => {
+      if (!active) return
+      if (data.user) {
+        const name =
+          (data.user.user_metadata?.full_name as string) ||
+          data.user.email?.split("@")[0] ||
+          "Member"
+        setUser({ name, email: data.user.email ?? "" })
+      }
+    })
+
+    const { data: sub } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (!active) return
+      if (session?.user) {
+        const name =
+          (session.user.user_metadata?.full_name as string) ||
+          session.user.email?.split("@")[0] ||
+          "Member"
+        setUser({ name, email: session.user.email ?? "" })
+      } else {
+        setUser(null)
+      }
+    })
+
+    return () => {
+      active = false
+      sub.subscription.unsubscribe()
+    }
+  }, [])
+
+  const handleSignOut = async () => {
+    const supabase = createClient()
+    await supabase.auth.signOut()
+    setIsUserMenuOpen(false)
+    router.push("/")
+    router.refresh()
+  }
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -76,6 +122,7 @@ export function Header() {
                   variant="ghost"
                   size="icon"
                   onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
+                  title="Account"
                 >
                   <User className="h-5 w-5" />
                 </Button>
@@ -86,29 +133,64 @@ export function Header() {
                       className="fixed inset-0 z-40"
                       onClick={() => setIsUserMenuOpen(false)}
                     />
-                    <div className="absolute right-0 top-full mt-2 w-56 bg-background border rounded-lg shadow-lg z-50 py-1">
-                      <div className="px-4 py-3 border-b">
-                        <p className="text-sm font-medium">Welcome</p>
-                        <p className="text-xs text-muted-foreground">
-                          Sign in for the full experience
-                        </p>
-                      </div>
-                      <Link
-                        href="/login"
-                        className="flex items-center gap-2 px-4 py-2 text-sm hover:bg-muted"
-                        onClick={() => setIsUserMenuOpen(false)}
-                      >
-                        <User className="h-4 w-4" />
-                        Sign In
-                      </Link>
-                      <Link
-                        href="/register"
-                        className="flex items-center gap-2 px-4 py-2 text-sm hover:bg-muted"
-                        onClick={() => setIsUserMenuOpen(false)}
-                      >
-                        <User className="h-4 w-4" />
-                        Create Account
-                      </Link>
+                    <div className="absolute right-0 top-full mt-2 w-60 bg-background border rounded-lg shadow-lg z-50 py-1">
+                      {user ? (
+                        <>
+                          <div className="px-4 py-3 border-b">
+                            <p className="text-sm font-medium truncate">
+                              {user.name}
+                            </p>
+                            <p className="text-xs text-muted-foreground truncate">
+                              {user.email}
+                            </p>
+                          </div>
+                          {[
+                            { label: "My Profile", href: "/profile" },
+                            { label: "My Orders", href: "/orders" },
+                            { label: "Wishlist", href: "/wishlist" },
+                            { label: "Addresses", href: "/addresses" },
+                          ].map((link) => (
+                            <Link
+                              key={link.href}
+                              href={link.href}
+                              className="block px-4 py-2 text-sm hover:bg-muted"
+                              onClick={() => setIsUserMenuOpen(false)}
+                            >
+                              {link.label}
+                            </Link>
+                          ))}
+                          <button
+                            onClick={handleSignOut}
+                            className="w-full flex items-center gap-2 px-4 py-2 text-sm text-destructive hover:bg-muted border-t mt-1"
+                          >
+                            <LogOut className="h-4 w-4" />
+                            Sign Out
+                          </button>
+                        </>
+                      ) : (
+                        <>
+                          <div className="px-4 py-3 border-b">
+                            <p className="text-sm font-medium">Welcome</p>
+                            <p className="text-xs text-muted-foreground">
+                              Sign in for the full experience
+                            </p>
+                          </div>
+                          <Link
+                            href="/login"
+                            className="block px-4 py-2 text-sm hover:bg-muted"
+                            onClick={() => setIsUserMenuOpen(false)}
+                          >
+                            Sign In
+                          </Link>
+                          <Link
+                            href="/register"
+                            className="block px-4 py-2 text-sm hover:bg-muted"
+                            onClick={() => setIsUserMenuOpen(false)}
+                          >
+                            Create Account
+                          </Link>
+                        </>
+                      )}
                     </div>
                   </>
                 )}
@@ -139,7 +221,7 @@ export function Header() {
                 )}
               </Button>
 
-              <Link href="/login">
+              <Link href={user ? "/profile" : "/login"}>
                 <Button variant="ghost" size="icon">
                   <User className="h-5 w-5" />
                 </Button>

@@ -18,7 +18,7 @@ export const metadata: Metadata = {
   description: "Premium fashion for the bold and confident. No limits, just style.",
   keywords: ["fashion", "streetwear", "luxury", "premium", "clothing"],
   icons: {
-    icon: "/Favicon.png",
+    icon: "/favicon.png",
   },
   openGraph: {
     title: "Zero Limit | Premium Fashion E-commerce",

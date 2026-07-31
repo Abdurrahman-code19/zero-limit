@@ -39,7 +39,7 @@ export function SplashScreen({ onComplete }: { onComplete: () => void }) {
         <div className="splash-monogram">
           <div className="splash-logo-wrapper">
             <img
-              src="/Favicon.png"
+              src="/favicon.png"
               alt="Zero Limit"
               width={120}
               height={120}

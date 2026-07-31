@@ -36,7 +36,7 @@ export async function updateSession(request: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser()
 
-  const protectedRoutes = ['/orders', '/profile', '/wishlist']
+  const protectedRoutes = ['/orders', '/profile', '/wishlist', '/addresses', '/notifications']
   const authRoutes = ['/login', '/register', '/forgot-password', '/reset-password']
   const adminRoute = '/admin'
 
@@ -59,7 +59,7 @@ export async function updateSession(request: NextRequest) {
 
   if (user && isAuthRoute) {
     const url = request.nextUrl.clone()
-    url.pathname = '/'
+    url.pathname = '/profile'
     return NextResponse.redirect(url)
   }
 
