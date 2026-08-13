@@ -262,12 +262,12 @@ export default function StorePage() {
           <p className="text-sm text-muted-foreground mb-8">
             Exclusive drops, early access, and style inspiration.
           </p>
-          <form className="flex gap-3" onSubmit={(e) => e.preventDefault()}>
+          <form className="flex flex-col sm:flex-row gap-3" onSubmit={(e) => e.preventDefault()}>
             <input
               type="email" placeholder="Email Address"
-              className="flex-1 bg-background border px-4 py-3 text-sm focus:outline-none focus:border-foreground transition-colors"
+              className="flex-1 min-w-0 bg-background border px-4 py-3 text-sm focus:outline-none focus:border-foreground transition-colors"
             />
-            <Button type="submit" className="bg-foreground text-background hover:bg-foreground/90 text-xs tracking-widest uppercase rounded-none px-6">
+            <Button type="submit" className="bg-foreground text-background hover:bg-foreground/90 text-xs tracking-widest uppercase rounded-none px-6 shrink-0">
               Subscribe
             </Button>
           </form>
