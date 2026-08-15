@@ -6,25 +6,14 @@ export const NAV_LINKS = [
   { label: 'Home', href: '/' },
 ]
 
-export const COLLECTIONS = [
-  { name: 'Streetwear', slug: 'streetwear', image: '/collections/streetwear.jpg' },
-  { name: 'Luxury', slug: 'luxury', image: '/collections/luxury.jpg' },
-  { name: 'Essentials', slug: 'essentials', image: '/collections/essentials.jpg' },
-  { name: 'New Drop', slug: 'new-drop', image: '/collections/new-drop.jpg' },
-  { name: 'Limited Edition', slug: 'limited-edition', image: '/collections/limited-edition.jpg' },
+export const PRODUCT_CATEGORIES = [
+  { name: 'T-Shirts', slug: 't-shirts', image: '/products/zero-limit-lightning-strike-1.jpeg' },
+  { name: 'Shirts', slug: 'shirts', image: '/products/zero-limit-checkers-shirt-1.jpeg' },
+  { name: 'Caps & Beanies', slug: 'caps', image: '/products/zero-limit-bernie-1.jpeg' },
+  { name: 'Hoodies & Quarter Zips', slug: 'hoodies', image: '/products/zero-limit-quarter-zip-1.jpeg' },
 ]
 
-export const CATEGORIES = [
-  { name: 'Hoodies', slug: 'hoodies' },
-  { name: 'T-Shirts', slug: 't-shirts' },
-  { name: 'Shirts', slug: 'shirts' },
-  { name: 'Cargo Pants', slug: 'cargo-pants' },
-  { name: 'Shorts', slug: 'shorts' },
-  { name: 'Jackets', slug: 'jackets' },
-  { name: 'Accessories', slug: 'accessories' },
-  { name: 'Footwear', slug: 'footwear' },
-  { name: 'Caps', slug: 'caps' },
-]
+export const COLLECTIONS = PRODUCT_CATEGORIES
 
 export const SIZES = ['XS', 'S', 'M', 'L', 'XL', 'XXL']
 

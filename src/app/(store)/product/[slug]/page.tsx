@@ -19,6 +19,7 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Separator } from "@/components/ui/separator"
 import { useCartStore } from "@/store/cart"
+import { useWishlistStore } from "@/store/wishlist"
 import { formatCurrency } from "@/utils"
 import {
   getProductBySlug,
@@ -39,6 +40,8 @@ export default function ProductPage({
   const [quantity, setQuantity] = useState(1)
   const [added, setAdded] = useState(false)
   const addItem = useCartStore((s) => s.addItem)
+  const isWishlisted = useWishlistStore((s) => s.isWishlisted(product?.id ?? ""))
+  const toggleWishlist = useWishlistStore((s) => s.toggle)
 
   if (!product) {
     return (
@@ -231,9 +234,10 @@ export default function ProductPage({
             <Button
               variant="outline"
               className="w-14 h-auto rounded-none"
-              aria-label="Add to wishlist"
+              aria-label={isWishlisted ? "Remove from wishlist" : "Add to wishlist"}
+              onClick={() => toggleWishlist(product.id)}
             >
-              <Heart className="h-4 w-4" />
+              <Heart className={`h-4 w-4 ${isWishlisted ? "fill-red-500 text-red-500" : ""}`} />
             </Button>
           </div>
 

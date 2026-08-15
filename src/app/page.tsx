@@ -14,7 +14,9 @@ import { LandingNav } from "@/components/layout/landing-nav"
 import { BackToTop } from "@/components/layout/back-to-top"
 import { useTheme } from "@/components/theme/theme-provider"
 import { useCartStore } from "@/store/cart"
+import { useWishlistStore } from "@/store/wishlist"
 import { PRODUCTS } from "@/lib/products"
+import { formatCurrency } from "@/utils"
 
 const HERO_SLIDES = [
   { id: 1, label: "Streetwear Redefined", light: "bg-zinc-200", dark: "bg-zinc-900" },
@@ -30,9 +32,24 @@ const FEATURES = [
 ]
 
 const COLLECTIONS = [
-  { name: "Streetwear", slug: "streetwear", desc: "Bold, urban, unapologetic" },
-  { name: "Luxury", slug: "luxury", desc: "Refined elegance for every occasion" },
-  { name: "Limited Edition", slug: "limited-edition", desc: "Exclusive drops, once gone forever" },
+  {
+    name: "T-Shirts",
+    slug: "t-shirts",
+    desc: "Graphic tees & tank tops",
+    image: "/products/zero-limit-lightning-strike-1.jpeg",
+  },
+  {
+    name: "Shirts",
+    slug: "shirts",
+    desc: "Statement checkered fits",
+    image: "/products/zero-limit-checkers-shirt-1.jpeg",
+  },
+  {
+    name: "Caps & Beanies",
+    slug: "caps",
+    desc: "The Zero Limit Bernie",
+    image: "/products/zero-limit-bernie-1.jpeg",
+  },
 ]
 
 const NEW_ARRIVALS = PRODUCTS.map((p, i) => ({
@@ -55,6 +72,23 @@ export default function HomePage() {
   const { theme } = useTheme()
   const isDark = theme === "dark"
   const itemCount = useCartStore((s) => s.getItemCount())
+  const addItem = useCartStore((s) => s.addItem)
+  const toggleWishlist = useWishlistStore((s) => s.toggle)
+
+  const handleQuickAdd = (e: React.MouseEvent, productId: string) => {
+    e.preventDefault()
+    e.stopPropagation()
+    const product = PRODUCTS.find((p) => p.id === productId)
+    if (product && product.sizes.length > 0 && product.colors.length > 0) {
+      addItem(product, 1, product.sizes[0], product.colors[0])
+    }
+  }
+
+  const handleWishlistToggle = (e: React.MouseEvent, productId: string) => {
+    e.preventDefault()
+    e.stopPropagation()
+    toggleWishlist(productId)
+  }
 
   const handleSplashComplete = useCallback(() => {
     if (typeof window !== "undefined") {
@@ -254,10 +288,14 @@ export default function HomePage() {
                     viewport={{ once: true }}
                     transition={{ duration: 0.6, delay: i * 0.15 }}
                   >
-                    <Link href="/login">
+                    <Link href={`/shop?category=${col.slug}`}>
                       <div className="group relative aspect-[3/4] overflow-hidden bg-muted cursor-pointer">
+                        <img
+                          src={col.image}
+                          alt={col.name}
+                          className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 ease-out"
+                        />
                         <div className={`absolute inset-0 bg-gradient-to-t via-black/40 to-transparent z-10 ${isDark ? "from-black" : "from-black/60"}`} />
-                        <div className="absolute inset-0 bg-muted group-hover:scale-110 transition-transform duration-700 ease-out" />
                         <div className="absolute bottom-0 left-0 right-0 p-8 z-20">
                           <p className="text-[10px] tracking-[0.5em] uppercase text-zinc-400 mb-2">Collection {String(i + 1).padStart(2, "0")}</p>
                           <h3 className="text-2xl font-light mb-2 text-white">{col.name}</h3>
@@ -312,16 +350,33 @@ export default function HomePage() {
                           )}
                           <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 dark:group-hover:bg-black/30 transition-colors duration-500 z-10 flex items-center justify-center opacity-0 group-hover:opacity-100">
                             <div className="flex gap-2">
-                              {[Heart, Search, ShoppingBag].map((Icon, idx) => (
-                                <button key={idx} className="w-10 h-10 bg-background text-foreground flex items-center justify-center hover:bg-background/80 transition-colors" aria-label="Action">
-                                  <Icon className="h-4 w-4" />
-                                </button>
-                              ))}
+                              <button
+                                className="w-10 h-10 bg-background text-foreground flex items-center justify-center hover:bg-background/80 transition-colors"
+                                aria-label="Add to wishlist"
+                                onClick={(e) => handleWishlistToggle(e, item.id)}
+                              >
+                                <Heart className="h-4 w-4" />
+                              </button>
+                              <Link
+                                href="/shop"
+                                className="w-10 h-10 bg-background text-foreground flex items-center justify-center hover:bg-background/80 transition-colors"
+                                aria-label="Search shop"
+                                onClick={(e) => e.stopPropagation()}
+                              >
+                                <Search className="h-4 w-4" />
+                              </Link>
+                              <button
+                                className="w-10 h-10 bg-background text-foreground flex items-center justify-center hover:bg-background/80 transition-colors"
+                                aria-label="Add to cart"
+                                onClick={(e) => handleQuickAdd(e, item.id)}
+                              >
+                                <ShoppingBag className="h-4 w-4" />
+                              </button>
                             </div>
                           </div>
                         </div>
                         <h4 className="text-sm font-medium mb-1 group-hover:text-muted-foreground transition-colors">{item.name}</h4>
-                        <p className="text-sm text-muted-foreground">${item.price}</p>
+                        <p className="text-sm text-muted-foreground">{formatCurrency(item.price)}</p>
                       </div>
                     </Link>
                   </motion.div>

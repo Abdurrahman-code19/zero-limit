@@ -9,6 +9,7 @@ import { Card, CardContent } from "@/components/ui/card"
 import { formatCurrency } from "@/utils"
 import type { Product } from "@/types"
 import { useCartStore } from "@/store/cart"
+import { useWishlistStore } from "@/store/wishlist"
 
 interface ProductCardProps {
   product: Product
@@ -16,6 +17,8 @@ interface ProductCardProps {
 
 export function ProductCard({ product }: ProductCardProps) {
   const addItem = useCartStore((state) => state.addItem)
+  const isWishlisted = useWishlistStore((state) => state.isWishlisted(product.id))
+  const toggleWishlist = useWishlistStore((state) => state.toggle)
   const hasDiscount = product.compare_at_price && product.compare_at_price > product.price
   const discountPercent = hasDiscount
     ? Math.round(((product.compare_at_price! - product.price) / product.compare_at_price!) * 100)
@@ -32,7 +35,7 @@ export function ProductCard({ product }: ProductCardProps) {
   const handleAddToWishlist = (e: React.MouseEvent) => {
     e.preventDefault()
     e.stopPropagation()
-    // TODO: Implement wishlist functionality
+    toggleWishlist(product.id)
   }
 
   return (
@@ -72,8 +75,9 @@ export function ProductCard({ product }: ProductCardProps) {
               variant="secondary"
               className="h-8 w-8"
               onClick={handleAddToWishlist}
+              aria-label={isWishlisted ? "Remove from wishlist" : "Add to wishlist"}
             >
-              <Heart className="h-4 w-4" />
+              <Heart className={`h-4 w-4 ${isWishlisted ? "fill-red-500 text-red-500" : ""}`} />
             </Button>
             <Button
               size="icon"

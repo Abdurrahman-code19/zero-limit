@@ -11,11 +11,12 @@ interface SearchOverlayProps {
 }
 
 const TRENDING_SEARCHES = [
-  "Oversized Hoodie",
-  "Cargo Pants",
-  "Bomber Jacket",
-  "White Tee",
-  "Sneakers",
+  "Bernie",
+  "Checkers Shirt",
+  "Polo",
+  "Quarter Zip",
+  "Tank Top",
+  "Lightning",
 ]
 
 export function SearchOverlay({ open, onClose }: SearchOverlayProps) {
@@ -45,13 +46,13 @@ export function SearchOverlay({ open, onClose }: SearchOverlayProps) {
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault()
     if (query.trim()) {
-      router.push(`/search?q=${encodeURIComponent(query.trim())}`)
+      router.push(`/shop?q=${encodeURIComponent(query.trim())}`)
       onClose()
     }
   }
 
   const handleTrendingClick = (term: string) => {
-    router.push(`/search?q=${encodeURIComponent(term)}`)
+    router.push(`/shop?q=${encodeURIComponent(term)}`)
     onClose()
   }
 

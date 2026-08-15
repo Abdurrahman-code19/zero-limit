@@ -10,21 +10,36 @@ import {
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { PRODUCTS } from "@/lib/products"
+import { formatCurrency } from "@/utils"
+import { useWishlistStore } from "@/store/wishlist"
 import type { Product } from "@/types"
 
 const CATEGORIES = [
-  { name: "New Arrivals", href: "/shop?category=new-arrivals", emoji: "👕" },
-  { name: "Streetwear", href: "/shop?category=streetwear", emoji: "🧥" },
-  { name: "Luxury", href: "/shop?category=luxury", emoji: "💎" },
-  { name: "Cargo Pants", href: "/shop?category=cargo-pants", emoji: "👖" },
-  { name: "Footwear", href: "/shop?category=footwear", emoji: "👟" },
-  { name: "Accessories", href: "/shop?category=accessories", emoji: "🧢" },
+  { name: "T-Shirts", href: "/shop?category=t-shirts", emoji: "👕" },
+  { name: "Shirts", href: "/shop?category=shirts", emoji: "👔" },
+  { name: "Caps & Beanies", href: "/shop?category=caps", emoji: "🧢" },
+  { name: "Hoodies & Quarter Zips", href: "/shop?category=hoodies", emoji: "🧥" },
 ]
 
 const FEATURED_COLLECTIONS = [
-  { name: "Streetwear", desc: "Bold, urban, unapologetic", color: "bg-zinc-800" },
-  { name: "Luxury", desc: "Refined elegance", color: "bg-stone-800" },
-  { name: "Limited Edition", desc: "Once gone forever", color: "bg-neutral-800" },
+  {
+    name: "Checkers Shirt",
+    slug: "zero-limit-checkers-shirt",
+    desc: "Statement woven",
+    image: "/products/zero-limit-checkers-shirt-1.jpeg",
+  },
+  {
+    name: "Lightning Strike",
+    slug: "zero-limit-lightning-strike",
+    desc: "Bold graphic",
+    image: "/products/zero-limit-lightning-strike-1.jpeg",
+  },
+  {
+    name: "Quarter Zip",
+    slug: "zero-limit-quarter-zip",
+    desc: "Layered staple",
+    image: "/products/zero-limit-quarter-zip-1.jpeg",
+  },
 ]
 
 const QUICK_ACTIONS = [
@@ -113,9 +128,14 @@ export default function StorePage() {
           </div>
           <div className="grid md:grid-cols-3 gap-4">
             {FEATURED_COLLECTIONS.map((col, i) => (
-              <Link key={col.name} href="/shop" className="group block">
+              <Link key={col.name} href={`/product/${col.slug}`} className="group block">
                 <div className="relative aspect-[16/9] overflow-hidden bg-muted">
-                  <div className={`absolute inset-0 ${col.color} opacity-50`} />
+                  <img
+                    src={col.image}
+                    alt={col.name}
+                    className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
                   <div className="absolute inset-0 flex items-center justify-center">
                     <div className="text-center">
                       <p className="text-white/60 text-xs tracking-widest uppercase mb-2">Collection 0{i + 1}</p>
@@ -163,7 +183,7 @@ export default function StorePage() {
             </Link>
           </div>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            {PRODUCTS.slice(2, 6).map((item, i) => (
+            {PRODUCTS.filter((p) => p.is_featured).slice(0, 4).map((item, i) => (
               <ProductCard key={item.id} item={item} index={i} />
             ))}
           </div>
@@ -183,7 +203,7 @@ export default function StorePage() {
             </Link>
           </div>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            {PRODUCTS.slice(4, 8).map((item, i) => (
+            {PRODUCTS.filter((p) => !p.is_featured).slice(0, 4).map((item, i) => (
               <ProductCard key={item.id} item={item} index={i} />
             ))}
           </div>
@@ -204,34 +224,29 @@ export default function StorePage() {
           </div>
           <div className="bg-muted/30 p-8 md:p-12 rounded-lg">
             <div className="grid md:grid-cols-3 gap-8 items-center">
-              <div className="text-center space-y-3">
-                <div className="aspect-square bg-muted rounded-lg max-w-[200px] mx-auto flex items-center justify-center">
-                  <p className="text-muted-foreground text-sm">Hoodie</p>
+              {PRODUCTS.slice(0, 3).map((item, i) => (
+                <div key={item.id} className="text-center space-y-3">
+                  <Link href={`/product/${item.slug}`} className="block">
+                    <div className="aspect-square bg-muted rounded-lg max-w-[200px] mx-auto overflow-hidden">
+                      <img
+                        src={item.images[0]}
+                        alt={item.name}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                      />
+                    </div>
+                  </Link>
+                  {i > 0 && <p className="text-3xl text-muted-foreground -mb-2">+</p>}
+                  <p className="font-medium mt-3">{item.name}</p>
+                  <p className="text-sm text-muted-foreground">{formatCurrency(item.price)}</p>
                 </div>
-                <p className="font-medium">Premium Hoodie</p>
-                <p className="text-sm text-muted-foreground">$129</p>
-              </div>
-              <div className="text-center">
-                <p className="text-3xl text-muted-foreground mb-4">+</p>
-                <div className="aspect-square bg-muted rounded-lg max-w-[200px] mx-auto flex items-center justify-center">
-                  <p className="text-muted-foreground text-sm">Cargo Pants</p>
-                </div>
-                <p className="font-medium mt-3">Cargo Pants</p>
-                <p className="text-sm text-muted-foreground">$95</p>
-              </div>
-              <div className="text-center">
-                <p className="text-3xl text-muted-foreground mb-4">+</p>
-                <div className="aspect-square bg-muted rounded-lg max-w-[200px] mx-auto flex items-center justify-center">
-                  <p className="text-muted-foreground text-sm">Sneakers</p>
-                </div>
-                <p className="font-medium mt-3">White Sneakers</p>
-                <p className="text-sm text-muted-foreground">$165</p>
-              </div>
+              ))}
             </div>
             <div className="text-center mt-8">
-              <Button className="bg-foreground text-background hover:bg-foreground/90 text-xs tracking-widest uppercase rounded-none px-8 py-6">
-                Get This Look <ArrowRight className="ml-2 h-4 w-4" />
-              </Button>
+              <Link href="/shop">
+                <Button className="bg-foreground text-background hover:bg-foreground/90 text-xs tracking-widest uppercase rounded-none px-8 py-6">
+                  Shop The Look <ArrowRight className="ml-2 h-4 w-4" />
+                </Button>
+              </Link>
             </div>
           </div>
         </div>
@@ -304,6 +319,9 @@ export default function StorePage() {
 
 function ProductCard({ item, index }: { item: Product; index: number }) {
   const tag = item.is_featured ? "HOT" : ""
+  const isWishlisted = useWishlistStore((state) => state.isWishlisted(item.id))
+  const toggleWishlist = useWishlistStore((state) => state.toggle)
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -325,8 +343,16 @@ function ProductCard({ item, index }: { item: Product; index: number }) {
             </Badge>
           )}
           <div className="absolute top-3 right-3 z-20 opacity-0 group-hover:opacity-100 transition-opacity">
-            <button className="w-8 h-8 bg-background flex items-center justify-center hover:bg-muted transition-colors">
-              <Heart className="h-4 w-4" />
+            <button
+              className="w-8 h-8 bg-background flex items-center justify-center hover:bg-muted transition-colors"
+              onClick={(e) => {
+                e.preventDefault()
+                e.stopPropagation()
+                toggleWishlist(item.id)
+              }}
+              aria-label={isWishlisted ? "Remove from wishlist" : "Add to wishlist"}
+            >
+              <Heart className={`h-4 w-4 ${isWishlisted ? "fill-red-500 text-red-500" : ""}`} />
             </button>
           </div>
         </div>
@@ -338,7 +364,7 @@ function ProductCard({ item, index }: { item: Product; index: number }) {
             <span className="text-xs text-muted-foreground ml-1">4.8</span>
           </div>
           <h4 className="text-sm font-medium group-hover:text-muted-foreground transition-colors">{item.name}</h4>
-          <p className="text-sm font-semibold">${item.price}</p>
+          <p className="text-sm font-semibold">{formatCurrency(item.price)}</p>
           <div className="flex gap-1">
             {item.colors.map((color, i) => (
               <span key={i} className="w-3.5 h-3.5 rounded-full border" style={{ backgroundColor: color }} />
