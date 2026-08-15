@@ -1,6 +1,6 @@
 "use client"
 
-import { use, useMemo, useState } from "react"
+import { use, useEffect, useMemo, useState } from "react"
 import Link from "next/link"
 import { motion } from "framer-motion"
 import {
@@ -42,6 +42,7 @@ export default function ProductPage({
   const addItem = useCartStore((s) => s.addItem)
   const isWishlisted = useWishlistStore((s) => s.isWishlisted(product?.id ?? ""))
   const toggleWishlist = useWishlistStore((s) => s.toggle)
+  const [mounted, setMounted] = useState(false)
 
   if (!product) {
     return (
@@ -58,6 +59,10 @@ export default function ProductPage({
       </div>
     )
   }
+
+  useEffect(() => {
+    setMounted(true)
+  }, [])
 
   const tags = getProductTags(product)
   const related = getRelatedProducts(product)
@@ -234,10 +239,10 @@ export default function ProductPage({
             <Button
               variant="outline"
               className="w-14 h-auto rounded-none"
-              aria-label={isWishlisted ? "Remove from wishlist" : "Add to wishlist"}
+              aria-label={mounted && isWishlisted ? "Remove from wishlist" : "Add to wishlist"}
               onClick={() => toggleWishlist(product.id)}
             >
-              <Heart className={`h-4 w-4 ${isWishlisted ? "fill-red-500 text-red-500" : ""}`} />
+              <Heart className={`h-4 w-4 ${mounted && isWishlisted ? "fill-red-500 text-red-500" : ""}`} />
             </Button>
           </div>
 

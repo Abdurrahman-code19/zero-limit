@@ -18,8 +18,13 @@ export function Header() {
   const [isSearchOpen, setIsSearchOpen] = useState(false)
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false)
   const [user, setUser] = useState<{ name: string; email: string } | null>(null)
+  const [mounted, setMounted] = useState(false)
   const itemCount = useCartStore((state) => state.getItemCount())
   const router = useRouter()
+
+  useEffect(() => {
+    setMounted(true)
+  }, [])
 
   useEffect(() => {
     const supabase = createClient()
@@ -110,7 +115,7 @@ export function Header() {
                 onClick={() => setIsCartOpen(true)}
               >
                 <ShoppingBag className="h-5 w-5" />
-                {itemCount > 0 && (
+                {mounted && itemCount > 0 && (
                   <span className="absolute -top-1 -right-1 h-4 w-4 rounded-full bg-primary text-[10px] font-semibold text-primary-foreground flex items-center justify-center">
                     {itemCount > 99 ? "99+" : itemCount}
                   </span>
@@ -214,7 +219,7 @@ export function Header() {
                 onClick={() => setIsCartOpen(true)}
               >
                 <ShoppingBag className="h-5 w-5" />
-                {itemCount > 0 && (
+                {mounted && itemCount > 0 && (
                   <span className="absolute -top-1 -right-1 h-4 w-4 rounded-full bg-primary text-[10px] font-semibold text-primary-foreground flex items-center justify-center">
                     {itemCount > 99 ? "99+" : itemCount}
                   </span>

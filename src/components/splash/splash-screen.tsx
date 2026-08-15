@@ -25,10 +25,10 @@ export function SplashScreen({ onComplete }: { onComplete: () => void }) {
       <div className="splash-particles">
         {Array.from({ length: 40 }).map((_, i) => (
           <span key={i} className="splash-particle" style={{
-            left: `${Math.random() * 100}%`,
-            top: `${Math.random() * 100}%`,
-            animationDelay: `${Math.random() * 4}s`,
-            animationDuration: `${3 + Math.random() * 4}s`,
+            left: `${(i * 73) % 100}%`,
+            top: `${(i * 47) % 100}%`,
+            animationDelay: `${((i * 13) % 40) / 10}s`,
+            animationDuration: `${3 + ((i * 17) % 40) / 10}s`,
           }} />
         ))}
       </div>

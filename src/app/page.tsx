@@ -62,10 +62,7 @@ const NEW_ARRIVALS = PRODUCTS.map((p, i) => ({
 }))
 
 export default function HomePage() {
-  const [splashDone, setSplashDone] = useState(() => {
-    if (typeof window === "undefined") return false
-    return window.sessionStorage.getItem("zl-splash-seen") === "1"
-  })
+  const [splashDone, setSplashDone] = useState(false)
   const [currentSlide, setCurrentSlide] = useState(0)
   const [isDragging, setIsDragging] = useState(false)
   const dragStartX = useRef(0)
@@ -95,6 +92,12 @@ export default function HomePage() {
       window.sessionStorage.setItem("zl-splash-seen", "1")
     }
     setSplashDone(true)
+  }, [])
+
+  useEffect(() => {
+    if (typeof window !== "undefined" && window.sessionStorage.getItem("zl-splash-seen") === "1") {
+      setSplashDone(true)
+    }
   }, [])
 
   useEffect(() => {

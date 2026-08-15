@@ -1,5 +1,6 @@
 "use client"
 
+import { useEffect, useState } from "react"
 import Link from "next/link"
 import { motion } from "framer-motion"
 import { Minus, Plus, Trash2, ShoppingBag, ArrowRight } from "lucide-react"
@@ -11,10 +12,19 @@ import { formatCurrency } from "@/utils"
 export default function CartPage() {
   const { items, removeItem, updateQuantity, clearCart, getTotal, getItemCount } =
     useCartStore()
+  const [mounted, setMounted] = useState(false)
+
+  useEffect(() => {
+    setMounted(true)
+  }, [])
 
   const subtotal = getTotal()
   const shipping = subtotal >= 50000 || subtotal === 0 ? 0 : 2500
   const total = subtotal + shipping
+
+  if (!mounted) {
+    return <div className="min-h-[60vh]" />
+  }
 
   if (items.length === 0) {
     return (

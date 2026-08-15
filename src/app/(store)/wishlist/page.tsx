@@ -1,5 +1,6 @@
 "use client"
 
+import { useEffect, useState } from "react"
 import Link from "next/link"
 import { Heart, ShoppingBag, Trash2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
@@ -12,6 +13,15 @@ export default function WishlistPage() {
   const ids = useWishlistStore((state) => state.ids)
   const remove = useWishlistStore((state) => state.remove)
   const addItem = useCartStore((state) => state.addItem)
+  const [mounted, setMounted] = useState(false)
+
+  useEffect(() => {
+    setMounted(true)
+  }, [])
+
+  if (!mounted) {
+    return <div className="min-h-[60vh]" />
+  }
 
   const items = ids
     .map((id) => PRODUCTS.find((p) => p.id === id))

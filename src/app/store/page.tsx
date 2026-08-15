@@ -1,7 +1,7 @@
 "use client"
 
 import Link from "next/link"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { motion } from "framer-motion"
 import { 
   ArrowRight, Heart, ShoppingBag, Star, Eye, 
@@ -321,6 +321,11 @@ function ProductCard({ item, index }: { item: Product; index: number }) {
   const tag = item.is_featured ? "HOT" : ""
   const isWishlisted = useWishlistStore((state) => state.isWishlisted(item.id))
   const toggleWishlist = useWishlistStore((state) => state.toggle)
+  const [mounted, setMounted] = useState(false)
+
+  useEffect(() => {
+    setMounted(true)
+  }, [])
 
   return (
     <motion.div
@@ -350,9 +355,9 @@ function ProductCard({ item, index }: { item: Product; index: number }) {
                 e.stopPropagation()
                 toggleWishlist(item.id)
               }}
-              aria-label={isWishlisted ? "Remove from wishlist" : "Add to wishlist"}
+              aria-label={mounted && isWishlisted ? "Remove from wishlist" : "Add to wishlist"}
             >
-              <Heart className={`h-4 w-4 ${isWishlisted ? "fill-red-500 text-red-500" : ""}`} />
+              <Heart className={`h-4 w-4 ${mounted && isWishlisted ? "fill-red-500 text-red-500" : ""}`} />
             </button>
           </div>
         </div>

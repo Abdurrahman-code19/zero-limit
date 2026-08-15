@@ -1,5 +1,6 @@
 "use client"
 
+import { useEffect, useState } from "react"
 import Image from "next/image"
 import Link from "next/link"
 import { Heart, ShoppingBag } from "lucide-react"
@@ -19,10 +20,15 @@ export function ProductCard({ product }: ProductCardProps) {
   const addItem = useCartStore((state) => state.addItem)
   const isWishlisted = useWishlistStore((state) => state.isWishlisted(product.id))
   const toggleWishlist = useWishlistStore((state) => state.toggle)
+  const [mounted, setMounted] = useState(false)
   const hasDiscount = product.compare_at_price && product.compare_at_price > product.price
   const discountPercent = hasDiscount
     ? Math.round(((product.compare_at_price! - product.price) / product.compare_at_price!) * 100)
     : 0
+
+  useEffect(() => {
+    setMounted(true)
+  }, [])
 
   const handleAddToCart = (e: React.MouseEvent) => {
     e.preventDefault()
@@ -75,9 +81,9 @@ export function ProductCard({ product }: ProductCardProps) {
               variant="secondary"
               className="h-8 w-8"
               onClick={handleAddToWishlist}
-              aria-label={isWishlisted ? "Remove from wishlist" : "Add to wishlist"}
+              aria-label={mounted && isWishlisted ? "Remove from wishlist" : "Add to wishlist"}
             >
-              <Heart className={`h-4 w-4 ${isWishlisted ? "fill-red-500 text-red-500" : ""}`} />
+              <Heart className={`h-4 w-4 ${mounted && isWishlisted ? "fill-red-500 text-red-500" : ""}`} />
             </Button>
             <Button
               size="icon"

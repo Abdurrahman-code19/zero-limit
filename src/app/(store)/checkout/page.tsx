@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import Link from "next/link"
 import { motion } from "framer-motion"
 import { ArrowRight, CheckCircle, ShoppingBag, Lock, Truck } from "lucide-react"
@@ -14,6 +14,11 @@ import { PaystackButton } from "@/components/checkout/paystack-button"
 
 export default function CheckoutPage() {
   const { items, getTotal, getItemCount, clearCart } = useCartStore()
+  const [mounted, setMounted] = useState(false)
+
+  useEffect(() => {
+    setMounted(true)
+  }, [])
 
   const [firstName, setFirstName] = useState("")
   const [lastName, setLastName] = useState("")
@@ -48,6 +53,10 @@ export default function CheckoutPage() {
       return
     }
     return true
+  }
+
+  if (!mounted) {
+    return <div className="min-h-[60vh]" />
   }
 
   if (paidReference) {
