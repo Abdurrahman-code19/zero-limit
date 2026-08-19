@@ -14,6 +14,7 @@ import {
   Plus,
   ArrowRight,
   Check,
+  Loader2,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -21,11 +22,8 @@ import { Separator } from "@/components/ui/separator"
 import { useCartStore } from "@/store/cart"
 import { useWishlistStore } from "@/store/wishlist"
 import { formatCurrency } from "@/utils"
-import {
-  getProductBySlug,
-  getRelatedProducts,
-  getProductTags,
-} from "@/lib/products"
+import { useProduct, useRelatedProducts } from "@/hooks/use-product"
+import { getProductTags } from "@/lib/products"
 
 export default function ProductPage({
   params,
@@ -33,7 +31,8 @@ export default function ProductPage({
   params: Promise<{ slug: string }>
 }) {
   const { slug } = use(params)
-  const product = useMemo(() => getProductBySlug(slug), [slug])
+  const { product, loading } = useProduct(slug)
+  const related = useRelatedProducts(product)
 
   const [size, setSize] = useState<string | null>(null)
   const [color, setColor] = useState<string | null>(null)
@@ -43,6 +42,15 @@ export default function ProductPage({
   const isWishlisted = useWishlistStore((s) => s.isWishlisted(product?.id ?? ""))
   const toggleWishlist = useWishlistStore((s) => s.toggle)
   const [mounted, setMounted] = useState(false)
+
+  if (loading) {
+    return (
+      <div className="container mx-auto px-4 py-32 text-center">
+        <Loader2 className="h-8 w-8 animate-spin mx-auto text-muted-foreground" />
+        <p className="text-sm text-muted-foreground mt-4">Loading product...</p>
+      </div>
+    )
+  }
 
   if (!product) {
     return (
@@ -65,7 +73,6 @@ export default function ProductPage({
   }, [])
 
   const tags = getProductTags(product)
-  const related = getRelatedProducts(product)
   const defaultColor = color ?? product.colors[0]
   const defaultSize = size ?? product.sizes[0]
 

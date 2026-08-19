@@ -2,10 +2,10 @@
 
 import Link from "next/link"
 import { motion } from "framer-motion"
-import { ArrowRight } from "lucide-react"
+import { ArrowRight, Loader2 } from "lucide-react"
 import { ProductCard } from "@/components/store/product-card"
 import { PRODUCT_CATEGORIES } from "@/constants"
-import { PRODUCTS } from "@/lib/products"
+import { useProducts } from "@/hooks/use-products"
 
 const CATEGORY_DESCRIPTIONS: Record<string, string> = {
   "t-shirts": "Graphic tees, polos and tank tops — the everyday Zero Limit staples.",
@@ -15,12 +15,22 @@ const CATEGORY_DESCRIPTIONS: Record<string, string> = {
 }
 
 export default function CollectionsPage() {
-  const available = PRODUCTS.filter((p) => p.is_published)
+  const { products: allProducts, loading } = useProducts()
+  const available = allProducts.filter((p) => p.is_published)
 
   const collections = PRODUCT_CATEGORIES.map((cat) => ({
     ...cat,
     products: available.filter((p) => p.category_id === cat.slug),
   })).filter((cat) => cat.products.length > 0)
+
+  if (loading) {
+    return (
+      <div className="container mx-auto px-4 py-32 text-center">
+        <Loader2 className="h-8 w-8 animate-spin mx-auto text-muted-foreground" />
+        <p className="text-sm text-muted-foreground mt-4">Loading collections...</p>
+      </div>
+    )
+  }
 
   return (
     <div className="container mx-auto px-4 py-8">

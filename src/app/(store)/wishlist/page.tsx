@@ -2,11 +2,11 @@
 
 import { useEffect, useState } from "react"
 import Link from "next/link"
-import { Heart, ShoppingBag, Trash2 } from "lucide-react"
+import { Heart, ShoppingBag, Trash2, Loader2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { useCartStore } from "@/store/cart"
 import { useWishlistStore } from "@/store/wishlist"
-import { PRODUCTS } from "@/lib/products"
+import { useProducts } from "@/hooks/use-products"
 import { formatCurrency } from "@/utils"
 
 export default function WishlistPage() {
@@ -14,21 +14,26 @@ export default function WishlistPage() {
   const remove = useWishlistStore((state) => state.remove)
   const addItem = useCartStore((state) => state.addItem)
   const [mounted, setMounted] = useState(false)
+  const { products: allProducts, loading } = useProducts()
 
   useEffect(() => {
     setMounted(true)
   }, [])
 
-  if (!mounted) {
-    return <div className="min-h-[60vh]" />
+  if (!mounted || loading) {
+    return (
+      <div className="min-h-[60vh] flex items-center justify-center">
+        <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+      </div>
+    )
   }
 
   const items = ids
-    .map((id) => PRODUCTS.find((p) => p.id === id))
-    .filter((p): p is (typeof PRODUCTS)[number] => Boolean(p))
+    .map((id) => allProducts.find((p) => p.id === id))
+    .filter((p): p is (typeof allProducts)[number] => Boolean(p))
 
   const handleAddToCart = (productId: string) => {
-    const product = PRODUCTS.find((p) => p.id === productId)
+    const product = allProducts.find((p) => p.id === productId)
     if (product && product.sizes.length > 0 && product.colors.length > 0) {
       addItem(product, 1, product.sizes[0], product.colors[0])
     }

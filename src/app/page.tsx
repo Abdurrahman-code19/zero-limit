@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useCallback, useEffect, useRef } from "react"
+import { useState, useCallback, useEffect, useMemo, useRef } from "react"
 import Link from "next/link"
 import Image from "next/image"
 import { motion, AnimatePresence } from "framer-motion"
@@ -15,7 +15,7 @@ import { BackToTop } from "@/components/layout/back-to-top"
 import { useTheme } from "@/components/theme/theme-provider"
 import { useCartStore } from "@/store/cart"
 import { useWishlistStore } from "@/store/wishlist"
-import { PRODUCTS } from "@/lib/products"
+import { useProducts } from "@/hooks/use-products"
 import { formatCurrency } from "@/utils"
 
 const HERO_SLIDES = [
@@ -52,40 +52,45 @@ const COLLECTIONS = [
   },
 ]
 
-const NEW_ARRIVALS = PRODUCTS.map((p, i) => ({
-  id: p.id,
-  slug: p.slug,
-  name: p.name,
-  price: p.price,
-  image: p.images[0],
-  tag: p.is_featured && i < 3 ? "HOT" : p.is_featured ? "" : "NEW",
-}))
-
 export default function HomePage() {
+  const [mounted, setMounted] = useState(false)
   const [splashDone, setSplashDone] = useState(false)
   const [currentSlide, setCurrentSlide] = useState(0)
   const [isDragging, setIsDragging] = useState(false)
   const dragStartX = useRef(0)
   const { theme } = useTheme()
   const isDark = theme === "dark"
-  const itemCount = useCartStore((s) => s.getItemCount())
   const addItem = useCartStore((s) => s.addItem)
   const toggleWishlist = useWishlistStore((s) => s.toggle)
+  const { products: PRODUCTS } = useProducts()
 
-  const handleQuickAdd = (e: React.MouseEvent, productId: string) => {
+  const NEW_ARRIVALS = useMemo(() =>
+    PRODUCTS.map((p, i) => ({
+      id: p.id,
+      slug: p.slug,
+      name: p.name,
+      price: p.price,
+      image: p.images[0],
+      tag: p.is_featured && i < 3 ? "HOT" : p.is_featured ? "" : "NEW",
+    })),
+  [PRODUCTS])
+
+  useEffect(() => { setMounted(true) }, [])
+
+  const handleQuickAdd = useCallback((e: React.MouseEvent, productId: string) => {
     e.preventDefault()
     e.stopPropagation()
     const product = PRODUCTS.find((p) => p.id === productId)
     if (product && product.sizes.length > 0 && product.colors.length > 0) {
       addItem(product, 1, product.sizes[0], product.colors[0])
     }
-  }
+  }, [PRODUCTS, addItem])
 
-  const handleWishlistToggle = (e: React.MouseEvent, productId: string) => {
+  const handleWishlistToggle = useCallback((e: React.MouseEvent, productId: string) => {
     e.preventDefault()
     e.stopPropagation()
     toggleWishlist(productId)
-  }
+  }, [toggleWishlist])
 
   const handleSplashComplete = useCallback(() => {
     if (typeof window !== "undefined") {
@@ -118,6 +123,8 @@ export default function HomePage() {
         : (p + 1) % HERO_SLIDES.length)
     }
   }
+
+  if (!mounted) return null
 
   return (
     <>

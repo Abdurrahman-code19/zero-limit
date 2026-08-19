@@ -4,12 +4,12 @@ import { Suspense, useMemo, useState } from "react"
 import Link from "next/link"
 import { useSearchParams } from "next/navigation"
 import { motion } from "framer-motion"
-import { SlidersHorizontal, Grid3X3, List, Heart, X, Search, ShoppingBag } from "lucide-react"
+import { SlidersHorizontal, Grid3X3, List, Heart, X, Search, ShoppingBag, Loader2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { ProductCard } from "@/components/store/product-card"
 import { PRODUCT_CATEGORIES } from "@/constants"
-import { PRODUCTS } from "@/lib/products"
+import { useProducts } from "@/hooks/use-products"
 import { formatCurrency } from "@/utils"
 
 const SORT_OPTIONS = [
@@ -44,7 +44,8 @@ function ShopContent() {
   const [activeSize, setActiveSize] = useState<string | null>(null)
   const [activeColor, setActiveColor] = useState<string | null>(null)
 
-  const available = useMemo(() => PRODUCTS.filter((p) => p.is_published), [])
+  const { products: dbProducts, loading } = useProducts()
+  const available = useMemo(() => dbProducts.filter((p) => p.is_published), [dbProducts])
 
   const sizes = useMemo(
     () => Array.from(new Set(available.flatMap((p) => p.sizes))),
@@ -186,6 +187,15 @@ function ShopContent() {
       )}
     </div>
   )
+
+  if (loading) {
+    return (
+      <div className="container mx-auto px-4 py-32 text-center">
+        <Loader2 className="h-8 w-8 animate-spin mx-auto text-muted-foreground" />
+        <p className="text-sm text-muted-foreground mt-4">Loading products...</p>
+      </div>
+    )
+  }
 
   return (
     <div className="container mx-auto px-4 py-8">

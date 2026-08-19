@@ -288,3 +288,20 @@ body {
   from { opacity: 1; }
   to { opacity: 0; }
 }
+
+/* ═══════════════════════════════════════════
+   HERO SLIDER
+   ═══════════════════════════════════════════ */
+
+.hero-slide-pulse {
+  animation: heroSlidePulse 6s ease-in-out infinite;
+}
+
+@keyframes heroSlidePulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.03); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-slide-pulse { animation: none; }
+}

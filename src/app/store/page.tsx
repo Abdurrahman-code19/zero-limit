@@ -1,15 +1,15 @@
 "use client"
 
 import Link from "next/link"
-import { useState, useEffect } from "react"
+import { useState, useEffect, useMemo } from "react"
 import { motion } from "framer-motion"
 import { 
-  ArrowRight, Heart, ShoppingBag, Star, Eye, 
+  ArrowRight, Heart, ShoppingBag, Star, Eye, Loader2,
   ChevronLeft, ChevronRight, Truck, Shield, RotateCcw, Award 
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { PRODUCTS } from "@/lib/products"
+import { useProducts } from "@/hooks/use-products"
 import { formatCurrency } from "@/utils"
 import { useWishlistStore } from "@/store/wishlist"
 import type { Product } from "@/types"
@@ -50,6 +50,21 @@ const QUICK_ACTIONS = [
 
 export default function StorePage() {
   const [activeSlide, setActiveSlide] = useState(0)
+  const { products: PRODUCTS, loading } = useProducts()
+
+  if (loading) {
+    return (
+      <div className="container mx-auto px-4 py-32 text-center">
+        <Loader2 className="h-8 w-8 animate-spin mx-auto text-muted-foreground" />
+        <p className="text-sm text-muted-foreground mt-4">Loading...</p>
+      </div>
+    )
+  }
+
+  const featured = PRODUCTS.filter((p) => p.is_featured)
+  const newProducts = PRODUCTS.slice(0, 4)
+  const nonFeatured = PRODUCTS.filter((p) => !p.is_featured)
+  const firstThree = PRODUCTS.slice(0, 3)
 
   return (
     <div className="space-y-0">
@@ -163,7 +178,7 @@ export default function StorePage() {
             </Link>
           </div>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            {PRODUCTS.slice(0, 4).map((item, i) => (
+            {newProducts.map((item, i) => (
               <ProductCard key={item.id} item={item} index={i} />
             ))}
           </div>
@@ -183,7 +198,7 @@ export default function StorePage() {
             </Link>
           </div>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            {PRODUCTS.filter((p) => p.is_featured).slice(0, 4).map((item, i) => (
+            {featured.slice(0, 4).map((item, i) => (
               <ProductCard key={item.id} item={item} index={i} />
             ))}
           </div>
@@ -203,7 +218,7 @@ export default function StorePage() {
             </Link>
           </div>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            {PRODUCTS.filter((p) => !p.is_featured).slice(0, 4).map((item, i) => (
+            {nonFeatured.slice(0, 4).map((item, i) => (
               <ProductCard key={item.id} item={item} index={i} />
             ))}
           </div>
@@ -224,7 +239,7 @@ export default function StorePage() {
           </div>
           <div className="bg-muted/30 p-8 md:p-12 rounded-lg">
             <div className="grid md:grid-cols-3 gap-8 items-center">
-              {PRODUCTS.slice(0, 3).map((item, i) => (
+              {firstThree.map((item, i) => (
                 <div key={item.id} className="text-center space-y-3">
                   <Link href={`/product/${item.slug}`} className="block">
                     <div className="aspect-square bg-muted rounded-lg max-w-[200px] mx-auto overflow-hidden">
@@ -262,7 +277,7 @@ export default function StorePage() {
             </div>
           </div>
           <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-            {PRODUCTS.slice(0, 3).map((item, i) => (
+            {firstThree.map((item, i) => (
               <ProductCard key={item.id} item={item} index={i} />
             ))}
           </div>
