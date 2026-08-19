@@ -111,7 +111,7 @@ export const PRODUCTS: Product[] = [
     slug: "zero-limit-quarter-zip",
     description:
       "A staple quarter-zip pullover from Zero Limit. Soft-touch fleece with a quarter-length zip, ribbed trims, and a clean branded finish. Layered-ready in L, XL and XXL.",
-    price: 130000,
+    price: 25000,
     compare_at_price: undefined,
     images: [
       "/products/zero-limit-quarter-zip-1.jpeg",
@@ -124,7 +124,7 @@ export const PRODUCTS: Product[] = [
     colors: ["#111111", "#ffffff"],
     stock: 25,
     is_featured: false,
-    is_published: false,
+    is_published: true,
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString(),
   },
