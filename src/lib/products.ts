@@ -7,8 +7,8 @@ export const PRODUCTS: Product[] = [
     slug: "zero-limit-bernie",
     description:
       "The signature Zero Limit Bernie beanie. Knit to a snug, slouch-proof fit with a clean rolled cuff and an embroidered Zero Limit mark. Warm, durable, and cut to sit right on any head.",
-    price: 45000,
-    compare_at_price: 60000,
+    price: 13000,
+    compare_at_price: undefined,
     images: [
       "/products/zero-limit-bernie-1.jpeg",
       "/products/zero-limit-bernie-2.jpeg",
@@ -30,8 +30,8 @@ export const PRODUCTS: Product[] = [
     slug: "zero-limit-checkers-shirt",
     description:
       "A sharp checkered button-up from Zero Limit. Tailored fit with a straight collar and full front placket, woven in a premium cotton blend that holds its shape and breathes all day.",
-    price: 110000,
-    compare_at_price: 135000,
+    price: 25000,
+    compare_at_price: undefined,
     images: [
       "/products/zero-limit-checkers-shirt-1.jpeg",
       "/products/zero-limit-checkers-shirt-2.jpeg",
@@ -52,8 +52,8 @@ export const PRODUCTS: Product[] = [
     slug: "zero-limit-lightning-strike",
     description:
       "A bold graphic piece from the Zero Limit line. Heavyweight cotton with a striking lightning motif, pre-shrunk and cut oversized for an effortless streetwear silhouette.",
-    price: 80000,
-    compare_at_price: 100000,
+    price: 23000,
+    compare_at_price: undefined,
     images: ["/products/zero-limit-lightning-strike-1.jpeg"],
     category_id: "t-shirts",
     sizes: ["S", "M", "L", "XL", "XXL"],
@@ -70,8 +70,8 @@ export const PRODUCTS: Product[] = [
     slug: "plain-zero-limit-polo",
     description:
       "The cleanest polo in the rotation. A crisp two-button placket, ribbed collar and cuffs, and a tonal Zero Limit chest embroidery. Minimal, premium, and built for every day.",
-    price: 95000,
-    compare_at_price: 115000,
+    price: 23000,
+    compare_at_price: undefined,
     images: ["/products/plain-zero-limit-polo-1.jpeg"],
     category_id: "t-shirts",
     sizes: ["S", "M", "L", "XL", "XXL"],
@@ -87,9 +87,9 @@ export const PRODUCTS: Product[] = [
     name: "Zero Limit Polo Shirt",
     slug: "zero-limit-polo-shirt",
     description:
-      "Coming soon. The Zero Limit polo shirt drops in L, XL and XXL with the brand's signature detailing and premium fabric construction.",
-    price: 95000,
-    compare_at_price: 120000,
+      "The Zero Limit polo shirt drops in L, XL and XXL with the brand's signature detailing and premium fabric construction.",
+    price: 25000,
+    compare_at_price: undefined,
     images: [
       "/products/zero-limit-polo-shirt-1.jpeg",
       "/products/zero-limit-polo-shirt-2.jpeg",
@@ -99,8 +99,8 @@ export const PRODUCTS: Product[] = [
     category_id: "t-shirts",
     sizes: ["L", "XL", "XXL"],
     colors: ["#ffffff", "#111111"],
-    stock: 0,
-    is_featured: false,
+    stock: 30,
+    is_featured: true,
     is_published: true,
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString(),
@@ -112,7 +112,7 @@ export const PRODUCTS: Product[] = [
     description:
       "A staple quarter-zip pullover from Zero Limit. Soft-touch fleece with a quarter-length zip, ribbed trims, and a clean branded finish. Layered-ready in L, XL and XXL.",
     price: 130000,
-    compare_at_price: 160000,
+    compare_at_price: undefined,
     images: [
       "/products/zero-limit-quarter-zip-1.jpeg",
       "/products/zero-limit-quarter-zip-2.jpeg",
@@ -123,8 +123,8 @@ export const PRODUCTS: Product[] = [
     sizes: ["L", "XL", "XXL"],
     colors: ["#111111", "#ffffff"],
     stock: 25,
-    is_featured: true,
-    is_published: true,
+    is_featured: false,
+    is_published: false,
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString(),
   },
@@ -134,8 +134,8 @@ export const PRODUCTS: Product[] = [
     slug: "zero-limit-tank-top",
     description:
       "The Zero Limit tank top. Lightweight and breathable with wide straps and a clean finish — made to move from gym floor to street without compromise.",
-    price: 55000,
-    compare_at_price: 70000,
+    price: 15000,
+    compare_at_price: undefined,
     images: [
       "/products/zero-limit-tank-top-1.jpeg",
       "/products/zero-limit-tank-top-2.jpeg",
