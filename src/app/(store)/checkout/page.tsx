@@ -3,7 +3,15 @@
 import { useEffect, useState } from "react"
 import Link from "next/link"
 import { motion } from "framer-motion"
-import { ArrowRight, CheckCircle, ShoppingBag, Lock, Truck } from "lucide-react"
+import {
+  ArrowRight,
+  CheckCircle,
+  ShoppingBag,
+  Lock,
+  Truck,
+  AlertCircle,
+  Loader2,
+} from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
@@ -11,6 +19,15 @@ import { Separator } from "@/components/ui/separator"
 import { useCartStore } from "@/store/cart"
 import { formatCurrency } from "@/utils"
 import { PaystackButton } from "@/components/checkout/paystack-button"
+
+interface PaymentData {
+  reference: string
+  amount: number
+  currency: string
+  channel: string
+  paid_at: string
+  customer_email: string
+}
 
 export default function CheckoutPage() {
   const { items, getTotal, getItemCount, clearCart } = useCartStore()
@@ -28,38 +45,81 @@ export default function CheckoutPage() {
   const [city, setCity] = useState("")
   const [state, setState] = useState("")
   const [formError, setFormError] = useState<string | null>(null)
-  const [paidReference, setPaidReference] = useState<string | null>(null)
+  const [paymentData, setPaymentData] = useState<PaymentData | null>(null)
+  const [verifying, setVerifying] = useState(false)
+  const [verifyError, setVerifyError] = useState<string | null>(null)
 
   const subtotal = getTotal()
   const shipping = subtotal >= 50000 ? 0 : 2500
   const total = subtotal + shipping
 
-  const handlePay = () => {
+  const handleFormValidation = () => {
     setFormError(null)
     if (!firstName.trim() || !lastName.trim()) {
       setFormError("Please enter your first and last name.")
-      return
+      return false
     }
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
       setFormError("Please enter a valid email address.")
-      return
+      return false
     }
     if (!/^[+0-9\s-]{7,15}$/.test(phone)) {
       setFormError("Please enter a valid phone number.")
-      return
+      return false
     }
     if (!address.trim() || !city.trim() || !state.trim()) {
       setFormError("Please complete your delivery address.")
-      return
+      return false
     }
     return true
+  }
+
+  const handlePaymentSuccess = async (reference: string) => {
+    setVerifying(true)
+    setVerifyError(null)
+    try {
+      const res = await fetch("/api/paystack/verify", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ reference }),
+      })
+      const data = await res.json()
+
+      if (!res.ok || !data.status) {
+        setVerifyError(
+          data.error || "Payment verification failed. Contact support."
+        )
+        setVerifying(false)
+        return
+      }
+
+      clearCart()
+      setPaymentData(data.data)
+    } catch {
+      setVerifyError("Could not verify payment. Contact support with your reference.")
+      setVerifying(false)
+    }
   }
 
   if (!mounted) {
     return <div className="min-h-[60vh]" />
   }
 
-  if (paidReference) {
+  if (verifying) {
+    return (
+      <div className="container mx-auto px-4 py-24 text-center max-w-lg">
+        <div className="space-y-6">
+          <Loader2 className="h-10 w-10 mx-auto animate-spin text-muted-foreground" />
+          <h1 className="text-2xl font-light">Verifying payment…</h1>
+          <p className="text-muted-foreground text-sm">
+            Please don&apos;t close this page.
+          </p>
+        </div>
+      </div>
+    )
+  }
+
+  if (paymentData) {
     return (
       <div className="container mx-auto px-4 py-24 text-center max-w-lg">
         <motion.div
@@ -70,27 +130,51 @@ export default function CheckoutPage() {
           <div className="w-16 h-16 mx-auto rounded-full bg-green-500/10 flex items-center justify-center">
             <CheckCircle className="h-8 w-8 text-green-500" />
           </div>
-          <h1 className="text-3xl font-light">Payment Successful</h1>
+          <h1 className="text-3xl font-light">Order Confirmed</h1>
           <p className="text-muted-foreground">
-            Your order has been received. Reference:{" "}
-            <span className="text-foreground font-medium">
-              {paidReference}
-            </span>
+            Thank you, {firstName}! Your order has been placed successfully.
           </p>
-          <div className="border p-4 text-left space-y-1 text-sm text-muted-foreground">
-            <p>
-              Order total:{" "}
-              <span className="text-foreground font-medium">
-                {formatCurrency(total)}
+          <div className="border p-6 text-left space-y-3 text-sm">
+            <div className="flex justify-between">
+              <span className="text-muted-foreground">Reference</span>
+              <span className="font-mono font-medium">
+                {paymentData.reference}
               </span>
-            </p>
-            <p>
-              Items:{" "}
-              <span className="text-foreground font-medium">
-                {getItemCount()}
+            </div>
+            <div className="flex justify-between">
+              <span className="text-muted-foreground">Amount Paid</span>
+              <span className="font-medium">
+                {formatCurrency(paymentData.amount)}
               </span>
-            </p>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-muted-foreground">Payment Method</span>
+              <span className="font-medium capitalize">
+                {paymentData.channel}
+              </span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-muted-foreground">Items</span>
+              <span className="font-medium">{getItemCount()}</span>
+            </div>
+            <Separator />
+            <div>
+              <span className="text-muted-foreground block mb-1">
+                Delivery Address
+              </span>
+              <span className="text-foreground">
+                {firstName} {lastName}
+                <br />
+                {address}
+                <br />
+                {city}, {state}
+              </span>
+            </div>
           </div>
+          <p className="text-xs text-muted-foreground">
+            A confirmation will be sent to{" "}
+            <span className="text-foreground">{email}</span>
+          </p>
           <Link href="/store" className="block">
             <Button className="bg-foreground text-background hover:bg-foreground/90 text-xs tracking-widest uppercase rounded-none px-10 py-6">
               Continue Shopping
@@ -237,17 +321,22 @@ export default function CheckoutPage() {
               payment window after placing your order.
             </p>
             {formError && (
-              <div className="mb-5 p-4 rounded-lg bg-red-500/10 border border-red-500/20">
+              <div className="mb-5 p-4 rounded-lg bg-red-500/10 border border-red-500/20 flex items-start gap-3">
+                <AlertCircle className="h-4 w-4 text-red-500 mt-0.5 shrink-0" />
                 <p className="text-sm text-red-500">{formError}</p>
+              </div>
+            )}
+            {verifyError && (
+              <div className="mb-5 p-4 rounded-lg bg-red-500/10 border border-red-500/20 flex items-start gap-3">
+                <AlertCircle className="h-4 w-4 text-red-500 mt-0.5 shrink-0" />
+                <p className="text-sm text-red-500">{verifyError}</p>
               </div>
             )}
             <PaystackButton
               email={email || "pending@checkout.com"}
               amount={total}
-              onSuccess={(reference) => {
-                clearCart()
-                setPaidReference(reference)
-              }}
+              beforePay={handleFormValidation}
+              onSuccess={handlePaymentSuccess}
             />
           </section>
         </div>
@@ -260,7 +349,10 @@ export default function CheckoutPage() {
             </h2>
             <div className="space-y-3 max-h-64 overflow-y-auto">
               {items.map((item) => (
-                <div key={`${item.product.id}-${item.size}-${item.color}`} className="flex gap-3">
+                <div
+                  key={`${item.product.id}-${item.size}-${item.color}`}
+                  className="flex gap-3"
+                >
                   <div className="relative w-14 h-[72px] bg-muted shrink-0 overflow-hidden">
                     <img
                       src={item.product.images[0] ?? "/favicon.png"}

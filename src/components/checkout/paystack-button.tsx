@@ -9,6 +9,7 @@ interface PaystackButtonProps {
   email: string
   amount: number
   disabled?: boolean
+  beforePay?: () => boolean
   onSuccess: (reference: string) => void
 }
 
@@ -36,6 +37,7 @@ export function PaystackButton({
   email,
   amount,
   disabled,
+  beforePay,
   onSuccess,
 }: PaystackButtonProps) {
   const [loading, setLoading] = useState(false)
@@ -75,7 +77,9 @@ export function PaystackButton({
         </Button>
         <p className="text-xs text-muted-foreground text-center">
           Payments not configured yet. Add{" "}
-          <code className="text-foreground">NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY</code>{" "}
+          <code className="text-foreground">
+            NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY
+          </code>{" "}
           to enable checkout.
         </p>
       </div>
@@ -83,6 +87,8 @@ export function PaystackButton({
   }
 
   const handlePay = async () => {
+    if (beforePay && !beforePay()) return
+
     setLoading(true)
     setError(null)
     try {
