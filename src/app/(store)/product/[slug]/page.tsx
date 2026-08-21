@@ -43,6 +43,10 @@ export default function ProductPage({
   const toggleWishlist = useWishlistStore((s) => s.toggle)
   const [mounted, setMounted] = useState(false)
 
+  useEffect(() => {
+    setMounted(true)
+  }, [])
+
   if (loading) {
     return (
       <div className="container mx-auto px-4 py-32 text-center">
@@ -67,10 +71,6 @@ export default function ProductPage({
       </div>
     )
   }
-
-  useEffect(() => {
-    setMounted(true)
-  }, [])
 
   const tags = getProductTags(product)
   const defaultColor = color ?? product.colors[0]
