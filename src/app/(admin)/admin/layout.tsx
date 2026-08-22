@@ -1,8 +1,9 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import Link from "next/link"
-import { usePathname } from "next/navigation"
+import { useRouter, usePathname } from "next/navigation"
+import { createClient } from "@/lib/supabase/client"
 import {
   LayoutDashboard,
   Package,
@@ -50,13 +51,67 @@ const sidebarItems = [
   { label: "Logout", href: "/admin/logout", icon: LogOut },
 ]
 
+interface AdminProfile {
+  full_name: string
+  email: string
+  role: string
+  avatar_url?: string
+}
+
 export default function AdminLayout({
   children,
 }: {
   children: React.ReactNode
 }) {
   const pathname = usePathname()
+  const router = useRouter()
   const [sidebarOpen, setSidebarOpen] = useState(false)
+  const [profile, setProfile] = useState<AdminProfile | null>(null)
+  const [checking, setChecking] = useState(true)
+
+  useEffect(() => {
+    const supabase = createClient()
+
+    async function checkAuth() {
+      const { data: { user } } = await supabase.auth.getUser()
+
+      if (!user) {
+        router.replace("/login")
+        return
+      }
+
+      const { data } = await supabase
+        .from("profiles")
+        .select("full_name, email, role, avatar_url")
+        .eq("id", user.id)
+        .single()
+
+      if (!data || !["admin", "super_admin"].includes(data.role)) {
+        router.replace("/")
+        return
+      }
+
+      setProfile(data)
+      setChecking(false)
+    }
+
+    checkAuth()
+  }, [router])
+
+  if (checking) {
+    return (
+      <div className="min-h-screen bg-muted/30 flex items-center justify-center">
+        <div className="text-center">
+          <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent mx-auto mb-4" />
+          <p className="text-sm text-muted-foreground">Loading admin panel...</p>
+        </div>
+      </div>
+    )
+  }
+
+  const initials = profile?.full_name
+    ? profile.full_name.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2)
+    : "AD"
 
   return (
     <div className="min-h-screen bg-muted/30">
@@ -130,12 +185,12 @@ export default function AdminLayout({
 
             <button className="flex items-center gap-2">
               <Avatar className="h-8 w-8">
-                <AvatarImage src="/avatars/admin.jpg" alt="Admin" />
-                <AvatarFallback>AD</AvatarFallback>
+                <AvatarImage src={profile?.avatar_url} alt={profile?.full_name} />
+                <AvatarFallback>{initials}</AvatarFallback>
               </Avatar>
               <div className="hidden md:block text-left">
-                <p className="text-sm font-medium">Admin User</p>
-                <p className="text-xs text-muted-foreground">Super Admin</p>
+                <p className="text-sm font-medium">{profile?.full_name ?? "Admin"}</p>
+                <p className="text-xs text-muted-foreground capitalize">{profile?.role?.replace("_", " ")}</p>
               </div>
               <ChevronDown className="h-4 w-4 text-muted-foreground hidden md:block" />
             </button>

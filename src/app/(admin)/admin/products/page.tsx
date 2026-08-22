@@ -5,86 +5,66 @@ import Link from "next/link"
 import {
   Plus,
   Search,
-  Edit,
   Trash2,
   Eye,
-  MoreVertical,
   Package,
+  EyeOff,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { formatCurrency } from "@/utils"
-
-// Mock products data
-const mockProducts = [
-  {
-    id: "1",
-    name: "Premium Oversized Hoodie",
-    slug: "premium-oversized-hoodie",
-    price: 45000,
-    stock: 25,
-    category: "Hoodies",
-    status: "active",
-    image: "/products/hoodie-1.jpg",
-  },
-  {
-    id: "2",
-    name: "Streetwear Cargo Pants",
-    slug: "streetwear-cargo-pants",
-    price: 35000,
-    stock: 30,
-    category: "Pants",
-    status: "active",
-    image: "/products/cargo-1.jpg",
-  },
-  {
-    id: "3",
-    name: "Minimalist White Tee",
-    slug: "minimalist-white-tee",
-    price: 18000,
-    stock: 50,
-    category: "T-Shirts",
-    status: "active",
-    image: "/products/tee-1.jpg",
-  },
-  {
-    id: "4",
-    name: "Luxury Bomber Jacket",
-    slug: "luxury-bomber-jacket",
-    price: 85000,
-    stock: 15,
-    category: "Jackets",
-    status: "active",
-    image: "/products/jacket-1.jpg",
-  },
-  {
-    id: "5",
-    name: "Essential Sneakers",
-    slug: "essential-sneakers",
-    price: 42000,
-    stock: 0,
-    category: "Footwear",
-    status: "out_of_stock",
-    image: "/products/sneakers-1.jpg",
-  },
-]
+import { useAdminProducts } from "@/hooks/use-admin-products"
 
 export default function AdminProductsPage() {
+  const { products, loading, deleteProduct, toggleProductStatus } = useAdminProducts()
   const [search, setSearch] = useState("")
-  const [products] = useState(mockProducts)
+  const [deletingId, setDeletingId] = useState<string | null>(null)
 
   const filteredProducts = products.filter((product) =>
     product.name.toLowerCase().includes(search.toLowerCase())
   )
+
+  async function handleDelete(id: string, name: string) {
+    if (!confirm(`Delete "${name}"? This cannot be undone.`)) return
+    setDeletingId(id)
+    await deleteProduct(id)
+    setDeletingId(null)
+  }
+
+  async function handleToggleStatus(id: string, currentStatus: boolean) {
+    await toggleProductStatus(id, !currentStatus)
+  }
+
+  if (loading) {
+    return (
+      <div className="space-y-6">
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+          <div>
+            <h1 className="text-2xl font-bold">Products</h1>
+            <p className="text-muted-foreground">Manage your product inventory</p>
+          </div>
+        </div>
+        <Card>
+          <CardContent className="p-6">
+            <div className="space-y-4">
+              {[1, 2, 3, 4, 5].map((i) => (
+                <div key={i} className="h-16 animate-pulse bg-muted rounded" />
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    )
+  }
 
   return (
     <div className="space-y-6">
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold">Products</h1>
-          <p className="text-muted-foreground">Manage your product inventory</p>
+          <p className="text-muted-foreground">{products.length} products total</p>
         </div>
         <Link href="/admin/products/new">
           <Button>
@@ -94,7 +74,6 @@ export default function AdminProductsPage() {
         </Link>
       </div>
 
-      {/* Search and Filters */}
       <div className="flex items-center gap-4">
         <div className="relative flex-1 max-w-md">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
@@ -107,7 +86,6 @@ export default function AdminProductsPage() {
         </div>
       </div>
 
-      {/* Products Table */}
       <Card>
         <CardContent className="p-0">
           <div className="overflow-x-auto">
@@ -123,58 +101,88 @@ export default function AdminProductsPage() {
                 </tr>
               </thead>
               <tbody>
-                {filteredProducts.map((product) => (
-                  <tr key={product.id} className="border-b last:border-0 hover:bg-muted/50">
-                    <td className="p-4">
-                      <div className="flex items-center gap-3">
-                        <div className="w-12 h-12 bg-muted rounded-md flex items-center justify-center">
-                          <Package className="h-6 w-6 text-muted-foreground" />
-                        </div>
-                        <div>
-                          <p className="font-medium">{product.name}</p>
-                          <p className="text-sm text-muted-foreground">ID: {product.id}</p>
-                        </div>
-                      </div>
-                    </td>
-                    <td className="p-4 text-muted-foreground">{product.category}</td>
-                    <td className="p-4 font-medium">{formatCurrency(product.price)}</td>
-                    <td className="p-4">
-                      <span className={product.stock <= 0 ? "text-red-500" : ""}>
-                        {product.stock}
-                      </span>
-                    </td>
-                    <td className="p-4">
-                      <Badge
-                        variant={
-                          product.status === "active"
-                            ? "success"
-                            : product.status === "out_of_stock"
-                            ? "destructive"
-                            : "secondary"
-                        }
-                      >
-                        {product.status === "active"
-                          ? "Active"
-                          : product.status === "out_of_stock"
-                          ? "Out of Stock"
-                          : "Draft"}
-                      </Badge>
-                    </td>
-                    <td className="p-4">
-                      <div className="flex items-center justify-end gap-2">
-                        <Button variant="ghost" size="icon" className="h-8 w-8">
-                          <Eye className="h-4 w-4" />
-                        </Button>
-                        <Button variant="ghost" size="icon" className="h-8 w-8">
-                          <Edit className="h-4 w-4" />
-                        </Button>
-                        <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive">
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
-                      </div>
+                {filteredProducts.length === 0 ? (
+                  <tr>
+                    <td colSpan={6} className="p-8 text-center">
+                      <Package className="h-8 w-8 mx-auto text-muted-foreground mb-2" />
+                      <p className="text-muted-foreground">
+                        {search ? "No products match your search" : "No products yet"}
+                      </p>
                     </td>
                   </tr>
-                ))}
+                ) : (
+                  filteredProducts.map((product) => (
+                    <tr key={product.id} className="border-b last:border-0 hover:bg-muted/50">
+                      <td className="p-4">
+                        <div className="flex items-center gap-3">
+                          {product.images[0] ? (
+                            <img
+                              src={product.images[0]}
+                              alt={product.name}
+                              className="w-12 h-12 rounded-md object-cover"
+                            />
+                          ) : (
+                            <div className="w-12 h-12 bg-muted rounded-md flex items-center justify-center">
+                              <Package className="h-6 w-6 text-muted-foreground" />
+                            </div>
+                          )}
+                          <div>
+                            <p className="font-medium">{product.name}</p>
+                            <p className="text-sm text-muted-foreground">{product.slug}</p>
+                          </div>
+                        </div>
+                      </td>
+                      <td className="p-4 text-muted-foreground capitalize">{product.category_id}</td>
+                      <td className="p-4 font-medium">{formatCurrency(product.price)}</td>
+                      <td className="p-4">
+                        <span className={product.stock <= 5 ? "text-destructive font-medium" : ""}>
+                          {product.stock}
+                        </span>
+                      </td>
+                      <td className="p-4">
+                        <Badge
+                          variant={
+                            product.is_published
+                              ? "success"
+                              : "secondary"
+                          }
+                        >
+                          {product.is_published ? "Active" : "Inactive"}
+                        </Badge>
+                      </td>
+                      <td className="p-4">
+                        <div className="flex items-center justify-end gap-1">
+                          <Link href={`/product/${product.slug}`}>
+                            <Button variant="ghost" size="icon" className="h-8 w-8">
+                              <Eye className="h-4 w-4" />
+                            </Button>
+                          </Link>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8"
+                            onClick={() => handleToggleStatus(product.id, product.is_published)}
+                          >
+                            {product.is_published ? (
+                              <EyeOff className="h-4 w-4" />
+                            ) : (
+                              <Eye className="h-4 w-4" />
+                            )}
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8 text-destructive"
+                            onClick={() => handleDelete(product.id, product.name)}
+                            disabled={deletingId === product.id}
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))
+                )}
               </tbody>
             </table>
           </div>
