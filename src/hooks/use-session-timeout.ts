@@ -18,7 +18,7 @@ export function useSessionTimeout() {
       await supabase.auth.signOut()
       router.push("/login?reason=session_expired")
       router.refresh()
-    } catch {
+    } catch (_e) {
       // ignore
     }
   }, [router])
