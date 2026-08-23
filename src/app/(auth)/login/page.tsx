@@ -30,7 +30,7 @@ function LoginForm() {
   const isDark = theme === "dark"
   const router = useRouter()
   const searchParams = useSearchParams()
-  const redirect = searchParams.get("redirect") || "/profile"
+  const redirect = searchParams.get("redirect") || "/shop"
   const supabase = createClient()
 
   const handleSubmit = async (e: React.FormEvent) => {

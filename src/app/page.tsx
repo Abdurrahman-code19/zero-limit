@@ -19,9 +19,9 @@ import { useProducts } from "@/hooks/use-products"
 import { formatCurrency } from "@/utils"
 
 const HERO_SLIDES = [
-  { id: 1, label: "Streetwear Redefined", light: "bg-zinc-200", dark: "bg-zinc-900" },
-  { id: 2, label: "Luxury Essentials", light: "bg-stone-200", dark: "bg-stone-900" },
-  { id: 3, label: "Limited Drops", light: "bg-neutral-200", dark: "bg-neutral-900" },
+  { id: 1, label: "Streetwear Redefined", light: "bg-zinc-200", dark: "bg-zinc-900", image: "/products/zero-limit-lightning-strike-1.jpeg", product: "Lightning Strike Tee" },
+  { id: 2, label: "Luxury Essentials", light: "bg-stone-200", dark: "bg-stone-900", image: "/products/zero-limit-checkers-shirt-1.jpeg", product: "Checkers Shirt" },
+  { id: 3, label: "Limited Drops", light: "bg-neutral-200", dark: "bg-neutral-900", image: "/products/zero-limit-quarter-zip-1.jpeg", product: "Quarter Zip" },
 ]
 
 const FEATURES = [
@@ -178,18 +178,25 @@ export default function HomePage() {
                   {HERO_SLIDES.map((slide, i) => (
                     <motion.div
                       key={slide.id}
-                      className={`absolute inset-0 ${isDark ? slide.dark : slide.light}`}
+                      className="absolute inset-0"
                       initial={{ clipPath: "polygon(15% 0, 100% 0, 100% 100%, 0% 100%)", opacity: 0 }}
                       animate={i === currentSlide
                         ? { clipPath: "polygon(15% 0, 100% 0, 100% 100%, 0% 100%)", opacity: 1, scale: isDragging ? 1 : [1, 1.03] }
                         : { clipPath: "polygon(15% 0, 100% 0, 100% 100%, 0% 100%)", opacity: 0, scale: 1.05 }}
                       transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
                     >
+                      <img
+                        src={slide.image}
+                        alt={slide.product}
+                        className="absolute inset-0 w-full h-full object-cover"
+                      />
+                      <div className="absolute inset-0 bg-black/40" />
                       <div className="absolute inset-0 flex items-center justify-center">
                         <div className="text-center">
-                          <p className={`text-[11px] tracking-[0.5em] uppercase mb-4 ${isDark ? "text-zinc-600" : "text-zinc-400"}`}>Collection</p>
-                          <p className={`text-4xl font-light tracking-tight ${isDark ? "text-zinc-300" : "text-zinc-600"}`}>{slide.label}</p>
-                          <div className={`mt-8 w-16 h-px mx-auto ${isDark ? "bg-white/20" : "bg-black/20"}`} />
+                          <p className="text-[11px] tracking-[0.5em] uppercase mb-4 text-zinc-400">Collection</p>
+                          <p className="text-4xl font-light tracking-tight text-white">{slide.label}</p>
+                          <div className="mt-4 text-sm text-zinc-300">{slide.product}</div>
+                          <div className="mt-8 w-16 h-px mx-auto bg-white/20" />
                         </div>
                       </div>
                     </motion.div>
@@ -436,7 +443,7 @@ export default function HomePage() {
                   </div>
                 </div>
                 {[
-                  { title: "Account", links: [{ label: "Sign In", href: "/login" }, { label: "Create Account", href: "/register" }, { label: "Admin Dashboard", href: "/admin/login" }] },
+                  { title: "Account", links: [{ label: "Create Account", href: "/register" }, { label: "Admin Dashboard", href: "/admin/login" }] },
                   { title: "Help", links: [{ label: "Contact Us", href: "#" }, { label: "FAQs", href: "#" }, { label: "Shipping", href: "#" }, { label: "Returns", href: "#" }] },
                   { title: "Legal", links: [{ label: "Privacy Policy", href: "#" }, { label: "Terms & Conditions", href: "#" }] },
                 ].map((group) => (
@@ -455,7 +462,6 @@ export default function HomePage() {
               <div className="border-t border-border pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
                 <p className="text-[11px] text-muted-foreground">&copy; {new Date().getFullYear()} Zero Limit. All rights reserved.</p>
                 <div className="flex gap-4 text-[11px] text-muted-foreground">
-                  <Link href="/login" className="hover:text-foreground transition-colors">Sign In</Link>
                   <Link href="/admin/login" className="hover:text-foreground transition-colors">Admin</Link>
                 </div>
               </div>
