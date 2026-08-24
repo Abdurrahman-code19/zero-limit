@@ -76,7 +76,6 @@ const COLOR_NAME_MAP: Record<string, string> = {
   "#6b8e23": "Army Green",
   "#9acd32": "Yellow Green",
   "#8fbc8f": "Sea Green",
-  "#00ff00": "Lime",
   "#ffd700": "Gold",
   "#ffcc00": "Yellow",
   "#ffff00": "Yellow",
