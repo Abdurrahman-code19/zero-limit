@@ -4,7 +4,7 @@ import { Suspense, useMemo, useState } from "react"
 import Link from "next/link"
 import { useSearchParams } from "next/navigation"
 import { motion } from "framer-motion"
-import { SlidersHorizontal, Grid3X3, List, Heart, X, Search, ShoppingBag, Loader2 } from "lucide-react"
+import { SlidersHorizontal, Grid3X3, List, Heart, X, Search, ShoppingBag, Loader2, ChevronDown } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { ProductCard } from "@/components/store/product-card"
@@ -22,6 +22,112 @@ const SORT_OPTIONS = [
 const CATEGORY_LABELS: Record<string, string> = Object.fromEntries(
   PRODUCT_CATEGORIES.map((c) => [c.slug, c.name])
 )
+
+const COLOR_NAME_MAP: Record<string, string> = {
+  "#000000": "Black",
+  "#ffffff": "White",
+  "#f5f5f5": "Off White",
+  "#fafafa": "Snow White",
+  "#1a1a2e": "Dark Navy",
+  "#16213e": "Navy Blue",
+  "#0f3460": "Royal Blue",
+  "#1b1b2f": "Midnight",
+  "#2d2d2d": "Charcoal",
+  "#333333": "Dark Grey",
+  "#555555": "Grey",
+  "#808080": "Medium Grey",
+  "#999999": "Silver Grey",
+  "#c0c0c0": "Light Grey",
+  "#d3d3d3": "Pale Grey",
+  "#e0e0e0": "Pearl Grey",
+  "#f0f0f0": "Cloud",
+  "#b0b0b0": "Ash Grey",
+  "#4a4a4a": "Gunmetal",
+  "#3d3d3d": "Graphite",
+  "#ff0000": "Red",
+  "#dc143c": "Crimson",
+  "#cc0000": "Dark Red",
+  "#8b0000": "Maroon",
+  "#b22222": "Firebrick",
+  "#ff4444": "Bright Red",
+  "#ff6b6b": "Coral Red",
+  "#c0392b": "Rust Red",
+  "#e74c3c": "Vermillion",
+  "#ff6347": "Tomato",
+  "#0000ff": "Blue",
+  "#0066cc": "Ocean Blue",
+  "#007bff": "Dodger Blue",
+  "#1e90ff": "Sky Blue",
+  "#4169e1": "Royal Blue",
+  "#3498db": "Cerulean",
+  "#2980b9": "Steel Blue",
+  "#0047ab": "Cobalt Blue",
+  "#002366": "Dark Blue",
+  "#5dade2": "Light Blue",
+  "#87ceeb": "Baby Blue",
+  "#add8e6": "Powder Blue",
+  "#00ff00": "Green",
+  "#008000": "Green",
+  "#228b22": "Forest Green",
+  "#2ecc71": "Emerald",
+  "#27ae60": "Jade",
+  "#006400": "Dark Green",
+  "#556b2f": "Olive",
+  "#6b8e23": "Army Green",
+  "#9acd32": "Yellow Green",
+  "#8fbc8f": "Sea Green",
+  "#00ff00": "Lime",
+  "#ffd700": "Gold",
+  "#ffcc00": "Yellow",
+  "#ffff00": "Yellow",
+  "#ffa500": "Orange",
+  "#ff8c00": "Dark Orange",
+  "#ff4500": "Orange Red",
+  "#e67e22": "Burnt Orange",
+  "#d35400": "Pumpkin",
+  "#f39c12": "Amber",
+  "#ffb347": "Peach Orange",
+  "#ff00ff": "Magenta",
+  "#800080": "Purple",
+  "#9b59b6": "Amethyst",
+  "#8e44ad": "Deep Purple",
+  "#6c3483": "Dark Purple",
+  "#4b0082": "Indigo",
+  "#7b2d8e": "Plum",
+  "#dda0dd": "Lavender",
+  "#e6e6fa": "Pale Lavender",
+  "#ffc0cb": "Pink",
+  "#ff69b4": "Hot Pink",
+  "#ff1493": "Deep Pink",
+  "#db7093": "Pale Violet Red",
+  "#c71585": "Medium Violet Red",
+  "#e91e63": "Rose",
+  "#f08080": "Light Coral",
+  "#cd5c5c": "Indian Red",
+  "#a52a2a": "Brown",
+  "#8b4513": "Saddle Brown",
+  "#d2691e": "Chocolate",
+  "#deb887": "Burlywood",
+  "#f4a460": "Sandy Brown",
+  "#bc8f8f": "Rosy Brown",
+  "#d2b48c": "Tan",
+  "#c19a6b": "Camel",
+  "#8b6914": "Dark Goldenrod",
+  "#bdb76b": "Dark Khaki",
+  "#00ced1": "Teal",
+  "#008080": "Teal",
+  "#20b2aa": "Light Teal",
+  "#40e0d0": "Turquoise",
+  "#48d1cc": "Medium Turquoise",
+  "#00ffff": "Cyan",
+  "#e0ffff": "Ice Blue",
+}
+
+function getColorName(hex: string): string {
+  const lower = hex.toLowerCase().trim()
+  if (COLOR_NAME_MAP[lower]) return COLOR_NAME_MAP[lower]
+  return hex
+}
 
 export default function ShopPage() {
   return (
@@ -43,6 +149,8 @@ function ShopContent() {
   const [query, setQuery] = useState(initialQuery)
   const [activeSize, setActiveSize] = useState<string | null>(null)
   const [activeColor, setActiveColor] = useState<string | null>(null)
+  const [sizeDropdownOpen, setSizeDropdownOpen] = useState(false)
+  const [colorDropdownOpen, setColorDropdownOpen] = useState(false)
 
   const { products: dbProducts, loading } = useProducts()
   const available = useMemo(() => dbProducts.filter((p) => p.is_published), [dbProducts])
@@ -113,7 +221,7 @@ function ShopContent() {
   const filtersApplied =
     activeCategory !== "all" || query !== "" || activeSize !== null || activeColor !== null
 
-  const filterContent = (
+  const sidebarContent = (
     <div className="space-y-6">
       <div>
         <h3 className="text-xs tracking-widest uppercase font-semibold mb-4">Categories</h3>
@@ -140,42 +248,6 @@ function ShopContent() {
             >
               {cat.name}
             </button>
-          ))}
-        </div>
-      </div>
-
-      <div>
-        <h3 className="text-xs tracking-widest uppercase font-semibold mb-4">Size</h3>
-        <div className="flex flex-wrap gap-2">
-          {sizes.map((size) => (
-            <button
-              key={size}
-              onClick={() => setActiveSize(activeSize === size ? null : size)}
-              className={`min-w-10 h-10 px-2 border text-sm transition-colors ${
-                activeSize === size
-                  ? "border-foreground bg-foreground text-background"
-                  : "border-border hover:border-foreground"
-              }`}
-            >
-              {size}
-            </button>
-          ))}
-        </div>
-      </div>
-
-      <div>
-        <h3 className="text-xs tracking-widest uppercase font-semibold mb-4">Color</h3>
-        <div className="flex flex-wrap gap-2">
-          {colors.map((color) => (
-            <button
-              key={color}
-              onClick={() => setActiveColor(activeColor === color ? null : color)}
-              className={`w-7 h-7 rounded-full border-2 transition-colors ${
-                activeColor === color ? "border-foreground" : "border-transparent hover:border-foreground"
-              }`}
-              style={{ backgroundColor: color }}
-              aria-label={`Filter by ${color}`}
-            />
           ))}
         </div>
       </div>
@@ -225,9 +297,87 @@ function ShopContent() {
         </div>
       </div>
 
+      <div className="flex items-center gap-3 mb-6 flex-wrap">
+        <div className="relative">
+          <button
+            onClick={() => { setSizeDropdownOpen(!sizeDropdownOpen); setColorDropdownOpen(false) }}
+            className="flex items-center gap-2 px-4 py-2 border text-sm rounded transition-colors hover:border-foreground"
+          >
+            Size {activeSize ? `: ${activeSize}` : ""}
+            <ChevronDown className={`h-3 w-3 transition-transform ${sizeDropdownOpen ? "rotate-180" : ""}`} />
+          </button>
+          {sizeDropdownOpen && (
+            <div className="absolute top-full left-0 mt-1 bg-background border rounded shadow-lg z-40 min-w-[120px]">
+              <button
+                onClick={() => { setActiveSize(null); setSizeDropdownOpen(false) }}
+                className={`w-full text-left px-4 py-2 text-sm transition-colors ${!activeSize ? "bg-muted font-medium" : "hover:bg-muted"}`}
+              >
+                All Sizes
+              </button>
+              {sizes.map((size) => (
+                <button
+                  key={size}
+                  onClick={() => { setActiveSize(activeSize === size ? null : size); setSizeDropdownOpen(false) }}
+                  className={`w-full text-left px-4 py-2 text-sm transition-colors ${activeSize === size ? "bg-muted font-medium" : "hover:bg-muted"}`}
+                >
+                  {size}
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+
+        <div className="relative">
+          <button
+            onClick={() => { setColorDropdownOpen(!colorDropdownOpen); setSizeDropdownOpen(false) }}
+            className="flex items-center gap-2 px-4 py-2 border text-sm rounded transition-colors hover:border-foreground"
+          >
+            Color {activeColor ? `: ${getColorName(activeColor)}` : ""}
+            <ChevronDown className={`h-3 w-3 transition-transform ${colorDropdownOpen ? "rotate-180" : ""}`} />
+          </button>
+          {colorDropdownOpen && (
+            <div className="absolute top-full left-0 mt-1 bg-background border rounded shadow-lg z-40 min-w-[160px] max-h-72 overflow-y-auto">
+              <button
+                onClick={() => { setActiveColor(null); setColorDropdownOpen(false) }}
+                className={`w-full text-left px-4 py-2 text-sm transition-colors ${!activeColor ? "bg-muted font-medium" : "hover:bg-muted"}`}
+              >
+                All Colors
+              </button>
+              {colors.map((color) => (
+                <button
+                  key={color}
+                  onClick={() => { setActiveColor(activeColor === color ? null : color); setColorDropdownOpen(false) }}
+                  className={`w-full text-left px-4 py-2 text-sm transition-colors flex items-center gap-3 ${activeColor === color ? "bg-muted font-medium" : "hover:bg-muted"}`}
+                >
+                  <span
+                    className="w-4 h-4 rounded-full border shrink-0"
+                    style={{ backgroundColor: color }}
+                  />
+                  {getColorName(color)}
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {(activeSize || activeColor) && (
+          <button
+            onClick={clearFilters}
+            className="text-xs text-muted-foreground hover:text-foreground flex items-center gap-1 transition-colors"
+          >
+            <X className="h-3 w-3" />
+            Clear
+          </button>
+        )}
+      </div>
+
+      {(sizeDropdownOpen || colorDropdownOpen) && (
+        <div className="fixed inset-0 z-30" onClick={() => { setSizeDropdownOpen(false); setColorDropdownOpen(false) }} />
+      )}
+
       <div className="flex items-start gap-8">
         <aside className="hidden lg:block w-56 shrink-0">
-          {filterContent}
+          {sidebarContent}
         </aside>
 
         {showFilters && (
@@ -240,7 +390,7 @@ function ShopContent() {
                   <X className="h-5 w-5" />
                 </button>
               </div>
-              {filterContent}
+              {sidebarContent}
             </div>
           </div>
         )}

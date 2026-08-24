@@ -49,7 +49,7 @@ export default function RegisterPage() {
     }
 
     if (data.session) {
-      router.push("/shop")
+      router.push("/store")
       router.refresh()
       return
     }
