@@ -19,14 +19,15 @@ import { useAdminOrders } from "@/hooks/use-admin-orders"
 
 const statusConfig = {
   pending: { label: "Pending", icon: Clock, variant: "warning" as const },
-  paid: { label: "Paid", icon: CheckCircle, variant: "success" as const },
+  confirmed: { label: "Confirmed", icon: CheckCircle, variant: "success" as const },
   processing: { label: "Processing", icon: Package, variant: "secondary" as const },
   shipped: { label: "Shipped", icon: Truck, variant: "default" as const },
   delivered: { label: "Delivered", icon: CheckCircle, variant: "success" as const },
   cancelled: { label: "Cancelled", icon: XCircle, variant: "destructive" as const },
+  refunded: { label: "Refunded", icon: XCircle, variant: "destructive" as const },
 }
 
-const allStatuses = ["pending", "paid", "processing", "shipped", "delivered", "cancelled"]
+const allStatuses = ["pending", "confirmed", "processing", "shipped", "delivered", "cancelled", "refunded"]
 
 export default function AdminOrdersPage() {
   const { orders, loading, updateOrderStatus } = useAdminOrders()

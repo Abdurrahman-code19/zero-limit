@@ -374,8 +374,8 @@ export default function HomePage() {
                               >
                                 <Heart className="h-4 w-4" />
                               </button>
-                              <Link
-                                href="/shop"
+                               <Link
+                                href="/login"
                                 className="w-10 h-10 bg-background text-foreground flex items-center justify-center hover:bg-background/80 transition-colors"
                                 aria-label="Search shop"
                                 onClick={(e) => e.stopPropagation()}

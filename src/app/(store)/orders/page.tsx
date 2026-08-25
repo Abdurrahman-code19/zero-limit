@@ -20,9 +20,10 @@ const statusColor: Record<string, "default" | "secondary" | "destructive" | "out
   delivered: "secondary",
   shipped: "default",
   processing: "default",
-  paid: "default",
+  confirmed: "default",
   pending: "outline",
   cancelled: "destructive",
+  refunded: "destructive",
 }
 
 export default function OrdersPage() {
@@ -106,9 +107,10 @@ export default function OrdersPage() {
       ) : (
         <div className="space-y-4">
           {orders.map((order) => (
-            <div
+            <Link
               key={order.id}
-              className="border rounded-lg p-4 hover:bg-muted/30 transition-colors"
+              href={`/orders/${order.id}`}
+              className="block border rounded-lg p-4 hover:bg-muted/30 transition-colors"
             >
               <div className="flex items-center justify-between">
                 <div className="space-y-1">
@@ -130,7 +132,7 @@ export default function OrdersPage() {
                   <p className="font-semibold">{formatCurrency(order.total)}</p>
                 </div>
               </div>
-            </div>
+            </Link>
           ))}
         </div>
       )}

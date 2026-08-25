@@ -69,18 +69,21 @@ export function useAdminOrders() {
   }, [])
 
   async function updateOrderStatus(id: string, status: string) {
-    const supabase = createClient()
-    const { error } = await supabase
-      .from("orders")
-      .update({ status, updated_at: new Date().toISOString() })
-      .eq("id", id)
+    const res = await fetch(`/api/admin/orders/${id}/status`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ status }),
+    })
 
-    if (!error) {
+    if (res.ok) {
       setOrders((prev) =>
         prev.map((o) => (o.id === id ? { ...o, status: status as Order["status"] } : o))
       )
+      return { error: null }
     }
-    return { error }
+
+    const data = await res.json()
+    return { error: { message: data.error } }
   }
 
   return { orders, loading, updateOrderStatus }
