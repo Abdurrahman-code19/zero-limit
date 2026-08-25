@@ -5,6 +5,16 @@ import { z } from "zod"
 
 const VALID_STATUSES = ["pending", "confirmed", "processing", "shipped", "delivered", "cancelled", "refunded"]
 
+const ALLOWED_TRANSITIONS: Record<string, string[]> = {
+  pending: ["confirmed", "cancelled"],
+  confirmed: ["processing", "cancelled"],
+  processing: ["shipped", "cancelled"],
+  shipped: ["delivered"],
+  delivered: ["refunded"],
+  cancelled: ["refunded"],
+  refunded: [],
+}
+
 const StatusUpdateSchema = z.object({
   status: z.enum(VALID_STATUSES as [string, ...string[]]).optional(),
   tracking_number: z.string().max(100).optional(),
@@ -50,6 +60,21 @@ export async function PATCH(
   }
 
   if (status) {
+    const { data: currentOrder } = await supabase
+      .from("orders")
+      .select("status")
+      .eq("id", params.id)
+      .single()
+
+    if (currentOrder) {
+      const allowed = ALLOWED_TRANSITIONS[currentOrder.status] ?? []
+      if (!allowed.includes(status)) {
+        return NextResponse.json(
+          { error: `Cannot transition from "${currentOrder.status}" to "${status}"` },
+          { status: 400 }
+        )
+      }
+    }
     updateData.status = status
   }
 

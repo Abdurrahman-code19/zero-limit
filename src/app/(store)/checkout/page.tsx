@@ -62,7 +62,7 @@ export default function CheckoutPage() {
   const [verifyError, setVerifyError] = useState<string | null>(null)
 
   const subtotal = getTotal()
-  const shipping = subtotal >= 50000 ? 0 : 2500
+  const shipping = subtotal >= 50000 ? 0 : 2000
   const total = subtotal + shipping
 
   const handleFormValidation = () => {

@@ -9,6 +9,7 @@ import {
   XCircle,
   Package,
   ChevronDown,
+  Save,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -33,6 +34,8 @@ export default function AdminOrdersPage() {
   const { orders, loading, updateOrderStatus } = useAdminOrders()
   const [search, setSearch] = useState("")
   const [updatingId, setUpdatingId] = useState<string | null>(null)
+  const [trackingInputs, setTrackingInputs] = useState<Record<string, string>>({})
+  const [savingTrackingId, setSavingTrackingId] = useState<string | null>(null)
 
   const filteredOrders = orders.filter(
     (order) =>
@@ -45,6 +48,23 @@ export default function AdminOrdersPage() {
     setUpdatingId(id)
     await updateOrderStatus(id, newStatus)
     setUpdatingId(null)
+  }
+
+  async function handleTrackingSave(id: string) {
+    const trackingNumber = trackingInputs[id]
+    if (!trackingNumber?.trim()) return
+    setSavingTrackingId(id)
+    try {
+      const res = await fetch(`/api/admin/orders/${id}/status`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ tracking_number: trackingNumber.trim() }),
+      })
+      if (res.ok) {
+        setTrackingInputs((prev) => { const n = { ...prev }; delete n[id]; return n })
+      }
+    } catch { /* ignore */ }
+    setSavingTrackingId(null)
   }
 
   if (loading) {
@@ -171,7 +191,28 @@ export default function AdminOrdersPage() {
                         </td>
                         <td className="p-4 text-muted-foreground">{formatDate(order.created_at)}</td>
                         <td className="p-4">
-                          <div className="flex items-center justify-end gap-2">
+                          <div className="flex flex-col items-end gap-2">
+                            {["shipped", "delivered"].includes(order.status) && (
+                              <div className="flex items-center gap-1">
+                                <Input
+                                  placeholder="Tracking #"
+                                  value={trackingInputs[order.id] ?? ""}
+                                  onChange={(e) => setTrackingInputs((prev) => ({ ...prev, [order.id]: e.target.value }))}
+                                  className="w-32 h-7 text-xs"
+                                />
+                                {trackingInputs[order.id]?.trim() && (
+                                  <Button
+                                    size="sm"
+                                    variant="ghost"
+                                    className="h-7 w-7 p-0"
+                                    onClick={() => handleTrackingSave(order.id)}
+                                    disabled={savingTrackingId === order.id}
+                                  >
+                                    <Save className="h-3 w-3" />
+                                  </Button>
+                                )}
+                              </div>
+                            )}
                             <Badge variant={status.variant} className="text-xs">
                               <StatusIcon className="h-3 w-3 mr-1" />
                               {status.label}

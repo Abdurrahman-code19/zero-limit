@@ -31,7 +31,7 @@
 - [x] **17. Fix auth callback open redirect** — `src/app/auth/callback/route.ts:7,13` — `next` param used directly. Attacker can craft `?next=//evil.com`. Validate `next` starts with `/` and has no `//`.
 - [x] **18. Add duplicate payment reference check** — `src/app/api/orders/route.ts` — no check if `payment_reference` already exists. Same reference can create duplicate orders.
 - [ ] **19. No CSRF tokens on forms** — Auth and checkout forms lack CSRF protection. Implement tokens or ensure state-changing ops require custom headers.
-- [ ] **20. Add rate limiting to all API routes** — `/api/paystack/verify`, `/api/orders`, `/api/admin/orders/[id]/status`, auth actions — all open to abuse. Use `@vercel/rate-limit` or edge middleware.
+- [x] **20. Add rate limiting to all API routes** — `/api/paystack/verify`, `/api/orders`, `/api/admin/orders/[id]/status`, auth actions — all open to abuse. Use `@vercel/rate-limit` or edge middleware.
 - [x] **21. HTML-escape email template values** — `src/lib/email/order-confirmation.ts:28-39,86-88` and `order-status-update.ts:48-53` interpolate user input directly into HTML. Escape all dynamic values.
 - [x] **22. Add input validation with Zod on API routes** — `src/app/api/orders/route.ts:49-57` only checks `items?.length`. No validation on quantity (can be negative), price (client-controlled), or total bounds.
 
@@ -39,21 +39,21 @@
 
 ## Phase 3 — HIGH E-Commerce Logic (15 issues)
 
-- [ ] **23. Implement Paystack webhook route** — (duplicate of #5, critical for both security and e-commerce) Create `src/app/api/paystack/webhook/route.ts` with signature verification.
+- [x] **23. Implement Paystack webhook route** — (duplicate of #5, critical for both security and e-commerce) Create `src/app/api/paystack/webhook/route.ts` with signature verification.
 - [ ] **24. Client-driven payment flow → server-driven** — `src/app/(store)/checkout/page.tsx:84-151` — entire verify → order → email is client-orchestrated. Move to single server-side flow.
-- [ ] **25. Fix revenue calculation** — `src/hooks/use-admin-stats.ts:46` filters `o.status` against `"paid"` (payment status). Revenue always = 0. Filter on `payment_status === "paid"` instead.
-- [ ] **26. Sync hardcoded shipping fee with DB** — `src/app/(store)/checkout/page.tsx:60` uses `₦2,500`. DB settings say `₦2,000`. Read from settings table.
-- [ ] **27. Add customer order cancellation** — No cancel button on order detail page. Add cancel for `pending`/`confirmed` orders.
+- [x] **25. Fix revenue calculation** — `src/hooks/use-admin-stats.ts:46` filters `o.status` against `"paid"` (payment status). Revenue always = 0. Filter on `payment_status === "paid"` instead.
+- [x] **26. Sync hardcoded shipping fee with DB** — `src/app/(store)/checkout/page.tsx:60` uses `₦2,500`. DB settings say `₦2,000`. Read from settings table.
+- [x] **27. Add customer order cancellation** — No cancel button on order detail page. Add cancel for `pending`/`confirmed` orders.
 - [ ] **28. Add return/refund request flow** — Advertised "7-day hassle-free returns" but zero implementation. Create request form and admin review UI.
-- [ ] **29. Create admin order detail page** — No `src/app/(admin)/admin/orders/[id]/page.tsx`. Admins can't view items, address, payment details, or notes.
-- [ ] **30. Add tracking number input UI for admin** — API supports `tracking_number` but admin orders page only has status dropdown. Add modal/input field.
-- [ ] **31. Send admin notification email on new order** — No email sent to store admins when orders arrive.
+- [x] **29. Create admin order detail page** — No `src/app/(admin)/admin/orders/[id]/page.tsx`. Admins can't view items, address, payment details, or notes.
+- [x] **30. Add tracking number input UI for admin** — API supports `tracking_number` but admin orders page only has status dropdown. Add modal/input field.
+- [x] **31. Send admin notification email on new order** — No email sent to store admins when orders arrive.
 - [ ] **32. Send payment failure email** — If payment fails, no email to customer or admin.
-- [ ] **33. Fix collection_products RLS** — `supabase/migrations/001_initial_schema.sql:125-130` — no RLS enabled. Any user can read/write.
-- [ ] **34. Add status transition validation** — Admin can jump from "delivered" to "pending". Enforce valid state machine: `pending → confirmed → processing → shipped → delivered`.
+- [x] **33. Fix collection_products RLS** — `supabase/migrations/001_initial_schema.sql:125-130` — no RLS enabled. Any user can read/write.
+- [x] **34. Add status transition validation** — Admin can jump from "delivered" to "pending". Enforce valid state machine: `pending → confirmed → processing → shipped → delivered`.
 - [ ] **35. Fix variant stock decrement** — `src/app/api/orders/route.ts:112` — checkout never sends `variant_id`, so variant stock is never touched.
-- [ ] **36. Fix guest email fallback** — `src/app/(store)/checkout/page.tsx:400` sends `pending@checkout.com` to Paystack if email empty. Require valid email.
-- [ ] **37. Fix newsletter form** — `src/app/store/page.tsx:295` — `onSubmit={(e) => e.preventDefault()}` does nothing. Actually save email to DB or mailing list.
+- [x] **36. Fix guest email fallback** — `src/app/(store)/checkout/page.tsx:400` sends `pending@checkout.com` to Paystack if email empty. Require valid email.
+- [x] **37. Fix newsletter form** — `src/app/store/page.tsx:295` — `onSubmit={(e) => e.preventDefault()}` does nothing. Actually save email to DB or mailing list.
 
 ---
 
@@ -74,7 +74,7 @@
 - [ ] **50. Implement product reviews** — Type exists, ratings hardcoded. No review submission or display.
 - [ ] **51. Add order notes/comments for admin** — Admin cannot add internal notes to orders.
 - [ ] **52. Add order status transition date tracking** — Timeline shows steps but not when each transition occurred.
-- [ ] **53. Fix order number generation** — `src/app/api/orders/route.ts:60` — uses `Math.random()`. Use `crypto.randomUUID()` or DB sequence.
+- [x] **53. Fix order number generation** — `src/app/api/orders/route.ts:60` — uses `Math.random()`. Use `crypto.randomUUID()` or DB sequence.
 - [ ] **54. Add delivery state dropdown** — Checkout state field is free text. Should be dropdown of valid Nigerian states.
 - [ ] **55. Add order review step before Paystack** — No confirmation before opening payment window.
 - [ ] **56. Log email failures** — `src/app/api/orders/route.ts:157` — `.catch(() => {})` swallows errors silently.

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server"
 import { createClient } from "@/lib/supabase/server"
 import { sendOrderConfirmation } from "@/lib/email/order-confirmation"
+import { sendAdminNewOrder } from "@/lib/email/admin-new-order"
 import { z } from "zod"
 
 const PAYSTACK_SECRET_KEY = process.env.PAYSTACK_SECRET_KEY
@@ -185,6 +186,14 @@ export async function POST(req: NextRequest) {
       total,
       shippingAddress: shipping,
     }).catch((err) => console.error("[Email] Order confirmation failed:", err))
+
+    sendAdminNewOrder({
+      orderNumber,
+      customerName: `${shipping.first_name} ${shipping.last_name}`,
+      customerEmail: shipping.email,
+      total,
+      itemCount: items.length,
+    }).catch((err) => console.error("[Email] Admin notification failed:", err))
 
     return NextResponse.json({
       status: true,

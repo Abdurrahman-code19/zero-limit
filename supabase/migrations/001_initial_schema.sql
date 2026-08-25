@@ -300,6 +300,7 @@ CREATE INDEX idx_activity_logs_user ON public.activity_logs(user_id);
 ALTER TABLE public.profiles ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.categories ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.collections ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.collection_products ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.products ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.product_variants ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.addresses ENABLE ROW LEVEL SECURITY;
@@ -325,6 +326,12 @@ CREATE POLICY "Admins can manage categories" ON public.categories FOR ALL USING 
 -- Collections: Public read, admin write
 CREATE POLICY "Anyone can view collections" ON public.collections FOR SELECT USING (is_active = true);
 CREATE POLICY "Admins can manage collections" ON public.collections FOR ALL USING (
+  EXISTS (SELECT 1 FROM public.profiles WHERE id = auth.uid() AND role IN ('admin', 'super_admin'))
+);
+
+-- Collection Products: Public read, admin write
+CREATE POLICY "Anyone can view collection products" ON public.collection_products FOR SELECT USING (true);
+CREATE POLICY "Admins can manage collection products" ON public.collection_products FOR ALL USING (
   EXISTS (SELECT 1 FROM public.profiles WHERE id = auth.uid() AND role IN ('admin', 'super_admin'))
 );
 

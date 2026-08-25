@@ -1,7 +1,8 @@
 "use client"
 
-import Link from "next/link"
 import { useState, useEffect, useMemo } from "react"
+
+import Link from "next/link"
 import { motion } from "framer-motion"
 import { 
   ArrowRight, Heart, ShoppingBag, Star, Eye, Loader2,
@@ -50,6 +51,8 @@ const QUICK_ACTIONS = [
 
 export default function StorePage() {
   const [activeSlide, setActiveSlide] = useState(0)
+  const [newsletterEmail, setNewsletterEmail] = useState("")
+  const [newsletterSubmitted, setNewsletterSubmitted] = useState(false)
   const { products: PRODUCTS, loading } = useProducts()
 
   if (loading) {
@@ -292,15 +295,31 @@ export default function StorePage() {
           <p className="text-sm text-muted-foreground mb-8">
             Exclusive drops, early access, and style inspiration.
           </p>
-          <form className="flex flex-col sm:flex-row gap-3" onSubmit={(e) => e.preventDefault()}>
-            <input
-              type="email" placeholder="Email Address"
-              className="flex-1 min-w-0 bg-background border px-4 py-3 text-sm focus:outline-none focus:border-foreground transition-colors"
-            />
-            <Button type="submit" className="bg-foreground text-background hover:bg-foreground/90 text-xs tracking-widest uppercase rounded-none px-6 shrink-0">
-              Subscribe
-            </Button>
-          </form>
+          {newsletterSubmitted ? (
+            <p className="text-sm text-muted-foreground">Thanks for subscribing!</p>
+          ) : (
+            <form className="flex flex-col sm:flex-row gap-3" onSubmit={async (e) => {
+              e.preventDefault()
+              try {
+                await fetch("/api/newsletter", {
+                  method: "POST",
+                  headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify({ email: newsletterEmail }),
+                })
+                setNewsletterSubmitted(true)
+              } catch { /* ignore */ }
+            }}>
+              <input
+                type="email" placeholder="Email Address" required
+                value={newsletterEmail}
+                onChange={(e) => setNewsletterEmail(e.target.value)}
+                className="flex-1 min-w-0 bg-background border px-4 py-3 text-sm focus:outline-none focus:border-foreground transition-colors"
+              />
+              <Button type="submit" className="bg-foreground text-background hover:bg-foreground/90 text-xs tracking-widest uppercase rounded-none px-6 shrink-0">
+                Subscribe
+              </Button>
+            </form>
+          )}
         </div>
       </section>
 

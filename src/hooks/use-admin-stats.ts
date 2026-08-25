@@ -29,7 +29,7 @@ export function useAdminStats() {
 
     async function fetchStats() {
       const [ordersRes, productsRes, customersRes, lowStockRes] = await Promise.all([
-        supabase.from("orders").select("id, order_number, total, status, created_at"),
+        supabase.from("orders").select("id, order_number, total, status, payment_status, created_at"),
         supabase.from("products").select("id", { count: "exact", head: true }),
         supabase.from("profiles").select("id", { count: "exact", head: true }),
         supabase
@@ -41,9 +41,9 @@ export function useAdminStats() {
           .limit(10),
       ])
 
-      const orders = (ordersRes.data ?? []) as { id: string; order_number: string; total: number; status: string; created_at: string }[]
+      const orders = (ordersRes.data ?? []) as { id: string; order_number: string; total: number; status: string; payment_status: string; created_at: string }[]
       const totalRevenue = orders
-        .filter((o) => ["paid", "processing", "shipped", "delivered"].includes(o.status))
+        .filter((o) => o.payment_status === "paid")
         .reduce((sum, o) => sum + (o.total ?? 0), 0)
 
       const recentOrders: Order[] = orders

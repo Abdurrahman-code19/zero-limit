@@ -76,6 +76,7 @@ export default function OrderDetailPage() {
   const [order, setOrder] = useState<OrderDetail | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [cancelling, setCancelling] = useState(false)
 
   useEffect(() => {
     const supabase = createClient()
@@ -130,6 +131,21 @@ export default function OrderDetailPage() {
 
   const currentStep = statusIndex[order.status] ?? -1
   const isCancelled = order.status === "cancelled" || order.status === "refunded"
+  const canCancel = ["pending", "confirmed"].includes(order.status)
+
+  async function handleCancel() {
+    if (!confirm("Are you sure you want to cancel this order?")) return
+    setCancelling(true)
+    try {
+      const res = await fetch(`/api/orders/${order!.id}/cancel`, {
+        method: "PATCH",
+      })
+      if (res.ok) {
+        setOrder({ ...order!, status: "cancelled" })
+      }
+    } catch { /* ignore */ }
+    setCancelling(false)
+  }
 
   return (
     <div className="container mx-auto px-4 py-8 max-w-3xl">
@@ -152,6 +168,20 @@ export default function OrderDetailPage() {
           {order.status}
         </Badge>
       </div>
+
+      {canCancel && (
+        <div className="mb-6">
+          <Button
+            variant="destructive"
+            size="sm"
+            onClick={handleCancel}
+            disabled={cancelling}
+          >
+            {cancelling ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <XCircle className="h-4 w-4 mr-2" />}
+            Cancel Order
+          </Button>
+        </div>
+      )}
 
       {/* Tracking Timeline */}
       {!isCancelled && (
