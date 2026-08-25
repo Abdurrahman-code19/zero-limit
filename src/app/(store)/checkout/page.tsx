@@ -29,6 +29,12 @@ interface PaymentData {
   customer_email: string
 }
 
+interface OrderData {
+  order_id: string
+  order_number: string
+  total: number
+}
+
 export default function CheckoutPage() {
   const { items, getTotal, getItemCount, clearCart } = useCartStore()
   const [mounted, setMounted] = useState(false)
@@ -46,6 +52,7 @@ export default function CheckoutPage() {
   const [state, setState] = useState("")
   const [formError, setFormError] = useState<string | null>(null)
   const [paymentData, setPaymentData] = useState<PaymentData | null>(null)
+  const [orderData, setOrderData] = useState<OrderData | null>(null)
   const [verifying, setVerifying] = useState(false)
   const [verifyError, setVerifyError] = useState<string | null>(null)
 
@@ -78,23 +85,65 @@ export default function CheckoutPage() {
     setVerifying(true)
     setVerifyError(null)
     try {
-      const res = await fetch("/api/paystack/verify", {
+      // Step 1: Verify payment with Paystack
+      const verifyRes = await fetch("/api/paystack/verify", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ reference }),
       })
-      const data = await res.json()
+      const verifyData = await verifyRes.json()
 
-      if (!res.ok || !data.status) {
+      if (!verifyRes.ok || !verifyData.status) {
         setVerifyError(
-          data.error || "Payment verification failed. Contact support."
+          verifyData.error || "Payment verification failed. Contact support."
         )
         setVerifying(false)
         return
       }
 
+      // Step 2: Persist order to database
+      const orderRes = await fetch("/api/orders", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          items: items.map((item) => ({
+            product_id: item.product.id,
+            name: item.product.name,
+            quantity: item.quantity,
+            size: item.size,
+            color: item.color,
+            unit_price: item.product.price,
+          })),
+          shipping: {
+            first_name: firstName,
+            last_name: lastName,
+            email,
+            phone,
+            address,
+            city,
+            state,
+          },
+          subtotal,
+          shipping_cost: shipping,
+          total,
+          payment_reference: reference,
+          payment_method: verifyData.data.channel || "paystack",
+        }),
+      })
+      const orderDataRes = await orderRes.json()
+
+      if (!orderRes.ok) {
+        // Payment succeeded but order persist failed — still show success
+        // but note the issue
+        console.error("Order persist failed:", orderDataRes.error)
+        setPaymentData(verifyData.data)
+        setVerifying(false)
+        return
+      }
+
       clearCart()
-      setPaymentData(data.data)
+      setPaymentData(verifyData.data)
+      setOrderData(orderDataRes.data)
     } catch {
       setVerifyError("Could not verify payment. Contact support with your reference.")
       setVerifying(false)
@@ -135,6 +184,14 @@ export default function CheckoutPage() {
             Thank you, {firstName}! Your order has been placed successfully.
           </p>
           <div className="border p-6 text-left space-y-3 text-sm">
+            {orderData && (
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">Order Number</span>
+                <span className="font-mono font-medium">
+                  {orderData.order_number}
+                </span>
+              </div>
+            )}
             <div className="flex justify-between">
               <span className="text-muted-foreground">Reference</span>
               <span className="font-mono font-medium">
@@ -175,12 +232,19 @@ export default function CheckoutPage() {
             A confirmation will be sent to{" "}
             <span className="text-foreground">{email}</span>
           </p>
-          <Link href="/store" className="block">
-            <Button className="bg-foreground text-background hover:bg-foreground/90 text-xs tracking-widest uppercase rounded-none px-10 py-6">
-              Continue Shopping
-              <ArrowRight className="ml-2 h-4 w-4" />
-            </Button>
-          </Link>
+          <div className="flex gap-3 justify-center">
+            <Link href="/orders" className="block">
+              <Button variant="outline" className="text-xs tracking-widest uppercase rounded-none px-10 py-6">
+                View My Orders
+              </Button>
+            </Link>
+            <Link href="/store" className="block">
+              <Button className="bg-foreground text-background hover:bg-foreground/90 text-xs tracking-widest uppercase rounded-none px-10 py-6">
+                Continue Shopping
+                <ArrowRight className="ml-2 h-4 w-4" />
+              </Button>
+            </Link>
+          </div>
         </motion.div>
       </div>
     )
