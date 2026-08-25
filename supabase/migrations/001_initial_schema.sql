@@ -154,7 +154,7 @@ CREATE TABLE public.addresses (
 -- ============================================
 CREATE TABLE public.orders (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-  user_id UUID NOT NULL REFERENCES public.profiles(id) ON DELETE SET NULL,
+  user_id UUID NOT NULL REFERENCES public.profiles(id) ON DELETE RESTRICT,
   order_number TEXT UNIQUE NOT NULL,
   status TEXT DEFAULT 'pending' CHECK (status IN ('pending', 'confirmed', 'processing', 'shipped', 'delivered', 'cancelled', 'refunded')),
   payment_status TEXT DEFAULT 'pending' CHECK (payment_status IN ('pending', 'paid', 'failed', 'refunded')),
@@ -202,9 +202,11 @@ CREATE TABLE public.cart_items (
   variant_id UUID REFERENCES public.product_variants(id) ON DELETE CASCADE,
   quantity INTEGER NOT NULL DEFAULT 1,
   created_at TIMESTAMPTZ DEFAULT NOW(),
-  updated_at TIMESTAMPTZ DEFAULT NOW(),
-  UNIQUE(user_id, product_id, variant_id)
+  updated_at TIMESTAMPTZ DEFAULT NOW()
 );
+
+CREATE UNIQUE INDEX idx_cart_items_user_product_variant
+  ON public.cart_items (user_id, product_id, COALESCE(variant_id, '00000000-0000-0000-0000-000000000000'::uuid));
 
 -- ============================================
 -- WISHLIST
@@ -400,7 +402,7 @@ CREATE POLICY "Admins can manage settings" ON public.settings FOR ALL USING (
 CREATE POLICY "Admins can view activity logs" ON public.activity_logs FOR SELECT USING (
   EXISTS (SELECT 1 FROM public.profiles WHERE id = auth.uid() AND role IN ('admin', 'super_admin'))
 );
-CREATE POLICY "System can insert activity logs" ON public.activity_logs FOR INSERT WITH CHECK (true);
+CREATE POLICY "Authenticated users can insert activity logs" ON public.activity_logs FOR INSERT WITH CHECK (auth.uid() IS NOT NULL);
 
 -- ============================================
 -- INSERT DEFAULT SETTINGS
