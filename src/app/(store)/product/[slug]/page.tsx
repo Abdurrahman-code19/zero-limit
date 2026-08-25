@@ -124,17 +124,7 @@ export default function ProductPage({
           transition={{ duration: 0.5, delay: 0.1 }}
         >
           <div className="flex items-center gap-2 mb-3">
-            <div className="flex items-center gap-0.5">
-              {Array.from({ length: 5 }).map((_, i) => (
-                <Star
-                  key={i}
-                  className="h-4 w-4 text-yellow-500 fill-yellow-500"
-                />
-              ))}
-            </div>
-            <span className="text-sm text-muted-foreground">
-              4.8 (42 reviews)
-            </span>
+            <span className="text-sm text-muted-foreground">Be the first to review this product</span>
           </div>
 
           <h1 className="text-3xl md:text-4xl font-light mb-3">{product.name}</h1>

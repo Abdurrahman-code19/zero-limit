@@ -441,3 +441,31 @@ INSERT INTO public.collections (name, slug, description, sort_order) VALUES
   ('Limited Edition', 'limited-edition', 'Exclusive pieces - once they are gone, they are gone', 2),
   ('The Classics', 'the-classics', 'Timeless pieces that never go out of style', 3),
   ('Back to School', 'back-to-school', 'Fresh fits for the new term', 4);
+
+-- ============================================
+-- AUTO-UPDATE updated_at TRIGGER
+-- ============================================
+CREATE OR REPLACE FUNCTION public.handle_updated_at()
+RETURNS TRIGGER AS $$
+BEGIN
+  NEW.updated_at = NOW();
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER set_updated_at BEFORE UPDATE ON public.profiles
+  FOR EACH ROW EXECUTE FUNCTION public.handle_updated_at();
+CREATE TRIGGER set_updated_at BEFORE UPDATE ON public.products
+  FOR EACH ROW EXECUTE FUNCTION public.handle_updated_at();
+CREATE TRIGGER set_updated_at BEFORE UPDATE ON public.product_variants
+  FOR EACH ROW EXECUTE FUNCTION public.handle_updated_at();
+CREATE TRIGGER set_updated_at BEFORE UPDATE ON public.orders
+  FOR EACH ROW EXECUTE FUNCTION public.handle_updated_at();
+CREATE TRIGGER set_updated_at BEFORE UPDATE ON public.cart_items
+  FOR EACH ROW EXECUTE FUNCTION public.handle_updated_at();
+CREATE TRIGGER set_updated_at BEFORE UPDATE ON public.coupons
+  FOR EACH ROW EXECUTE FUNCTION public.handle_updated_at();
+CREATE TRIGGER set_updated_at BEFORE UPDATE ON public.collections
+  FOR EACH ROW EXECUTE FUNCTION public.handle_updated_at();
+CREATE TRIGGER set_updated_at BEFORE UPDATE ON public.categories
+  FOR EACH ROW EXECUTE FUNCTION public.handle_updated_at();
