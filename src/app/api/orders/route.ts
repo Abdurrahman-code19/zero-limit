@@ -1,36 +1,37 @@
 import { NextRequest, NextResponse } from "next/server"
 import { createClient } from "@/lib/supabase/server"
 import { sendOrderConfirmation } from "@/lib/email/order-confirmation"
+import { z } from "zod"
 
 const PAYSTACK_SECRET_KEY = process.env.PAYSTACK_SECRET_KEY
 
-interface OrderItemInput {
-  product_id: string
-  variant_id?: string
-  name: string
-  quantity: number
-  size: string
-  color: string
-  unit_price: number
-}
+const OrderItemSchema = z.object({
+  product_id: z.string().uuid(),
+  variant_id: z.string().uuid().optional(),
+  name: z.string().min(1).max(200),
+  quantity: z.number().int().min(1).max(100),
+  size: z.string().max(50),
+  color: z.string().max(50),
+  unit_price: z.number().min(0),
+})
 
-interface OrderInput {
-  items: OrderItemInput[]
-  shipping: {
-    first_name: string
-    last_name: string
-    email: string
-    phone: string
-    address: string
-    city: string
-    state: string
-  }
-  subtotal: number
-  shipping_cost: number
-  total: number
-  payment_reference: string
-  payment_method: string
-}
+const OrderSchema = z.object({
+  items: z.array(OrderItemSchema).min(1).max(50),
+  shipping: z.object({
+    first_name: z.string().min(1).max(100),
+    last_name: z.string().min(1).max(100),
+    email: z.string().email(),
+    phone: z.string().min(7).max(20),
+    address: z.string().min(1).max(500),
+    city: z.string().min(1).max(100),
+    state: z.string().min(1).max(100),
+  }),
+  subtotal: z.number().min(0),
+  shipping_cost: z.number().min(0),
+  total: z.number().min(0),
+  payment_reference: z.string().min(1).max(100),
+  payment_method: z.string().max(50),
+})
 
 async function verifyPayment(reference: string): Promise<{ verified: boolean; amount: number }> {
   if (!PAYSTACK_SECRET_KEY) return { verified: false, amount: 0 }
@@ -56,22 +57,14 @@ export async function POST(req: NextRequest) {
   }
 
   try {
-    const body: OrderInput = await req.json()
-    const { items, shipping, subtotal, shipping_cost, total, payment_reference, payment_method } = body
+    const body = await req.json()
+    const parsed = OrderSchema.safeParse(body)
 
-    if (!items?.length || !payment_reference) {
-      return NextResponse.json({ error: "Missing required order data" }, { status: 400 })
+    if (!parsed.success) {
+      return NextResponse.json({ error: "Invalid order data", details: parsed.error.flatten() }, { status: 400 })
     }
 
-    for (const item of items) {
-      if (!item.product_id || !item.name || !item.quantity || item.quantity < 1 || item.unit_price < 0) {
-        return NextResponse.json({ error: "Invalid item data" }, { status: 400 })
-      }
-    }
-
-    if (total < 0 || subtotal < 0) {
-      return NextResponse.json({ error: "Invalid total" }, { status: 400 })
-    }
+    const { items, shipping, subtotal, shipping_cost, total, payment_reference, payment_method } = parsed.data
 
     const { verified, amount: paidAmount } = await verifyPayment(payment_reference)
     if (!verified) {

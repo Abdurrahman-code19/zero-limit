@@ -1,4 +1,5 @@
 import { Resend } from "resend"
+import { escapeHtml } from "@/utils"
 
 const resend = new Resend(process.env.RESEND_API_KEY)
 
@@ -26,8 +27,8 @@ function buildOrderEmailHtml(data: OrderEmailData): string {
       (item) => `
       <tr>
         <td style="padding:12px 0;border-bottom:1px solid #eee;font-size:14px;color:#333;">
-          ${item.name}
-          <br/><span style="font-size:12px;color:#888;">Size: ${item.size} &middot; Color: ${item.color}</span>
+          ${escapeHtml(item.name)}
+          <br/><span style="font-size:12px;color:#888;">Size: ${escapeHtml(item.size)} &middot; Color: ${escapeHtml(item.color)}</span>
         </td>
         <td style="padding:12px 0;border-bottom:1px solid #eee;font-size:14px;color:#333;text-align:center;">
           ${item.quantity}
@@ -83,9 +84,9 @@ function buildOrderEmailHtml(data: OrderEmailData): string {
       <div style="background:#f9f9f9;padding:16px;border-radius:4px;margin-bottom:24px;">
         <p style="margin:0 0 8px;font-size:13px;color:#666;text-transform:uppercase;letter-spacing:1px;">Delivery Address</p>
         <p style="margin:0;font-size:14px;color:#333;line-height:1.6;">
-          ${data.shippingAddress.first_name} ${data.shippingAddress.last_name}<br/>
-          ${data.shippingAddress.address}<br/>
-          ${data.shippingAddress.city}, ${data.shippingAddress.state}
+          ${escapeHtml(data.shippingAddress.first_name)} ${escapeHtml(data.shippingAddress.last_name)}<br/>
+          ${escapeHtml(data.shippingAddress.address)}<br/>
+          ${escapeHtml(data.shippingAddress.city)}, ${escapeHtml(data.shippingAddress.state)}
         </p>
       </div>
     </div>

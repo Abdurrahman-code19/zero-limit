@@ -37,3 +37,12 @@ export function generateOrderId() {
   const random = Math.random().toString(36).substring(2)
   return `ZL-${timestamp}-${random}`.toUpperCase()
 }
+
+export function escapeHtml(str: string): string {
+  return str
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;")
+}

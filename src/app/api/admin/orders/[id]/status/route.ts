@@ -1,8 +1,14 @@
 import { NextRequest, NextResponse } from "next/server"
 import { createClient } from "@/lib/supabase/server"
 import { sendOrderStatusUpdate } from "@/lib/email/order-status-update"
+import { z } from "zod"
 
 const VALID_STATUSES = ["pending", "confirmed", "processing", "shipped", "delivered", "cancelled", "refunded"]
+
+const StatusUpdateSchema = z.object({
+  status: z.enum(VALID_STATUSES as [string, ...string[]]).optional(),
+  tracking_number: z.string().max(100).optional(),
+})
 
 export async function PATCH(
   request: NextRequest,
@@ -25,12 +31,19 @@ export async function PATCH(
     return NextResponse.json({ error: "Forbidden" }, { status: 403 })
   }
 
-  const body = await request.json()
-  const { status, tracking_number } = body
-
-  if (status && !VALID_STATUSES.includes(status)) {
-    return NextResponse.json({ error: "Invalid status" }, { status: 400 })
+  let body: unknown
+  try {
+    body = await request.json()
+  } catch {
+    return NextResponse.json({ error: "Invalid JSON body" }, { status: 400 })
   }
+
+  const parsed = StatusUpdateSchema.safeParse(body)
+  if (!parsed.success) {
+    return NextResponse.json({ error: "Invalid data", details: parsed.error.flatten() }, { status: 400 })
+  }
+
+  const { status, tracking_number } = parsed.data
 
   const updateData: Record<string, unknown> = {
     updated_at: new Date().toISOString(),

@@ -26,14 +26,14 @@
 
 ## Phase 2 — HIGH Security & Auth (8 issues)
 
-- [ ] **15. Add admin role check in middleware** — `src/middleware.ts:66-70` only checks `!user`, not role. Any authenticated customer can access `/admin/*`. Query `profiles.role` in middleware.
-- [ ] **16. Fix admin data hooks race condition** — `src/hooks/use-admin-*.ts` fire on mount before `src/app/(admin)/admin/layout.tsx` role check completes. Non-admins briefly see data. Move data fetching behind role verification.
-- [ ] **17. Fix auth callback open redirect** — `src/app/auth/callback/route.ts:7,13` — `next` param used directly. Attacker can craft `?next=//evil.com`. Validate `next` starts with `/` and has no `//`.
-- [ ] **18. Add duplicate payment reference check** — `src/app/api/orders/route.ts` — no check if `payment_reference` already exists. Same reference can create duplicate orders.
+- [x] **15. Add admin role check in middleware** — `src/middleware.ts:66-70` only checks `!user`, not role. Any authenticated customer can access `/admin/*`. Query `profiles.role` in middleware.
+- [x] **16. Fix admin data hooks race condition** — `src/hooks/use-admin-*.ts` fire on mount before `src/app/(admin)/admin/layout.tsx` role check completes. Non-admins briefly see data. Move data fetching behind role verification.
+- [x] **17. Fix auth callback open redirect** — `src/app/auth/callback/route.ts:7,13` — `next` param used directly. Attacker can craft `?next=//evil.com`. Validate `next` starts with `/` and has no `//`.
+- [x] **18. Add duplicate payment reference check** — `src/app/api/orders/route.ts` — no check if `payment_reference` already exists. Same reference can create duplicate orders.
 - [ ] **19. No CSRF tokens on forms** — Auth and checkout forms lack CSRF protection. Implement tokens or ensure state-changing ops require custom headers.
 - [ ] **20. Add rate limiting to all API routes** — `/api/paystack/verify`, `/api/orders`, `/api/admin/orders/[id]/status`, auth actions — all open to abuse. Use `@vercel/rate-limit` or edge middleware.
-- [ ] **21. HTML-escape email template values** — `src/lib/email/order-confirmation.ts:28-39,86-88` and `order-status-update.ts:48-53` interpolate user input directly into HTML. Escape all dynamic values.
-- [ ] **22. Add input validation with Zod on API routes** — `src/app/api/orders/route.ts:49-57` only checks `items?.length`. No validation on quantity (can be negative), price (client-controlled), or total bounds.
+- [x] **21. HTML-escape email template values** — `src/lib/email/order-confirmation.ts:28-39,86-88` and `order-status-update.ts:48-53` interpolate user input directly into HTML. Escape all dynamic values.
+- [x] **22. Add input validation with Zod on API routes** — `src/app/api/orders/route.ts:49-57` only checks `items?.length`. No validation on quantity (can be negative), price (client-controlled), or total bounds.
 
 ---
 
