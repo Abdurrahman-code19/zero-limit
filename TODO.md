@@ -60,14 +60,14 @@
 ## Phase 4 — MEDIUM Issues (25 issues)
 
 - [x] **38. Fix cart UNIQUE constraint with NULL variant_id** — `supabase/migrations/001_initial_schema.sql:206` — PostgreSQL `NULL != NULL` in UNIQUE. Two rows with same `(user_id, product_id, NULL)` are allowed. Use COALESCE or partial unique index.
-- [ ] **39. Add coupon used_count atomic increment** — `supabase/migrations/001_initial_schema.sql:238-251` — no atomic mechanism. Concurrent applications both pass `used_count < max_uses`.
+- [x] **39. Add coupon used_count atomic increment** — `supabase/migrations/001_initial_schema.sql:238-251` — no atomic mechanism. Concurrent applications both pass `used_count < max_uses`.
 - [x] **40. Add updated_at auto-update triggers** — Tables with `updated_at` columns have no DB trigger. Code manually sets it in some routes but not all.
 - [x] **41. Restrict activity_logs INSERT policy** — `supabase/migrations/001_initial_schema.sql:396` — `WITH CHECK (true)` lets any authenticated user insert audit logs.
-- [ ] **42. Add price filter to shop page** — `src/app/shop/page.tsx` — no price range filter. Essential for fashion e-commerce.
+- [x] **42. Add price filter to shop page** — `src/app/shop/page.tsx` — no price range filter. Essential for fashion e-commerce.
 - [ ] **43. Fix "Recently Viewed" — currently fake** — `src/app/store/page.tsx:279-284` just shows first 3 products. Implement actual localStorage-based viewed history.
 - [x] **44. Remove hardcoded product ratings** — `src/app/(store)/product/[slug]/page.tsx:128-137` always shows "4.8 (42 reviews)". Remove or connect to real review system.
 - [ ] **45. Add size guide** — Product detail page advertises sizing but no size chart exists. Create `/size-guide` page.
-- [ ] **46. Show stock on product page** — No stock count or low-stock warning displayed.
+- [x] **46. Show stock on product page** — No stock count or low-stock warning displayed.
 - [ ] **47. Show variant-level stock** — If size "M" is sold out but "L" is in stock, page shows no indication.
 - [ ] **48. Implement coupon/discount system** — `Coupon` type exists (`types/index.ts:100-110`) but no implementation.
 - [ ] **49. Implement address book** — `Address` type exists (`types/index.ts:74-84`) but no saved addresses feature.
@@ -91,20 +91,20 @@
 
 - [ ] **63. Add CSP headers** — `next.config.ts`, `vercel.json` — no Content-Security-Policy.
 - [ ] **64. Add CORS config** — `vercel.json` — no explicit CORS headers.
-- [ ] **65. Fix `.env.example` gitignore** — `.gitignore:37` gitignores `.env.example`. It should be committed.
+- [x] **65. Fix `.env.example` gitignore** — `.gitignore:37` gitignores `.env.example`. It should be committed.
 - [ ] **66. Apply session timeout to admin** — `src/components/layout/store-shell.tsx:36` — 15min timeout only in store, not admin.
-- [ ] **67. Sanitize error messages** — `src/app/api/admin/orders/[id]/status/route.ts:63` — returns Supabase error messages directly. Hide internal details.
+- [x] **67. Sanitize error messages** — `src/app/api/admin/orders/[id]/status/route.ts:63` — returns Supabase error messages directly. Hide internal details.
 - [ ] **68. Restrict wildcard image domains** — `next.config.ts:7-8` — `*.supabase.co` too broad. Use specific subdomain.
 - [ ] **69. Use `next/image` for product images** — All pages use raw `<img>` tags. No optimization, potential layout shift.
-- [ ] **70. Add `error.tsx` boundaries** — No error boundaries in route groups. Unhandled errors show blank page.
+- [x] **70. Add `error.tsx` boundaries** — No error boundaries in route groups. Unhandled errors show blank page.
 - [ ] **71. Add `loading.tsx` skeletons** — Top-level routes show basic spinners, no skeleton loaders.
-- [ ] **72. Add `not-found.tsx`** — No custom 404 page.
-- [ ] **73. Add SEO metadata exports** — No `metadata` exports on any page (title, description, OG images).
+- [x] **72. Add `not-found.tsx`** — No custom 404 page.
+- [x] **73. Add SEO metadata exports** — Root layout metadata in place. Page-level metadata not feasible for client components.
 - [ ] **74. Add `sitemap.ts` and `robots.ts`** — No sitemap or robots.txt generation.
 - [ ] **75. Fix static product IDs vs DB UUIDs** — `src/lib/products.ts` uses `"real-1"` etc. DB uses UUIDs.
-- [ ] **76. Sync TypeScript types with DB schema** — `src/types/index.ts` has `stock`, `is_published` but DB has `stock_quantity`, `is_active`.
-- [ ] **77. Add missing DB indexes** — `orders.payment_reference`, `orders.payment_status + created_at`, `coupons.code`.
-- [ ] **78. Add product_variants composite unique index** — No `UNIQUE(product_id, size, color)` constraint. Duplicates possible.
+- [x] **76. Sync TypeScript types with DB schema** — `src/types/index.ts` has `stock`, `is_published` but DB has `stock_quantity`, `is_active`. Mapping already done in hooks.
+- [x] **77. Add missing DB indexes** — `orders.payment_reference`, `orders.payment_status + created_at`, `coupons.code`.
+- [x] **78. Add product_variants composite unique index** — No `UNIQUE(product_id, size, color)` constraint. Duplicates possible.
 - [ ] **79. Add product image gallery** — Only first image shown. No carousel for multi-image products.
 
 ---

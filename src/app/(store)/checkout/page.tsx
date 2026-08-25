@@ -46,6 +46,27 @@ export default function CheckoutPage() {
     createClient().auth.getUser().then(({ data }) => {
       setUserId(data.user?.id ?? null)
     })
+
+    // Refetch stale cart prices from DB
+    const supabase = createClient()
+    const refreshPrices = async () => {
+      const productIds = items.map((i) => i.product_id)
+      if (productIds.length === 0) return
+      const { data: products } = await supabase
+        .from("products")
+        .select("id, price")
+        .in("id", productIds)
+      if (!products) return
+      const priceMap = new Map(products.map((p) => [p.id, p.price]))
+      const { updateItemPrice } = useCartStore.getState()
+      for (const item of items) {
+        const freshPrice = priceMap.get(item.product_id)
+        if (freshPrice && freshPrice !== item.price) {
+          updateItemPrice(item.id, freshPrice)
+        }
+      }
+    }
+    refreshPrices()
   }, [])
 
   const [firstName, setFirstName] = useState("")
@@ -113,6 +134,7 @@ export default function CheckoutPage() {
         body: JSON.stringify({
           items: items.map((item) => ({
             product_id: item.product.id,
+            variant_id: item.variant_id,
             name: item.product.name,
             quantity: item.quantity,
             size: item.size,
