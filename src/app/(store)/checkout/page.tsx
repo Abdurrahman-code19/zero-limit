@@ -19,6 +19,7 @@ import { Separator } from "@/components/ui/separator"
 import { useCartStore } from "@/store/cart"
 import { formatCurrency } from "@/utils"
 import { PaystackButton } from "@/components/checkout/paystack-button"
+import { createClient } from "@/lib/supabase/client"
 
 interface PaymentData {
   reference: string
@@ -38,9 +39,13 @@ interface OrderData {
 export default function CheckoutPage() {
   const { items, getTotal, getItemCount, clearCart } = useCartStore()
   const [mounted, setMounted] = useState(false)
+  const [userId, setUserId] = useState<string | null>(null)
 
   useEffect(() => {
     setMounted(true)
+    createClient().auth.getUser().then(({ data }) => {
+      setUserId(data.user?.id ?? null)
+    })
   }, [])
 
   const [firstName, setFirstName] = useState("")
@@ -397,10 +402,23 @@ export default function CheckoutPage() {
               </div>
             )}
             <PaystackButton
-              email={email || "pending@checkout.com"}
+              email={email}
               amount={total}
               beforePay={handleFormValidation}
               onSuccess={handlePaymentSuccess}
+              metadata={{
+                user_id: userId,
+                shipping_address: { first_name: firstName, last_name: lastName, address, city, state, phone, shipping_cost: shipping, subtotal },
+                items: items.map((item) => ({
+                  product_id: item.product.id,
+                  name: item.product.name,
+                  quantity: item.quantity,
+                  size: item.size,
+                  color: item.color,
+                  unit_price: item.product.price,
+                })),
+                total,
+              }}
             />
           </section>
         </div>

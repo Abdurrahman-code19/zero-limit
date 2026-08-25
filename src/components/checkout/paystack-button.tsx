@@ -11,6 +11,7 @@ interface PaystackButtonProps {
   disabled?: boolean
   beforePay?: () => boolean
   onSuccess: (reference: string) => void
+  metadata?: Record<string, unknown>
 }
 
 interface PaystackResponse {
@@ -26,6 +27,7 @@ declare global {
         amount: number
         ref: string
         currency: string
+        metadata?: { custom_fields: { display_name: string; variable_name: string; value: string }[] }
         callback: (response: PaystackResponse) => void
         onClose: () => void
       }) => { openIframe: () => void }
@@ -39,6 +41,7 @@ export function PaystackButton({
   disabled,
   beforePay,
   onSuccess,
+  metadata,
 }: PaystackButtonProps) {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -105,6 +108,7 @@ export function PaystackButton({
         amount: Math.round(amount * 100),
         ref: reference,
         currency: "NGN",
+        metadata: metadata ? { custom_fields: Object.entries(metadata).map(([key, value]) => ({ display_name: key, variable_name: key, value: String(value) })) } : undefined,
         callback: (response: PaystackResponse) => {
           setLoading(false)
           onSuccess(response.reference)

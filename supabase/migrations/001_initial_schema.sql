@@ -383,8 +383,8 @@ CREATE POLICY "Admins can manage coupons" ON public.coupons FOR ALL USING (
   EXISTS (SELECT 1 FROM public.profiles WHERE id = auth.uid() AND role IN ('admin', 'super_admin'))
 );
 
--- Settings: Public read, admin write
-CREATE POLICY "Anyone can view settings" ON public.settings FOR SELECT USING (true);
+-- Settings: Public can read non-secret settings (excludes payment category), admin full access
+CREATE POLICY "Public can view non-secret settings" ON public.settings FOR SELECT USING (category != 'payment');
 CREATE POLICY "Admins can manage settings" ON public.settings FOR ALL USING (
   EXISTS (SELECT 1 FROM public.profiles WHERE id = auth.uid() AND role IN ('admin', 'super_admin'))
 );

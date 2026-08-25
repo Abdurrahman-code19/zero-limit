@@ -7,16 +7,16 @@
 
 ## Phase 1 — CRITICAL Security & Data Loss (14 issues)
 
-- [ ] **1. Delete or protect `/setup` route** — Anyone can visit `/setup`, see hardcoded admin credentials, and create a super_admin account. Zero auth. Files: `src/app/setup/page.tsx`, `src/lib/actions/setup.ts`
-- [ ] **2. Remove hardcoded admin credentials** — Email/password hardcoded in `src/lib/actions/setup.ts:12-13` and displayed on `src/app/setup/page.tsx:30-31`. Delete these files or gate behind env var + server-side token check.
-- [ ] **3. Remove service role key from client-callable action** — `src/lib/actions/setup.ts:5-9` uses `SUPABASE_SERVICE_ROLE_KEY` in a `"use server"` function callable by anyone without auth.
-- [ ] **4. Fix Settings table RLS** — `supabase/migrations/001_initial_schema.sql:387` has `FOR SELECT USING (true)`. If `paystack_secret_key` is stored here, it's public. Remove public SELECT policy, restrict to admin-only reads.
-- [ ] **5. Add Paystack webhook handler** — No `src/app/api/paystack/webhook/route.ts` exists. If user closes tab after paying but before JS callback, money is taken but no order is created. No recovery. Create webhook route to handle async payment confirmation.
-- [ ] **6. Verify payment amount server-side in `/api/orders`** — `src/app/api/orders/route.ts:49-77` trusts `total` from client body. Attacker can pay ₦100, POST `total: 500000`, get a confirmed paid order. Must call Paystack verify internally and compare amounts.
-- [ ] **7. Atomic stock decrement** — `src/app/api/orders/route.ts:110-139` uses read-then-write (non-atomic). Two concurrent orders for last item both succeed → negative stock. Use `UPDATE products SET stock_quantity = stock_quantity - $1 WHERE id = $2 AND stock_quantity >= $1`.
-- [ ] **8. Validate stock BEFORE order insert** — `src/app/api/orders/route.ts:62-87` creates order as `status: "confirmed"` before checking stock. Insufficient stock = paid order with no items to fulfill.
-- [ ] **9. Wrap order creation in database transaction** — Order insert, items insert, and stock decrement are separate non-transactional ops. Mid-failure = inconsistent data (order without items, or items without stock decrement).
-- [ ] **10. Handle order items insert failure** — `src/app/api/orders/route.ts:102-107` logs and continues if items insert fails. Order exists with zero line items. Should rollback order and return error.
+- [x] **1. Delete or protect `/setup` route** — Anyone can visit `/setup`, see hardcoded admin credentials, and create a super_admin account. Zero auth. Files: `src/app/setup/page.tsx`, `src/lib/actions/setup.ts`
+- [x] **2. Remove hardcoded admin credentials** — Email/password hardcoded in `src/lib/actions/setup.ts:12-13` and displayed on `src/app/setup/page.tsx:30-31`. Delete these files or gate behind env var + server-side token check.
+- [x] **3. Remove service role key from client-callable action** — `src/lib/actions/setup.ts:5-9` uses `SUPABASE_SERVICE_ROLE_KEY` in a `"use server"` function callable by anyone without auth.
+- [x] **4. Fix Settings table RLS** — `supabase/migrations/001_initial_schema.sql:387` has `FOR SELECT USING (true)`. If `paystack_secret_key` is stored here, it's public. Remove public SELECT policy, restrict to admin-only reads.
+- [x] **5. Add Paystack webhook handler** — No `src/app/api/paystack/webhook/route.ts` exists. If user closes tab after paying but before JS callback, money is taken but no order is created. No recovery. Create webhook route to handle async payment confirmation.
+- [x] **6. Verify payment amount server-side in `/api/orders`** — `src/app/api/orders/route.ts:49-77` trusts `total` from client body. Attacker can pay ₦100, POST `total: 500000`, get a confirmed paid order. Must call Paystack verify internally and compare amounts.
+- [x] **7. Atomic stock decrement** — `src/app/api/orders/route.ts:110-139` uses read-then-write (non-atomic). Two concurrent orders for last item both succeed → negative stock. Use `UPDATE products SET stock_quantity = stock_quantity - $1 WHERE id = $2 AND stock_quantity >= $1`.
+- [x] **8. Validate stock BEFORE order insert** — `src/app/api/orders/route.ts:62-87` creates order as `status: "confirmed"` before checking stock. Insufficient stock = paid order with no items to fulfill.
+- [x] **9. Wrap order creation in database transaction** — Order insert, items insert, and stock decrement are separate non-transactional ops. Mid-failure = inconsistent data (order without items, or items without stock decrement).
+- [x] **10. Handle order items insert failure** — `src/app/api/orders/route.ts:102-107` logs and continues if items insert fails. Order exists with zero line items. Should rollback order and return error.
 - [ ] **11. Handle payment/order creation failure gracefully** — `src/app/(store)/checkout/page.tsx:135-141` — if `/api/orders` fails after successful Paystack verification, money is taken but no order exists. No alert, no retry, cart not cleared.
 - [ ] **12. Enforce out-of-stock on product page** — `src/app/(store)/product/[slug]/page.tsx:231-244` — "Add to Cart" always enabled regardless of stock. Disable button when `stock <= 0`.
 - [ ] **13. Enforce quantity limits on product page** — `src/app/(store)/product/[slug]/page.tsx:223` — `+` button has no upper bound. Cap at available stock.
