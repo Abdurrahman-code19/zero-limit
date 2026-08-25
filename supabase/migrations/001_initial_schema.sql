@@ -295,6 +295,10 @@ CREATE INDEX idx_cart_items_user ON public.cart_items(user_id);
 CREATE INDEX idx_wishlist_user ON public.wishlist(user_id);
 CREATE INDEX idx_reviews_product ON public.reviews(product_id);
 CREATE INDEX idx_activity_logs_user ON public.activity_logs(user_id);
+CREATE INDEX idx_orders_payment_ref ON public.orders(payment_reference);
+CREATE INDEX idx_orders_payment_status_created ON public.orders(payment_status, created_at DESC);
+CREATE INDEX idx_coupons_code ON public.coupons(code);
+CREATE UNIQUE INDEX idx_product_variants_unique ON public.product_variants(product_id, size, color);
 
 -- ============================================
 -- ROW LEVEL SECURITY

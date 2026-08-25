@@ -16,3 +16,19 @@ BEGIN
   END IF;
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
+
+-- Atomic coupon use_count increment (prevents double-redemption race condition)
+CREATE OR REPLACE FUNCTION public.apply_coupon_atomic(
+  p_coupon_id UUID
+) RETURNS BOOLEAN AS $$
+BEGIN
+  UPDATE public.coupons
+  SET used_count = used_count + 1
+  WHERE id = p_coupon_id
+    AND is_active = true
+    AND (expires_at IS NULL OR expires_at > NOW())
+    AND (max_uses IS NULL OR used_count < max_uses);
+
+  RETURN FOUND;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;

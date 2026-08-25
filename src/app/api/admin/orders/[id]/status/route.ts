@@ -98,7 +98,8 @@ export async function PATCH(
     .single()
 
   if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 })
+    console.error("[Admin] Order status update failed:", error)
+    return NextResponse.json({ error: "Failed to update order status" }, { status: 500 })
   }
 
   // Send status update email (non-blocking)

@@ -59,13 +59,13 @@
 
 ## Phase 4 — MEDIUM Issues (25 issues)
 
-- [ ] **38. Fix cart UNIQUE constraint with NULL variant_id** — `supabase/migrations/001_initial_schema.sql:206` — PostgreSQL `NULL != NULL` in UNIQUE. Two rows with same `(user_id, product_id, NULL)` are allowed. Use COALESCE or partial unique index.
+- [x] **38. Fix cart UNIQUE constraint with NULL variant_id** — `supabase/migrations/001_initial_schema.sql:206` — PostgreSQL `NULL != NULL` in UNIQUE. Two rows with same `(user_id, product_id, NULL)` are allowed. Use COALESCE or partial unique index.
 - [ ] **39. Add coupon used_count atomic increment** — `supabase/migrations/001_initial_schema.sql:238-251` — no atomic mechanism. Concurrent applications both pass `used_count < max_uses`.
-- [ ] **40. Add updated_at auto-update triggers** — Tables with `updated_at` columns have no DB trigger. Code manually sets it in some routes but not all.
-- [ ] **41. Restrict activity_logs INSERT policy** — `supabase/migrations/001_initial_schema.sql:396` — `WITH CHECK (true)` lets any authenticated user insert audit logs.
+- [x] **40. Add updated_at auto-update triggers** — Tables with `updated_at` columns have no DB trigger. Code manually sets it in some routes but not all.
+- [x] **41. Restrict activity_logs INSERT policy** — `supabase/migrations/001_initial_schema.sql:396` — `WITH CHECK (true)` lets any authenticated user insert audit logs.
 - [ ] **42. Add price filter to shop page** — `src/app/shop/page.tsx` — no price range filter. Essential for fashion e-commerce.
 - [ ] **43. Fix "Recently Viewed" — currently fake** — `src/app/store/page.tsx:279-284` just shows first 3 products. Implement actual localStorage-based viewed history.
-- [ ] **44. Remove hardcoded product ratings** — `src/app/(store)/product/[slug]/page.tsx:128-137` always shows "4.8 (42 reviews)". Remove or connect to real review system.
+- [x] **44. Remove hardcoded product ratings** — `src/app/(store)/product/[slug]/page.tsx:128-137` always shows "4.8 (42 reviews)". Remove or connect to real review system.
 - [ ] **45. Add size guide** — Product detail page advertises sizing but no size chart exists. Create `/size-guide` page.
 - [ ] **46. Show stock on product page** — No stock count or low-stock warning displayed.
 - [ ] **47. Show variant-level stock** — If size "M" is sold out but "L" is in stock, page shows no indication.
@@ -75,13 +75,13 @@
 - [ ] **51. Add order notes/comments for admin** — Admin cannot add internal notes to orders.
 - [ ] **52. Add order status transition date tracking** — Timeline shows steps but not when each transition occurred.
 - [x] **53. Fix order number generation** — `src/app/api/orders/route.ts:60` — uses `Math.random()`. Use `crypto.randomUUID()` or DB sequence.
-- [ ] **54. Add delivery state dropdown** — Checkout state field is free text. Should be dropdown of valid Nigerian states.
+- [x] **54. Add delivery state dropdown** — Checkout state field is free text. Should be dropdown of valid Nigerian states.
 - [ ] **55. Add order review step before Paystack** — No confirmation before opening payment window.
-- [ ] **56. Log email failures** — `src/app/api/orders/route.ts:157` — `.catch(() => {})` swallows errors silently.
-- [ ] **57. Add `PAYSTACK_SECRET_KEY` to `.env.example`** — Currently missing, misleading for developers.
+- [x] **56. Log email failures** — `src/app/api/orders/route.ts:157` — `.catch(() => {})` swallows errors silently.
+- [x] **57. Add `PAYSTACK_SECRET_KEY` to `.env.example`** — Currently missing, misleading for developers.
 - [ ] **58. Add plain-text email fallback** — Emails are HTML-only. Some clients strip HTML.
-- [ ] **59. Fix orders.user_id ON DELETE SET NULL** — `supabase/migrations/001_initial_schema.sql:157` — orphaned orders become invisible. Use ON DELETE RESTRICT.
-- [ ] **60. Validate admin status update request body** — `src/app/api/admin/orders/[id]/status/route.ts:28` — no try/catch on `request.json()`.
+- [x] **59. Fix orders.user_id ON DELETE SET NULL** — `supabase/migrations/001_initial_schema.sql:157` — orphaned orders become invisible. Use ON DELETE RESTRICT.
+- [x] **60. Validate admin status update request body** — `src/app/api/admin/orders/[id]/status/route.ts:28` — no try/catch on `request.json()`.
 - [ ] **61. Implement payment_status transition validation** — Orders can jump from `refunded` back to `paid`.
 - [ ] **62. Refetch stale cart prices before checkout** — Cart stores Product snapshot. Refresh prices from DB before checkout.
 

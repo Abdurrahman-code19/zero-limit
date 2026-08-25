@@ -150,6 +150,8 @@ function ShopContent() {
   const [activeColor, setActiveColor] = useState<string | null>(null)
   const [sizeDropdownOpen, setSizeDropdownOpen] = useState(false)
   const [colorDropdownOpen, setColorDropdownOpen] = useState(false)
+  const [priceMin, setPriceMin] = useState("")
+  const [priceMax, setPriceMax] = useState("")
 
   const { products: dbProducts, loading } = useProducts()
   const available = useMemo(() => dbProducts.filter((p) => p.is_published), [dbProducts])
@@ -193,6 +195,13 @@ function ShopContent() {
       result = result.filter((p) => p.colors.includes(activeColor))
     }
 
+    if (priceMin) {
+      result = result.filter((p) => p.price >= Number(priceMin))
+    }
+    if (priceMax) {
+      result = result.filter((p) => p.price <= Number(priceMax))
+    }
+
     switch (sortBy) {
       case "price-asc":
         result = [...result].sort((a, b) => a.price - b.price)
@@ -208,17 +217,19 @@ function ShopContent() {
     }
 
     return result
-  }, [available, activeCategory, query, activeSize, activeColor, sortBy])
+  }, [available, activeCategory, query, activeSize, activeColor, sortBy, priceMin, priceMax])
 
   const clearFilters = () => {
     setActiveCategory("all")
     setQuery("")
     setActiveSize(null)
     setActiveColor(null)
+    setPriceMin("")
+    setPriceMax("")
   }
 
   const filtersApplied =
-    activeCategory !== "all" || query !== "" || activeSize !== null || activeColor !== null
+    activeCategory !== "all" || query !== "" || activeSize !== null || activeColor !== null || priceMin !== "" || priceMax !== ""
 
   const sidebarContent = (
     <div className="space-y-6">
@@ -248,6 +259,27 @@ function ShopContent() {
               {cat.name}
             </button>
           ))}
+        </div>
+      </div>
+
+      <div>
+        <h3 className="text-xs tracking-widest uppercase font-semibold mb-4">Price Range</h3>
+        <div className="flex items-center gap-2">
+          <input
+            type="number"
+            placeholder="Min"
+            value={priceMin}
+            onChange={(e) => setPriceMin(e.target.value)}
+            className="w-full border border-input bg-background px-3 py-2 text-sm rounded-md focus:outline-none focus:ring-2 focus:ring-ring"
+          />
+          <span className="text-muted-foreground">–</span>
+          <input
+            type="number"
+            placeholder="Max"
+            value={priceMax}
+            onChange={(e) => setPriceMax(e.target.value)}
+            className="w-full border border-input bg-background px-3 py-2 text-sm rounded-md focus:outline-none focus:ring-2 focus:ring-ring"
+          />
         </div>
       </div>
 
