@@ -27,17 +27,18 @@ export const useCartStore = create<CartStore>()(
         )
 
         if (existingItem) {
+          const newQty = Math.min(product.stock, existingItem.quantity + quantity)
           set({
             items: items.map((item) =>
               item.product.id === product.id &&
               item.size === size &&
               item.color === color
-                ? { ...item, quantity: item.quantity + quantity }
+                ? { ...item, quantity: newQty }
                 : item
             ),
           })
         } else {
-          set({ items: [...items, { product, quantity, size, color }] })
+          set({ items: [...items, { product, quantity: Math.min(product.stock, quantity), size, color }] })
         }
       },
 
@@ -65,7 +66,7 @@ export const useCartStore = create<CartStore>()(
             item.product.id === productId &&
             item.size === size &&
             item.color === color
-              ? { ...item, quantity }
+              ? { ...item, quantity: Math.min(item.product.stock, quantity) }
               : item
           ),
         })

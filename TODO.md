@@ -17,10 +17,10 @@
 - [x] **8. Validate stock BEFORE order insert** — `src/app/api/orders/route.ts:62-87` creates order as `status: "confirmed"` before checking stock. Insufficient stock = paid order with no items to fulfill.
 - [x] **9. Wrap order creation in database transaction** — Order insert, items insert, and stock decrement are separate non-transactional ops. Mid-failure = inconsistent data (order without items, or items without stock decrement).
 - [x] **10. Handle order items insert failure** — `src/app/api/orders/route.ts:102-107` logs and continues if items insert fails. Order exists with zero line items. Should rollback order and return error.
-- [ ] **11. Handle payment/order creation failure gracefully** — `src/app/(store)/checkout/page.tsx:135-141` — if `/api/orders` fails after successful Paystack verification, money is taken but no order exists. No alert, no retry, cart not cleared.
-- [ ] **12. Enforce out-of-stock on product page** — `src/app/(store)/product/[slug]/page.tsx:231-244` — "Add to Cart" always enabled regardless of stock. Disable button when `stock <= 0`.
-- [ ] **13. Enforce quantity limits on product page** — `src/app/(store)/product/[slug]/page.tsx:223` — `+` button has no upper bound. Cap at available stock.
-- [ ] **14. Enforce max quantity in cart** — `src/store/cart.ts:20-41` — `addItem` and `updateQuantity` accept any quantity. Validate against stock on add/update.
+- [x] **11. Handle payment/order creation failure gracefully** — `src/app/(store)/checkout/page.tsx:135-141` — if `/api/orders` fails after successful Paystack verification, money is taken but no order exists. No alert, no retry, cart not cleared.
+- [x] **12. Enforce out-of-stock on product page** — `src/app/(store)/product/[slug]/page.tsx:231-244` — "Add to Cart" always enabled regardless of stock. Disable button when `stock <= 0`.
+- [x] **13. Enforce quantity limits on product page** — `src/app/(store)/product/[slug]/page.tsx:223` — `+` button has no upper bound. Cap at available stock.
+- [x] **14. Enforce max quantity in cart** — `src/store/cart.ts:20-41` — `addItem` and `updateQuantity` accept any quantity. Validate against stock on add/update.
 
 ---
 

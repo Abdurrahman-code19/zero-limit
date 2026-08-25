@@ -156,7 +156,15 @@ export default function ProductPage({
             )}
           </div>
 
-          <p className="text-muted-foreground leading-relaxed mb-8">
+          <p className="text-sm text-muted-foreground mb-2">
+            {product.stock <= 0
+              ? "Out of stock"
+              : product.stock <= 5
+                ? `Only ${product.stock} left in stock`
+                : "In stock"}
+          </p>
+
+          <p className="text-sm text-muted-foreground leading-relaxed mb-6">
             {product.description}
           </p>
 
@@ -220,9 +228,10 @@ export default function ProductPage({
               </button>
               <span className="px-6 text-sm">{quantity}</span>
               <button
-                onClick={() => setQuantity((q) => q + 1)}
+                onClick={() => setQuantity((q) => Math.min(product.stock, q + 1))}
                 className="px-4 py-3 hover:bg-muted transition-colors"
                 aria-label="Increase quantity"
+                disabled={quantity >= product.stock}
               >
                 <Plus className="h-4 w-4" />
               </button>
@@ -230,9 +239,12 @@ export default function ProductPage({
 
             <Button
               onClick={handleAddToCart}
-              className="flex-1 bg-foreground text-background hover:bg-foreground/90 text-xs tracking-widest uppercase rounded-none px-8 py-6 h-auto"
+              disabled={product.stock <= 0}
+              className="flex-1 bg-foreground text-background hover:bg-foreground/90 text-xs tracking-widest uppercase rounded-none px-8 py-6 h-auto disabled:opacity-50"
             >
-              {added ? (
+              {product.stock <= 0 ? (
+                "Out of Stock"
+              ) : added ? (
                 <>
                   <Check className="h-4 w-4 mr-2" /> Added to Cart
                 </>
