@@ -66,7 +66,7 @@ export default function ContactPage() {
         </div>
 
         <div>
-          <form className="space-y-4" onSubmit={(e) => e.preventDefault()}>
+          <form className="space-y-4" action="mailto:support@zerolimit.store" encType="text/plain">
             <div>
               <label className="text-sm font-medium">Name</label>
               <input
