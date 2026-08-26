@@ -48,7 +48,7 @@
 - [x] **29. Create admin order detail page** — No `src/app/(admin)/admin/orders/[id]/page.tsx`. Admins can't view items, address, payment details, or notes.
 - [x] **30. Add tracking number input UI for admin** — API supports `tracking_number` but admin orders page only has status dropdown. Add modal/input field.
 - [x] **31. Send admin notification email on new order** — No email sent to store admins when orders arrive.
-- [ ] **32. Send payment failure email** — If payment fails, no email to customer or admin.
+- [x] **32. Send payment failure email** — If payment fails, no email to customer or admin.
 - [x] **33. Fix collection_products RLS** — `supabase/migrations/001_initial_schema.sql:125-130` — no RLS enabled. Any user can read/write.
 - [x] **34. Add status transition validation** — Admin can jump from "delivered" to "pending". Enforce valid state machine: `pending → confirmed → processing → shipped → delivered`.
 - [x] **35. Fix variant stock decrement** — `src/app/api/orders/route.ts:112` — checkout never sends `variant_id`, so variant stock is never touched.
@@ -68,7 +68,7 @@
 - [x] **44. Remove hardcoded product ratings** — `src/app/(store)/product/[slug]/page.tsx:128-137` always shows "4.8 (42 reviews)". Remove or connect to real review system.
 - [x] **45. Add size guide** — Product detail page advertises sizing but no size chart exists. Create `/size-guide` page.
 - [x] **46. Show stock on product page** — No stock count or low-stock warning displayed.
-- [ ] **47. Show variant-level stock** — If size "M" is sold out but "L" is in stock, page shows no indication.
+- [x] **47. Show variant-level stock** — If size "M" is sold out but "L" is in stock, page shows no indication.
 - [ ] **48. Implement coupon/discount system** — `Coupon` type exists (`types/index.ts:100-110`) but no implementation.
 - [ ] **49. Implement address book** — `Address` type exists (`types/index.ts:74-84`) but no saved addresses feature.
 - [ ] **50. Implement product reviews** — Type exists, ratings hardcoded. No review submission or display.
@@ -79,28 +79,28 @@
 - [ ] **55. Add order review step before Paystack** — No confirmation before opening payment window.
 - [x] **56. Log email failures** — `src/app/api/orders/route.ts:157` — `.catch(() => {})` swallows errors silently.
 - [x] **57. Add `PAYSTACK_SECRET_KEY` to `.env.example`** — Currently missing, misleading for developers.
-- [ ] **58. Add plain-text email fallback** — Emails are HTML-only. Some clients strip HTML.
+- [x] **58. Add plain-text email fallback** — Emails are HTML-only. Some clients strip HTML.
 - [x] **59. Fix orders.user_id ON DELETE SET NULL** — `supabase/migrations/001_initial_schema.sql:157` — orphaned orders become invisible. Use ON DELETE RESTRICT.
 - [x] **60. Validate admin status update request body** — `src/app/api/admin/orders/[id]/status/route.ts:28` — no try/catch on `request.json()`.
-- [ ] **61. Implement payment_status transition validation** — Orders can jump from `refunded` back to `paid`.
+- [x] **61. Implement payment_status transition validation** — Orders can jump from `refunded` back to `paid`.
 - [x] **62. Refetch stale cart prices before checkout** — Cart stores Product snapshot. Refresh prices from DB before checkout.
 
 ---
 
 ## Phase 5 — LOW / Polish (18 issues)
 
-- [ ] **63. Add CSP headers** — `next.config.ts`, `vercel.json` — no Content-Security-Policy.
+- [x] **63. Add CSP headers** — `next.config.ts`, `vercel.json` — no Content-Security-Policy.
 - [x] **64. Add CORS config** — `vercel.json` — no explicit CORS headers.
 - [x] **65. Fix `.env.example` gitignore** — `.gitignore:37` gitignores `.env.example`. It should be committed.
-- [ ] **66. Apply session timeout to admin** — `src/components/layout/store-shell.tsx:36` — 15min timeout only in store, not admin.
+- [x] **66. Apply session timeout to admin** — `src/components/layout/store-shell.tsx:36` — 15min timeout only in store, not admin.
 - [x] **67. Sanitize error messages** — `src/app/api/admin/orders/[id]/status/route.ts:63` — returns Supabase error messages directly. Hide internal details.
-- [ ] **68. Restrict wildcard image domains** — `next.config.ts:7-8` — `*.supabase.co` too broad. Use specific subdomain.
-- [ ] **69. Use `next/image` for product images** — All pages use raw `<img>` tags. No optimization, potential layout shift.
+- [x] **68. Restrict wildcard image domains** — `next.config.ts:7-8` — `*.supabase.co` too broad. Use specific subdomain.
+- [x] **69. Use `next/image` for product images** — All pages use raw `<img>` tags. No optimization, potential layout shift.
 - [x] **70. Add `error.tsx` boundaries** — No error boundaries in route groups. Unhandled errors show blank page.
-- [ ] **71. Add `loading.tsx` skeletons** — Top-level routes show basic spinners, no skeleton loaders.
+- [x] **71. Add `loading.tsx` skeletons** — Top-level routes show basic spinners, no skeleton loaders.
 - [x] **72. Add `not-found.tsx`** — No custom 404 page.
 - [x] **73. Add SEO metadata exports** — Root layout metadata in place. Page-level metadata not feasible for client components.
-- [ ] **74. Add `sitemap.ts` and `robots.ts`** — No sitemap or robots.txt generation.
+- [x] **74. Add `sitemap.ts` and `robots.ts`** — No sitemap or robots.txt generation.
 - [ ] **75. Fix static product IDs vs DB UUIDs** — `src/lib/products.ts` uses `"real-1"` etc. DB uses UUIDs.
 - [x] **76. Sync TypeScript types with DB schema** — `src/types/index.ts` has `stock`, `is_published` but DB has `stock_quantity`, `is_active`. Mapping already done in hooks.
 - [x] **77. Add missing DB indexes** — `orders.payment_reference`, `orders.payment_status + created_at`, `coupons.code`.

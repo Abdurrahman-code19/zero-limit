@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import Link from "next/link"
 import { motion } from "framer-motion"
 import {
@@ -81,10 +81,20 @@ export default function CheckoutPage() {
   const [orderData, setOrderData] = useState<OrderData | null>(null)
   const [verifying, setVerifying] = useState(false)
   const [verifyError, setVerifyError] = useState<string | null>(null)
+  const [showReview, setShowReview] = useState(false)
+  const [reviewConfirmed, setReviewConfirmed] = useState(false)
+  const paystackTriggerRef = useRef<HTMLButtonElement>(null)
 
   const subtotal = getTotal()
   const shipping = subtotal >= 50000 ? 0 : 2000
   const total = subtotal + shipping
+
+  useEffect(() => {
+    if (reviewConfirmed) {
+      const btn = document.querySelector('[data-paystack-trigger]') as HTMLButtonElement | null
+      btn?.click()
+    }
+  }, [reviewConfirmed])
 
   const handleFormValidation = () => {
     setFormError(null)
@@ -104,7 +114,21 @@ export default function CheckoutPage() {
       setFormError("Please complete your delivery address.")
       return false
     }
-    return true
+    setShowReview(true)
+    return false
+  }
+
+  const handleReviewConfirm = () => {
+    setShowReview(false)
+    setReviewConfirmed(true)
+  }
+
+  const handleBeforePay = () => {
+    if (reviewConfirmed) {
+      setReviewConfirmed(false)
+      return true
+    }
+    return handleFormValidation()
   }
 
   const handlePaymentSuccess = async (reference: string) => {
@@ -303,6 +327,29 @@ export default function CheckoutPage() {
 
   return (
     <div className="container mx-auto px-4 py-10 md:py-16">
+      {/* Order Review Overlay */}
+      {showReview && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+          <div className="bg-background border rounded-lg p-6 max-w-md w-full mx-4 space-y-4">
+            <h2 className="text-lg font-semibold">Review Your Order</h2>
+            <div className="space-y-2 text-sm">
+              <div className="flex justify-between"><span className="text-muted-foreground">Name</span><span>{firstName} {lastName}</span></div>
+              <div className="flex justify-between"><span className="text-muted-foreground">Email</span><span>{email}</span></div>
+              <div className="flex justify-between"><span className="text-muted-foreground">Phone</span><span>{phone}</span></div>
+              <div className="flex justify-between"><span className="text-muted-foreground">Address</span><span className="text-right">{address}, {city}, {state}</span></div>
+              <hr />
+              <div className="flex justify-between"><span className="text-muted-foreground">Subtotal</span><span>{formatCurrency(subtotal)}</span></div>
+              <div className="flex justify-between"><span className="text-muted-foreground">Shipping</span><span>{shipping === 0 ? "Free" : formatCurrency(shipping)}</span></div>
+              <div className="flex justify-between font-semibold text-base pt-2 border-t"><span>Total</span><span>{formatCurrency(total)}</span></div>
+            </div>
+            <div className="flex gap-3 pt-2">
+              <Button variant="outline" className="flex-1" onClick={() => setShowReview(false)}>Go Back</Button>
+              <Button className="flex-1 bg-foreground text-background hover:bg-foreground/90" onClick={handleReviewConfirm}>Confirm & Pay</Button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Breadcrumb */}
       <div className="flex items-center gap-2 text-sm text-muted-foreground mb-8">
         <Link href="/store" className="hover:text-foreground">
@@ -470,8 +517,9 @@ export default function CheckoutPage() {
             <PaystackButton
               email={email}
               amount={total}
-              beforePay={handleFormValidation}
+              beforePay={handleBeforePay}
               onSuccess={handlePaymentSuccess}
+              triggerRef={paystackTriggerRef}
               metadata={{
                 user_id: userId,
                 shipping_address: { first_name: firstName, last_name: lastName, address, city, state, phone, shipping_cost: shipping, subtotal },

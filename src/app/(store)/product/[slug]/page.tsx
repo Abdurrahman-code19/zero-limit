@@ -40,6 +40,7 @@ export default function ProductPage({
   const [color, setColor] = useState<string | null>(null)
   const [quantity, setQuantity] = useState(1)
   const [added, setAdded] = useState(false)
+  const [selectedImage, setSelectedImage] = useState(0)
   const addItem = useCartStore((s) => s.addItem)
   const isWishlisted = useWishlistStore((s) => s.isWishlisted(product?.id ?? ""))
   const toggleWishlist = useWishlistStore((s) => s.toggle)
@@ -111,18 +112,34 @@ export default function ProductPage({
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
-          className="relative aspect-[3/4] bg-muted overflow-hidden"
         >
-          <ProductImage
-            src={product.images[0] ?? "/favicon.png"}
-            alt={product.name}
-            fill
-            className="object-cover"
-          />
-          {tags.length > 0 && (
-            <Badge className="absolute top-4 left-4 z-10 bg-foreground text-background text-[10px] tracking-wider uppercase rounded-none">
-              {tags[0]}
-            </Badge>
+          <div className="relative aspect-[3/4] bg-muted overflow-hidden mb-3">
+            <ProductImage
+              src={product.images[selectedImage] ?? product.images[0] ?? "/favicon.png"}
+              alt={product.name}
+              fill
+              className="object-cover"
+            />
+            {tags.length > 0 && (
+              <Badge className="absolute top-4 left-4 z-10 bg-foreground text-background text-[10px] tracking-wider uppercase rounded-none">
+                {tags[0]}
+              </Badge>
+            )}
+          </div>
+          {product.images.length > 1 && (
+            <div className="flex gap-2 overflow-x-auto">
+              {product.images.map((img, i) => (
+                <button
+                  key={i}
+                  onClick={() => setSelectedImage(i)}
+                  className={`relative w-16 h-20 shrink-0 border-2 overflow-hidden transition-colors ${
+                    i === selectedImage ? "border-foreground" : "border-transparent opacity-60 hover:opacity-100"
+                  }`}
+                >
+                  <img src={img} alt="" className="w-full h-full object-cover" />
+                </button>
+              ))}
+            </div>
           )}
         </motion.div>
 
