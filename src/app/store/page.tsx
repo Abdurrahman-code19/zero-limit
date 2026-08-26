@@ -404,13 +404,12 @@ function ProductCard({ item, index }: { item: Product; index: number }) {
             </button>
           </div>
         </div>
-        <div className="space-y-1">
-          <div className="flex items-center gap-0.5">
-            {Array.from({ length: 5 }).map((_, i) => (
-              <Star key={i} className={`h-3 w-3 ${i < 4 ? "text-yellow-500 fill-yellow-500" : "text-muted-foreground"}`} />
-            ))}
-            <span className="text-xs text-muted-foreground ml-1">4.8</span>
-          </div>
+          <div className="space-y-1">
+            <div className="flex gap-0.5">
+              {Array.from({ length: 5 }).map((_, i) => (
+                <Star key={i} className="h-3 w-3 text-muted-foreground" />
+              ))}
+            </div>
           <h4 className="text-sm font-medium group-hover:text-muted-foreground transition-colors">{item.name}</h4>
           <p className="text-sm font-semibold">{formatCurrency(item.price)}</p>
           <div className="flex gap-1">
