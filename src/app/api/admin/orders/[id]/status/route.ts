@@ -27,6 +27,7 @@ const StatusUpdateSchema = z.object({
   status: z.enum(VALID_STATUSES as [string, ...string[]]).optional(),
   payment_status: z.enum(VALID_PAYMENT_STATUSES as [string, ...string[]]).optional(),
   tracking_number: z.string().max(100).optional(),
+  notes: z.string().max(2000).optional(),
 })
 
 export async function PATCH(
@@ -121,6 +122,17 @@ export async function PATCH(
   if (error) {
     console.error("[Admin] Order status update failed:", error)
     return NextResponse.json({ error: "Failed to update order status" }, { status: 500 })
+  }
+
+  // Append to status_history (non-blocking)
+  if (status || payment_status) {
+    const entry: Record<string, string> = { at: new Date().toISOString() }
+    if (status) entry.status = status
+    if (payment_status) entry.payment_status = payment_status
+    supabase.rpc("append_order_status_history", {
+      p_order_id: params.id,
+      p_entry: entry,
+    }).catch((err) => console.error("[Status] Failed to append history:", err))
   }
 
   // Send status update email (non-blocking)

@@ -17,7 +17,17 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
--- Atomic coupon use_count increment (prevents double-redemption race condition)
+-- Append entry to order status_history
+CREATE OR REPLACE FUNCTION public.append_order_status_history(
+  p_order_id UUID,
+  p_entry JSONB
+) RETURNS VOID AS $$
+BEGIN
+  UPDATE public.orders
+  SET status_history = COALESCE(status_history, '[]'::jsonb) || p_entry
+  WHERE id = p_order_id;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER; (prevents double-redemption race condition)
 CREATE OR REPLACE FUNCTION public.apply_coupon_atomic(
   p_coupon_id UUID
 ) RETURNS BOOLEAN AS $$

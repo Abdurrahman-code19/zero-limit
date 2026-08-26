@@ -13,6 +13,7 @@ import { Badge } from "@/components/ui/badge"
 import { useProducts } from "@/hooks/use-products"
 import { formatCurrency } from "@/utils"
 import { useWishlistStore } from "@/store/wishlist"
+import { useRecentlyViewed } from "@/hooks/use-recently-viewed"
 import type { Product } from "@/types"
 
 const CATEGORIES = [
@@ -54,6 +55,7 @@ export default function StorePage() {
   const [newsletterEmail, setNewsletterEmail] = useState("")
   const [newsletterSubmitted, setNewsletterSubmitted] = useState(false)
   const { products: PRODUCTS, loading } = useProducts()
+  const recentlyViewed = useRecentlyViewed()
 
   if (loading) {
     return (
@@ -280,9 +282,13 @@ export default function StorePage() {
             </div>
           </div>
           <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-            {firstThree.map((item, i) => (
-              <ProductCard key={item.id} item={item} index={i} />
-            ))}
+            {recentlyViewed.length > 0 ? (
+              recentlyViewed.slice(0, 3).map((item, i) => (
+                <ProductCard key={item.id} item={item} index={i} />
+              ))
+            ) : (
+              <p className="text-sm text-muted-foreground col-span-3">No recently viewed products yet.</p>
+            )}
           </div>
         </div>
       </section>

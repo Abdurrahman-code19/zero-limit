@@ -171,6 +171,7 @@ CREATE TABLE public.orders (
   tracking_number TEXT,
   shipped_at TIMESTAMPTZ,
   delivered_at TIMESTAMPTZ,
+  status_history JSONB DEFAULT '[]'::jsonb,
   created_at TIMESTAMPTZ DEFAULT NOW(),
   updated_at TIMESTAMPTZ DEFAULT NOW()
 );

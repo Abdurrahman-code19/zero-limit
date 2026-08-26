@@ -23,6 +23,7 @@ import { useCartStore } from "@/store/cart"
 import { useWishlistStore } from "@/store/wishlist"
 import { formatCurrency } from "@/utils"
 import { useProduct, useRelatedProducts } from "@/hooks/use-product"
+import { trackRecentlyViewed } from "@/hooks/use-recently-viewed"
 import { getProductTags } from "@/lib/products"
 
 export default function ProductPage({
@@ -46,6 +47,12 @@ export default function ProductPage({
   useEffect(() => {
     setMounted(true)
   }, [])
+
+  useEffect(() => {
+    if (product) {
+      trackRecentlyViewed(product)
+    }
+  }, [product?.id])
 
   if (loading) {
     return (
