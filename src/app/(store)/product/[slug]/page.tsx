@@ -25,6 +25,7 @@ import { formatCurrency } from "@/utils"
 import { useProduct, useRelatedProducts } from "@/hooks/use-product"
 import { trackRecentlyViewed } from "@/hooks/use-recently-viewed"
 import { ProductImage } from "@/components/store/product-image"
+import { ReviewSection } from "@/components/store/review-section"
 import { getProductTags } from "@/lib/products"
 
 export default function ProductPage({
@@ -303,6 +304,9 @@ export default function ProductPage({
           </div>
         </motion.div>
       </div>
+
+      {/* Reviews */}
+      <ReviewSection productId={product.id} />
 
       {/* Related products */}
       <section className="mt-20 md:mt-28">
