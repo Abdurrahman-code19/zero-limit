@@ -33,13 +33,13 @@ export function Footer() {
               Premium fashion for the bold and confident. No limits, just style.
             </p>
             <div className="flex space-x-4">
-              <Link href="https://instagram.com" target="_blank" rel="noopener noreferrer">
+              <Link href="https://instagram.com/zerolimit.store" target="_blank" rel="noopener noreferrer">
                 <Instagram className="h-5 w-5 text-muted-foreground hover:text-foreground transition-colors" />
               </Link>
-              <Link href="https://twitter.com" target="_blank" rel="noopener noreferrer">
+              <Link href="https://twitter.com/zerolimitstore" target="_blank" rel="noopener noreferrer">
                 <Twitter className="h-5 w-5 text-muted-foreground hover:text-foreground transition-colors" />
               </Link>
-              <Link href="https://facebook.com" target="_blank" rel="noopener noreferrer">
+              <Link href="https://facebook.com/zerolimitstore" target="_blank" rel="noopener noreferrer">
                 <Facebook className="h-5 w-5 text-muted-foreground hover:text-foreground transition-colors" />
               </Link>
             </div>

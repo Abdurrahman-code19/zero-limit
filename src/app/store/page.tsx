@@ -54,10 +54,13 @@ export default function StorePage() {
   const [activeSlide, setActiveSlide] = useState(0)
   const [newsletterEmail, setNewsletterEmail] = useState("")
   const [newsletterSubmitted, setNewsletterSubmitted] = useState(false)
+  const [mounted, setMounted] = useState(false)
   const { products: PRODUCTS, loading } = useProducts()
   const recentlyViewed = useRecentlyViewed()
 
-  if (loading) {
+  useEffect(() => { setMounted(true) }, [])
+
+  if (!mounted || loading) {
     return (
       <div className="container mx-auto px-4 py-32 text-center">
         <Loader2 className="h-8 w-8 animate-spin mx-auto text-muted-foreground" />

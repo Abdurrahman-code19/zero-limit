@@ -156,7 +156,7 @@ export default function HomePage() {
                   Discover curated fashion pieces that define contemporary elegance.
                   Each piece crafted for those who refuse to blend in.
                 </p>
-                <Link href="/login">
+                <Link href="/shop">
                   <Button className="bg-foreground text-background hover:bg-foreground/80 text-[13px] tracking-widest uppercase rounded-none px-8 py-6 group transition-all duration-300">
                     Explore Collection
                     <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
@@ -291,7 +291,7 @@ export default function HomePage() {
                   <p className="text-[11px] tracking-[0.4em] uppercase text-muted-foreground mb-3">Curated For You</p>
                   <h2 className="text-3xl md:text-4xl font-light">Collections</h2>
                 </div>
-                <Link href="/login" className="text-[12px] tracking-widest uppercase text-muted-foreground hover:text-foreground transition-colors flex items-center gap-2 group">
+                <Link href="/shop" className="text-[12px] tracking-widest uppercase text-muted-foreground hover:text-foreground transition-colors flex items-center gap-2 group">
                   View All
                   <ArrowRight className="h-3 w-3 group-hover:translate-x-1 transition-transform" />
                 </Link>
@@ -305,7 +305,7 @@ export default function HomePage() {
                     viewport={{ once: true }}
                     transition={{ duration: 0.6, delay: i * 0.15 }}
                   >
-                    <Link href="/login">
+                    <Link href={`/collections/${col.slug}`}>
                       <div className="group relative aspect-[3/4] overflow-hidden bg-muted cursor-pointer">
                         <img
                           src={col.image}
@@ -338,7 +338,7 @@ export default function HomePage() {
                   <p className="text-[11px] tracking-[0.4em] uppercase text-muted-foreground mb-3">Just Dropped</p>
                   <h2 className="text-3xl md:text-4xl font-light">New Arrivals</h2>
                 </div>
-                <Link href="/login" className="text-[12px] tracking-widest uppercase text-muted-foreground hover:text-foreground transition-colors flex items-center gap-2 group">
+                <Link href="/shop" className="text-[12px] tracking-widest uppercase text-muted-foreground hover:text-foreground transition-colors flex items-center gap-2 group">
                   View All
                   <ArrowRight className="h-3 w-3 group-hover:translate-x-1 transition-transform" />
                 </Link>
@@ -374,12 +374,12 @@ export default function HomePage() {
                               >
                                 <Heart className="h-4 w-4" />
                               </button>
-                               <Link
-                                href="/login"
-                                className="w-10 h-10 bg-background text-foreground flex items-center justify-center hover:bg-background/80 transition-colors"
-                                aria-label="Search shop"
-                                onClick={(e) => e.stopPropagation()}
-                              >
+                                <Link
+                                 href={`/product/${item.slug}`}
+                                 className="w-10 h-10 bg-background text-foreground flex items-center justify-center hover:bg-background/80 transition-colors"
+                                 aria-label="View product"
+                                 onClick={(e) => e.stopPropagation()}
+                               >
                                 <Search className="h-4 w-4" />
                               </Link>
                               <button
@@ -410,16 +410,7 @@ export default function HomePage() {
               <p className="text-sm text-muted-foreground max-w-md mx-auto mb-10">
                 Exclusive drops, early access, and style inspiration delivered to your inbox.
               </p>
-              <form className="flex flex-col sm:flex-row gap-3 max-w-lg mx-auto" onSubmit={(e) => e.preventDefault()}>
-                <input
-                  type="email"
-                  placeholder="Email Address"
-                  className="flex-1 bg-transparent border border-border px-5 py-4 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-foreground transition-colors"
-                />
-                <Button type="submit" className="bg-foreground text-background hover:bg-foreground/80 text-[13px] tracking-widest uppercase rounded-none px-8 py-4">
-                  Subscribe
-                </Button>
-              </form>
+              <NewsletterForm />
             </div>
           </section>
 
@@ -437,15 +428,15 @@ export default function HomePage() {
                     Beyond Limits.<br />Beyond Style.
                   </p>
                   <div className="flex gap-3">
-                    <a href="#" className={`w-8 h-8 border flex items-center justify-center transition-all duration-300 ${isDark ? "border-white/20 hover:bg-white hover:text-black" : "border-black/20 hover:bg-black hover:text-white"}`}>
+                    <a href="https://instagram.com/zerolimit.store" target="_blank" rel="noopener noreferrer" className={`w-8 h-8 border flex items-center justify-center transition-all duration-300 ${isDark ? "border-white/20 hover:bg-white hover:text-black" : "border-black/20 hover:bg-black hover:text-white"}`}>
                       <Instagram className="h-3.5 w-3.5" />
                     </a>
                   </div>
                 </div>
                 {[
-                  { title: "Account", links: [{ label: "Create Account", href: "/register" }, { label: "Admin Dashboard", href: "/admin/login" }] },
-                  { title: "Help", links: [{ label: "Contact Us", href: "#" }, { label: "FAQs", href: "#" }, { label: "Shipping", href: "#" }, { label: "Returns", href: "#" }] },
-                  { title: "Legal", links: [{ label: "Privacy Policy", href: "#" }, { label: "Terms & Conditions", href: "#" }] },
+                  { title: "Account", links: [{ label: "Create Account", href: "/register" }, { label: "My Orders", href: "/orders" }] },
+                  { title: "Help", links: [{ label: "Contact Us", href: "/contact" }, { label: "FAQs", href: "/faq" }, { label: "Shipping Info", href: "/shipping" }, { label: "Returns & Exchanges", href: "/returns" }] },
+                  { title: "Legal", links: [{ label: "Privacy Policy", href: "/privacy" }, { label: "Terms & Conditions", href: "/terms" }] },
                 ].map((group) => (
                   <div key={group.title}>
                     <h4 className="text-[12px] tracking-widest uppercase mb-4 font-semibold">{group.title}</h4>
@@ -461,9 +452,6 @@ export default function HomePage() {
               </div>
               <div className="border-t border-border pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
                 <p className="text-[11px] text-muted-foreground">&copy; {new Date().getFullYear()} Zero Limit. All rights reserved.</p>
-                <div className="flex gap-4 text-[11px] text-muted-foreground">
-                  <Link href="/admin/login" className="hover:text-foreground transition-colors">Admin</Link>
-                </div>
               </div>
             </div>
           </footer>
@@ -471,5 +459,48 @@ export default function HomePage() {
       </div>
       <BackToTop />
     </>
+  )
+}
+
+function NewsletterForm() {
+  const [email, setEmail] = useState("")
+  const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle")
+
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault()
+    if (!email.trim()) return
+    setStatus("loading")
+    try {
+      const res = await fetch("/api/newsletter", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email }),
+      })
+      if (res.ok) {
+        setStatus("success")
+        setEmail("")
+      } else {
+        setStatus("error")
+      }
+    } catch {
+      setStatus("error")
+    }
+  }
+
+  return (
+    <form className="flex flex-col sm:flex-row gap-3 max-w-lg mx-auto" onSubmit={handleSubmit}>
+      <input
+        type="email"
+        value={email}
+        onChange={(e) => setEmail(e.target.value)}
+        placeholder="Email Address"
+        required
+        className="flex-1 bg-transparent border border-border px-5 py-4 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-foreground transition-colors"
+      />
+      <Button type="submit" disabled={status === "loading"} className="bg-foreground text-background hover:bg-foreground/80 text-[13px] tracking-widest uppercase rounded-none px-8 py-4">
+        {status === "loading" ? "Subscribing..." : status === "success" ? "Subscribed!" : "Subscribe"}
+      </Button>
+      {status === "error" && <p className="text-xs text-destructive mt-1">Something went wrong. Try again.</p>}
+    </form>
   )
 }
