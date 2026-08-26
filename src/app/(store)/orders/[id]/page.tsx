@@ -77,6 +77,11 @@ export default function OrderDetailPage() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [cancelling, setCancelling] = useState(false)
+  const [showReturnForm, setShowReturnForm] = useState(false)
+  const [returnReason, setReturnReason] = useState("")
+  const [returnSubmitting, setReturnSubmitting] = useState(false)
+  const [returnError, setReturnError] = useState<string | null>(null)
+  const [returnSuccess, setReturnSuccess] = useState(false)
 
   useEffect(() => {
     const supabase = createClient()
@@ -145,6 +150,29 @@ export default function OrderDetailPage() {
       }
     } catch { /* ignore */ }
     setCancelling(false)
+  }
+
+  async function handleReturnRequest() {
+    if (returnReason.length < 10) return
+    setReturnSubmitting(true)
+    setReturnError(null)
+    try {
+      const res = await fetch("/api/returns", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ order_id: order!.id, reason: returnReason }),
+      })
+      if (!res.ok) {
+        const data = await res.json()
+        setReturnError(data.error || "Failed to submit return request")
+        return
+      }
+      setReturnSuccess(true)
+    } catch {
+      setReturnError("Network error")
+    } finally {
+      setReturnSubmitting(false)
+    }
   }
 
   return (
@@ -309,6 +337,37 @@ export default function OrderDetailPage() {
               </div>
             </div>
           </div>
+        </div>
+      )}
+
+      {/* Return Request */}
+      {order.status === "delivered" && (
+        <div className="mb-8">
+          {showReturnForm ? (
+            <div className="border rounded-lg p-6 space-y-4">
+              <h2 className="text-sm font-medium uppercase tracking-wider text-muted-foreground">Request a Return</h2>
+              <p className="text-sm text-muted-foreground">Tell us why you would like to return this order. Please provide at least 10 characters.</p>
+              {returnError && <p className="text-sm text-red-500">{returnError}</p>}
+              {returnSuccess && <p className="text-sm text-green-600">Return request submitted. We will review it shortly.</p>}
+              <textarea
+                value={returnReason}
+                onChange={(e) => setReturnReason(e.target.value)}
+                className="w-full border border-input bg-background px-3 py-2 text-sm rounded-md min-h-[100px]"
+                placeholder="e.g. Item doesn't fit, wrong size received, defective product..."
+              />
+              <div className="flex gap-3">
+                <Button variant="outline" size="sm" onClick={() => { setShowReturnForm(false); setReturnReason(""); setReturnError(null); setReturnSuccess(false) }}>Cancel</Button>
+                <Button size="sm" className="bg-foreground text-background hover:bg-foreground/90" disabled={returnSubmitting || returnReason.length < 10} onClick={handleReturnRequest}>
+                  {returnSubmitting ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
+                  Submit Request
+                </Button>
+              </div>
+            </div>
+          ) : (
+            <Button variant="outline" size="sm" onClick={() => setShowReturnForm(true)}>
+              Request Return
+            </Button>
+          )}
         </div>
       )}
 

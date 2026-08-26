@@ -70,7 +70,7 @@
 - [x] **46. Show stock on product page** — No stock count or low-stock warning displayed.
 - [x] **47. Show variant-level stock** — If size "M" is sold out but "L" is in stock, page shows no indication.
 - [x] **48. Implement coupon/discount system** — `Coupon` type exists (`types/index.ts:100-110`) but no implementation.
-- [ ] **49. Implement address book** — `Address` type exists (`types/index.ts:74-84`) but no saved addresses feature.
+- [x] **49. Implement address book** — `Address` type exists (`types/index.ts:74-84`) but no saved addresses feature.
 - [x] **50. Implement product reviews** — Type exists, ratings hardcoded. No review submission or display.
 - [x] **51. Add order notes/comments for admin** — Admin cannot add internal notes to orders.
 - [x] **52. Add order status transition date tracking** — Timeline shows steps but not when each transition occurred.
