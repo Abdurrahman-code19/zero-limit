@@ -6,15 +6,6 @@ export const NAV_LINKS = [
   { label: 'Home', href: '/' },
 ]
 
-export const PRODUCT_CATEGORIES = [
-  { name: 'T-Shirts', slug: 't-shirts', image: '/products/zero-limit-lightning-strike-1.jpeg' },
-  { name: 'Shirts', slug: 'shirts', image: '/products/zero-limit-checkers-shirt-1.jpeg' },
-  { name: 'Caps & Beanies', slug: 'caps', image: '/products/zero-limit-bernie-1.jpeg' },
-  { name: 'Hoodies & Quarter Zips', slug: 'hoodies', image: '/products/zero-limit-quarter-zip-1.jpeg' },
-]
-
-export const COLLECTIONS = PRODUCT_CATEGORIES
-
 export const SIZES = ['XS', 'S', 'M', 'L', 'XL', 'XXL']
 
 export const SORT_OPTIONS = [

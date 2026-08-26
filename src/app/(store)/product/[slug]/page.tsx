@@ -1,351 +1,59 @@
-"use client"
+import type { Metadata } from "next"
+import { createClient } from "@/lib/supabase/server"
+import ProductContent from "./product-content"
 
-import { use, useEffect, useMemo, useState } from "react"
-import Link from "next/link"
-import { motion } from "framer-motion"
-import {
-  Heart,
-  ShoppingBag,
-  Star,
-  Truck,
-  RotateCcw,
-  Shield,
-  Minus,
-  Plus,
-  ArrowRight,
-  Check,
-  Loader2,
-} from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
-import { Separator } from "@/components/ui/separator"
-import { useCartStore } from "@/store/cart"
-import { useWishlistStore } from "@/store/wishlist"
-import { formatCurrency } from "@/utils"
-import { useProduct, useRelatedProducts } from "@/hooks/use-product"
-import { trackRecentlyViewed } from "@/hooks/use-recently-viewed"
-import { ProductImage } from "@/components/store/product-image"
-import { ReviewSection } from "@/components/store/review-section"
-import { getProductTags } from "@/lib/products"
+export const revalidate = 3600
 
-export default function ProductPage({
+export async function generateStaticParams() {
+  const supabase = await createClient()
+  const { data } = await supabase
+    .from("products")
+    .select("slug")
+    .eq("is_active", true)
+    .order("created_at", { ascending: false })
+    .limit(50)
+
+  return (data ?? []).map((p: { slug: string }) => ({ slug: p.slug }))
+}
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ slug: string }>
+}): Promise<Metadata> {
+  const { slug } = await params
+  const supabase = await createClient()
+  const { data: product } = await supabase
+    .from("products")
+    .select("name, description, images, price")
+    .eq("slug", slug)
+    .eq("is_active", true)
+    .single()
+
+  if (!product) {
+    return { title: "Product Not Found" }
+  }
+
+  const title = `${product.name} | Zero Limit`
+  const description = product.description?.slice(0, 160) ?? product.name
+  const image = product.images?.[0]
+
+  return {
+    title,
+    description,
+    openGraph: {
+      title,
+      description,
+      ...(image ? { images: [{ url: image, width: 1200, height: 630 }] } : {}),
+    },
+  }
+}
+
+export default async function ProductPage({
   params,
 }: {
   params: Promise<{ slug: string }>
 }) {
-  const { slug } = use(params)
-  const { product, loading } = useProduct(slug)
-  const related = useRelatedProducts(product)
-
-  const [size, setSize] = useState<string | null>(null)
-  const [color, setColor] = useState<string | null>(null)
-  const [quantity, setQuantity] = useState(1)
-  const [added, setAdded] = useState(false)
-  const [selectedImage, setSelectedImage] = useState(0)
-  const addItem = useCartStore((s) => s.addItem)
-  const isWishlisted = useWishlistStore((s) => s.isWishlisted(product?.id ?? ""))
-  const toggleWishlist = useWishlistStore((s) => s.toggle)
-  const [mounted, setMounted] = useState(false)
-
-  useEffect(() => {
-    setMounted(true)
-  }, [])
-
-  useEffect(() => {
-    if (product) {
-      trackRecentlyViewed(product)
-    }
-  }, [product?.id])
-
-  if (loading) {
-    return (
-      <div className="container mx-auto px-4 py-32 text-center">
-        <Loader2 className="h-8 w-8 animate-spin mx-auto text-muted-foreground" />
-        <p className="text-sm text-muted-foreground mt-4">Loading product...</p>
-      </div>
-    )
-  }
-
-  if (!product) {
-    return (
-      <div className="container mx-auto px-4 py-32 text-center space-y-6">
-        <h1 className="text-3xl font-light">Product not found</h1>
-        <p className="text-muted-foreground">
-          The item you are looking for does not exist or has been removed.
-        </p>
-        <Link href="/store">
-          <Button className="bg-foreground text-background hover:bg-foreground/90 text-xs tracking-widest uppercase rounded-none px-8 py-6">
-            Back to Store
-          </Button>
-        </Link>
-      </div>
-    )
-  }
-
-  const tags = getProductTags(product)
-  const defaultColor = color ?? product.colors[0]
-  const defaultSize = size ?? product.sizes[0]
-
-  const handleAddToCart = () => {
-    addItem(product, quantity, defaultSize, defaultColor)
-    setAdded(true)
-    setTimeout(() => setAdded(false), 2500)
-  }
-
-  return (
-    <div className="container mx-auto px-4 py-10 md:py-16">
-      {/* Breadcrumb */}
-      <div className="flex items-center gap-2 text-sm text-muted-foreground mb-8">
-        <Link href="/store" className="hover:text-foreground">
-          Home
-        </Link>
-        <span>/</span>
-        <Link href="/shop" className="hover:text-foreground">
-          Shop
-        </Link>
-        <span>/</span>
-        <span className="text-foreground">{product.name}</span>
-      </div>
-
-      <div className="grid md:grid-cols-2 gap-10 lg:gap-16">
-        {/* Gallery */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-        >
-          <div className="relative aspect-[3/4] bg-muted overflow-hidden mb-3">
-            <ProductImage
-              src={product.images[selectedImage] ?? product.images[0] ?? "/favicon.png"}
-              alt={product.name}
-              fill
-              className="object-cover"
-            />
-            {tags.length > 0 && (
-              <Badge className="absolute top-4 left-4 z-10 bg-foreground text-background text-[10px] tracking-wider uppercase rounded-none">
-                {tags[0]}
-              </Badge>
-            )}
-          </div>
-          {product.images.length > 1 && (
-            <div className="flex gap-2 overflow-x-auto">
-              {product.images.map((img, i) => (
-                <button
-                  key={i}
-                  onClick={() => setSelectedImage(i)}
-                  className={`relative w-16 h-20 shrink-0 border-2 overflow-hidden transition-colors ${
-                    i === selectedImage ? "border-foreground" : "border-transparent opacity-60 hover:opacity-100"
-                  }`}
-                >
-                  <img src={img} alt="" className="w-full h-full object-cover" />
-                </button>
-              ))}
-            </div>
-          )}
-        </motion.div>
-
-        {/* Details */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.1 }}
-        >
-          <div className="flex items-center gap-2 mb-3">
-            <span className="text-sm text-muted-foreground">Be the first to review this product</span>
-          </div>
-
-          <h1 className="text-3xl md:text-4xl font-light mb-3">{product.name}</h1>
-
-          <div className="flex items-center gap-3 mb-6">
-            <span className="text-2xl font-semibold">
-              {formatCurrency(product.price)}
-            </span>
-            {product.compare_at_price && (
-              <>
-                <span className="text-lg text-muted-foreground line-through">
-                  {formatCurrency(product.compare_at_price)}
-                </span>
-                <span className="text-xs bg-red-500/10 text-red-500 px-2 py-1 uppercase tracking-wider">
-                  Save{" "}
-                  {formatCurrency(product.compare_at_price - product.price)}
-                </span>
-              </>
-            )}
-          </div>
-
-          <p className="text-sm text-muted-foreground mb-2">
-            {product.stock <= 0
-              ? "Out of stock"
-              : product.stock <= 5
-                ? `Only ${product.stock} left in stock`
-                : "In stock"}
-          </p>
-
-          <p className="text-sm text-muted-foreground leading-relaxed mb-6">
-            {product.description}
-          </p>
-
-          {/* Sizes */}
-          <div className="mb-6">
-            <p className="text-sm font-medium mb-3">
-              Size <span className="text-muted-foreground font-normal">— {defaultSize}</span>
-            </p>
-            <div className="flex flex-wrap gap-2">
-              {product.sizes.map((s) => {
-                const stockKey = `${s}-${color ?? ""}`
-                const variantStock = product.variant_stock?.[stockKey]
-                const isOOS = variantStock !== undefined ? variantStock <= 0 : false
-                return (
-                  <button
-                    key={s}
-                    onClick={() => !isOOS && setSize(s)}
-                    disabled={isOOS}
-                    className={`min-w-12 h-12 px-3 border text-sm transition-colors ${
-                      isOOS
-                        ? "border-border opacity-30 cursor-not-allowed line-through"
-                        : defaultSize === s
-                          ? "border-foreground bg-foreground text-background"
-                          : "border-border hover:border-foreground"
-                    }`}
-                  >
-                    {s}
-                  </button>
-                )
-              })}
-            </div>
-          </div>
-
-          {/* Colors */}
-          <div className="mb-8">
-            <p className="text-sm font-medium mb-3">Colour</p>
-            <div className="flex gap-3">
-              {product.colors.map((c) => (
-                <button
-                  key={c}
-                  onClick={() => setColor(c)}
-                  className={`relative w-10 h-10 rounded-full border-2 transition-transform ${
-                    defaultColor === c
-                      ? "border-foreground scale-110"
-                      : "border-border hover:scale-105"
-                  }`}
-                  style={{ backgroundColor: c }}
-                  aria-label={`Colour ${c}`}
-                >
-                  {defaultColor === c && (
-                    <Check className="absolute inset-0 m-auto h-4 w-4 text-white mix-blend-difference" />
-                  )}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          <Separator className="mb-8" />
-
-          {/* Quantity + Add to cart */}
-          <div className="flex flex-col sm:flex-row gap-4 mb-8">
-            <div className="flex items-center border rounded-none w-fit">
-              <button
-                onClick={() => setQuantity((q) => Math.max(1, q - 1))}
-                className="px-4 py-3 hover:bg-muted transition-colors"
-                aria-label="Decrease quantity"
-              >
-                <Minus className="h-4 w-4" />
-              </button>
-              <span className="px-6 text-sm">{quantity}</span>
-              <button
-                onClick={() => setQuantity((q) => Math.min(product.stock, q + 1))}
-                className="px-4 py-3 hover:bg-muted transition-colors"
-                aria-label="Increase quantity"
-                disabled={quantity >= product.stock}
-              >
-                <Plus className="h-4 w-4" />
-              </button>
-            </div>
-
-            <Button
-              onClick={handleAddToCart}
-              disabled={product.stock <= 0}
-              className="flex-1 bg-foreground text-background hover:bg-foreground/90 text-xs tracking-widest uppercase rounded-none px-8 py-6 h-auto disabled:opacity-50"
-            >
-              {product.stock <= 0 ? (
-                "Out of Stock"
-              ) : added ? (
-                <>
-                  <Check className="h-4 w-4 mr-2" /> Added to Cart
-                </>
-              ) : (
-                <>
-                  <ShoppingBag className="h-4 w-4 mr-2" /> Add to Cart
-                </>
-              )}
-            </Button>
-
-            <Button
-              variant="outline"
-              className="w-14 h-auto rounded-none"
-              aria-label={mounted && isWishlisted ? "Remove from wishlist" : "Add to wishlist"}
-              onClick={() => toggleWishlist(product.id)}
-            >
-              <Heart className={`h-4 w-4 ${mounted && isWishlisted ? "fill-red-500 text-red-500" : ""}`} />
-            </Button>
-          </div>
-
-          <div className="space-y-3 text-sm text-muted-foreground">
-            <div className="flex items-center gap-3">
-              <Truck className="h-4 w-4" /> Free delivery on orders over{" "}
-              {formatCurrency(50000)} · Nationwide 2-5 days
-            </div>
-            <div className="flex items-center gap-3">
-              <RotateCcw className="h-4 w-4" /> 7-day hassle-free returns
-            </div>
-            <div className="flex items-center gap-3">
-              <Shield className="h-4 w-4" /> Secure checkout with Paystack
-            </div>
-          </div>
-        </motion.div>
-      </div>
-
-      {/* Reviews */}
-      <ReviewSection productId={product.id} />
-
-      {/* Related products */}
-      <section className="mt-20 md:mt-28">
-        <div className="flex items-end justify-between mb-10">
-          <div>
-            <p className="text-[10px] tracking-[0.3em] uppercase text-muted-foreground mb-2">
-              You May Also Like
-            </p>
-            <h2 className="text-2xl md:text-3xl font-light">Related Products</h2>
-          </div>
-          <Link
-            href="/shop"
-            className="text-xs tracking-widest uppercase text-muted-foreground hover:text-foreground flex items-center gap-1 group"
-          >
-            View All
-            <ArrowRight className="h-3 w-3 group-hover:translate-x-1 transition-transform" />
-          </Link>
-        </div>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          {related.map((p) => (
-            <Link key={p.id} href={`/product/${p.slug}`} className="group block">
-              <div className="relative aspect-[3/4] bg-muted overflow-hidden mb-3">
-                <ProductImage
-                  src={p.images[0]}
-                  alt={p.name}
-                  fill
-                  className="object-cover group-hover:scale-105 transition-transform duration-500"
-                />
-              </div>
-              <h4 className="text-sm font-medium mb-1 group-hover:text-muted-foreground transition-colors">
-                {p.name}
-              </h4>
-              <p className="text-sm text-muted-foreground">
-                {formatCurrency(p.price)}
-              </p>
-            </Link>
-          ))}
-        </div>
-      </section>
-    </div>
-  )
+  const { slug } = await params
+  return <ProductContent slug={slug} />
 }

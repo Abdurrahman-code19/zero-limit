@@ -1,5 +1,6 @@
 import { Metadata } from "next"
 import { Mail, Phone, MapPin, Clock } from "lucide-react"
+import ContactForm from "./contact-form"
 
 export const metadata: Metadata = {
   title: "Contact Us | Zero Limit",
@@ -68,62 +69,5 @@ export default function ContactPage() {
         <ContactForm />
       </div>
     </div>
-  )
-}
-
-function ContactForm() {
-  return (
-    <form
-      className="space-y-4"
-      action="mailto:support@zerolimit.store"
-      encType="text/plain"
-    >
-      <div>
-        <label className="text-sm font-medium">Name</label>
-        <input
-          type="text"
-          name="name"
-          className="mt-1 w-full rounded-md border border-input bg-background px-4 py-2.5 text-sm"
-          placeholder="Your name"
-          required
-        />
-      </div>
-      <div>
-        <label className="text-sm font-medium">Email</label>
-        <input
-          type="email"
-          name="email"
-          className="mt-1 w-full rounded-md border border-input bg-background px-4 py-2.5 text-sm"
-          placeholder="you@example.com"
-          required
-        />
-      </div>
-      <div>
-        <label className="text-sm font-medium">Subject</label>
-        <input
-          type="text"
-          name="subject"
-          className="mt-1 w-full rounded-md border border-input bg-background px-4 py-2.5 text-sm"
-          placeholder="How can we help?"
-          required
-        />
-      </div>
-      <div>
-        <label className="text-sm font-medium">Message</label>
-        <textarea
-          name="body"
-          rows={5}
-          className="mt-1 w-full rounded-md border border-input bg-background px-4 py-2.5 text-sm"
-          placeholder="Tell us more..."
-          required
-        />
-      </div>
-      <button
-        type="submit"
-        className="w-full bg-foreground text-background hover:bg-foreground/80 py-2.5 text-sm font-medium transition-colors"
-      >
-        Send Message
-      </button>
-    </form>
   )
 }

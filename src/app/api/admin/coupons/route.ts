@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server"
 import { createClient } from "@/lib/supabase/server"
+import { logActivity } from "@/lib/audit"
 import { z } from "zod"
 
 async function requireAdmin(request: NextRequest) {
@@ -54,6 +55,13 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: error.message }, { status: 500 })
   }
 
+  await logActivity({
+    action: "create",
+    entity_type: "coupon",
+    entity_id: data.id,
+    details: { code: data.code, discount_type: data.discount_type, discount_value: data.discount_value },
+  })
+
   return NextResponse.json({ coupon: data }, { status: 201 })
 }
 
@@ -75,6 +83,14 @@ export async function PATCH(request: NextRequest) {
     .from("coupons").update(parsed.data).eq("id", id).select().single()
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+
+  await logActivity({
+    action: "update",
+    entity_type: "coupon",
+    entity_id: id,
+    details: { updatedFields: Object.keys(parsed.data) },
+  })
+
   return NextResponse.json({ coupon: data })
 }
 
@@ -88,6 +104,12 @@ export async function DELETE(request: NextRequest) {
 
   const { error } = await admin.supabase.from("coupons").delete().eq("id", id)
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+
+  await logActivity({
+    action: "delete",
+    entity_type: "coupon",
+    entity_id: id,
+  })
 
   return NextResponse.json({ success: true })
 }

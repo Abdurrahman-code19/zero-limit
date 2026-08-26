@@ -1,5 +1,6 @@
 import { Metadata } from "next"
 import { Truck, Package, MapPin } from "lucide-react"
+import { createClient } from "@/lib/supabase/server"
 
 export const metadata: Metadata = {
   title: "Shipping Information | Zero Limit",
@@ -14,7 +15,16 @@ const shippingZones = [
   { zone: "North-West & North-East", time: "4-6 business days", fee: "₦3,000" },
 ]
 
-export default function ShippingPage() {
+export default async function ShippingPage() {
+  const supabase = await createClient()
+  const { data } = await supabase
+    .from("store_settings")
+    .select("shipping_fee, free_shipping_threshold")
+    .single()
+
+  const shippingFee = data?.shipping_fee ?? 2000
+  const freeShippingThreshold = data?.free_shipping_threshold ?? 50000
+
   return (
     <div className="container mx-auto px-4 py-16 max-w-3xl">
       <div className="text-center mb-12">
@@ -60,7 +70,7 @@ export default function ShippingPage() {
             </table>
           </div>
           <p className="text-xs text-muted-foreground mt-3">
-            Shipping fee is a flat ₦2,000 added at checkout for standard delivery. Free shipping on orders over ₦50,000.
+            Shipping fee is a flat ₦{shippingFee.toLocaleString()} added at checkout for standard delivery. Free shipping on orders over ₦{freeShippingThreshold.toLocaleString()}.
           </p>
         </section>
 

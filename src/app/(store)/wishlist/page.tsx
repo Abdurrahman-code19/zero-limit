@@ -5,13 +5,12 @@ import Link from "next/link"
 import { Heart, ShoppingBag, Trash2, Loader2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { useCartStore } from "@/store/cart"
-import { useWishlistStore } from "@/store/wishlist"
+import { useWishlistDbSync } from "@/hooks/use-wishlist-db"
 import { useProducts } from "@/hooks/use-products"
 import { formatCurrency } from "@/utils"
 
 export default function WishlistPage() {
-  const ids = useWishlistStore((state) => state.ids)
-  const remove = useWishlistStore((state) => state.remove)
+  const { ids, syncRemove } = useWishlistDbSync()
   const addItem = useCartStore((state) => state.addItem)
   const [mounted, setMounted] = useState(false)
   const { products: allProducts, loading } = useProducts()
@@ -90,7 +89,7 @@ export default function WishlistPage() {
                     >
                       <ShoppingBag className="h-3 w-3 mr-1" /> Add to Cart
                     </Button>
-                    <Button size="sm" variant="ghost" className="h-8" onClick={() => remove(item.id)}>
+                    <Button size="sm" variant="ghost" className="h-8" onClick={() => syncRemove(item.id)}>
                       <Trash2 className="h-3 w-3 text-destructive" />
                     </Button>
                   </div>

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server"
 import { createClient } from "@/lib/supabase/server"
+import { logActivity } from "@/lib/audit"
 import { z } from "zod"
 
 async function requireAdmin(request: NextRequest) {
@@ -64,6 +65,13 @@ export async function POST(request: NextRequest) {
     }
   }
 
+  await logActivity({
+    action: "create",
+    entity_type: "product",
+    entity_id: product.id,
+    details: { name: product.name, price: product.price },
+  })
+
   return NextResponse.json({ product }, { status: 201 })
 }
 
@@ -101,6 +109,14 @@ export async function PATCH(request: NextRequest) {
   }
 
   const { data: product } = await admin.supabase.from("products").select("*").eq("id", id).single()
+
+  await logActivity({
+    action: "update",
+    entity_type: "product",
+    entity_id: id,
+    details: { updatedFields: Object.keys(updateData) },
+  })
+
   return NextResponse.json({ product })
 }
 
@@ -115,6 +131,12 @@ export async function DELETE(request: NextRequest) {
   await admin.supabase.from("product_variants").delete().eq("product_id", id)
   const { error } = await admin.supabase.from("products").delete().eq("id", id)
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+
+  await logActivity({
+    action: "delete",
+    entity_type: "product",
+    entity_id: id,
+  })
 
   return NextResponse.json({ success: true })
 }

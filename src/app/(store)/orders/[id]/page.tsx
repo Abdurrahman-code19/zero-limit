@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react"
 import { useParams, useRouter } from "next/navigation"
 import Link from "next/link"
-import { ArrowLeft, Loader2, Package, Truck, CheckCircle, Clock, XCircle, MapPin } from "lucide-react"
+import { ArrowLeft, Loader2, Package, Truck, CheckCircle, Clock, XCircle, MapPin, RefreshCw } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { createClient } from "@/lib/supabase/client"
@@ -12,6 +12,7 @@ import { formatCurrency, formatDate } from "@/utils"
 interface OrderDetail {
   id: string
   order_number: string
+  reference: string | null
   status: string
   payment_status: string
   total: number
@@ -82,6 +83,7 @@ export default function OrderDetailPage() {
   const [returnSubmitting, setReturnSubmitting] = useState(false)
   const [returnError, setReturnError] = useState<string | null>(null)
   const [returnSuccess, setReturnSuccess] = useState(false)
+  const [verifyingPayment, setVerifyingPayment] = useState(false)
 
   useEffect(() => {
     const supabase = createClient()
@@ -175,6 +177,19 @@ export default function OrderDetailPage() {
     }
   }
 
+  async function handleVerifyPayment() {
+    if (!order?.reference) return
+    setVerifyingPayment(true)
+    try {
+      const res = await fetch(`/api/paystack/verify?reference=${encodeURIComponent(order.reference)}`)
+      const data = await res.json()
+      if (res.ok && data.status) {
+        setOrder({ ...order!, payment_status: data.status })
+      }
+    } catch { /* ignore */ }
+    setVerifyingPayment(false)
+  }
+
   return (
     <div className="container mx-auto px-4 py-8 max-w-3xl">
       <div className="flex items-center gap-2 text-sm text-muted-foreground mb-6">
@@ -207,6 +222,20 @@ export default function OrderDetailPage() {
           >
             {cancelling ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <XCircle className="h-4 w-4 mr-2" />}
             Cancel Order
+          </Button>
+        </div>
+      )}
+
+      {order.payment_status === "pending" && (
+        <div className="mb-6">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleVerifyPayment}
+            disabled={verifyingPayment}
+          >
+            {verifyingPayment ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <RefreshCw className="h-4 w-4 mr-2" />}
+            Verify Payment
           </Button>
         </div>
       )}

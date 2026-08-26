@@ -4,8 +4,8 @@ import Link from "next/link"
 import { motion } from "framer-motion"
 import { ArrowRight, Loader2 } from "lucide-react"
 import { ProductCard } from "@/components/store/product-card"
-import { PRODUCT_CATEGORIES } from "@/constants"
 import { useProducts } from "@/hooks/use-products"
+import { useCategories } from "@/hooks/use-categories"
 
 const CATEGORY_DESCRIPTIONS: Record<string, string> = {
   "t-shirts": "Graphic tees, polos and tank tops — the everyday Zero Limit staples.",
@@ -16,12 +16,15 @@ const CATEGORY_DESCRIPTIONS: Record<string, string> = {
 
 export default function CollectionsPage() {
   const { products: allProducts, loading } = useProducts()
+  const { categories: dbCategories } = useCategories()
   const available = allProducts.filter((p) => p.is_published)
 
-  const collections = PRODUCT_CATEGORIES.map((cat) => ({
-    ...cat,
-    products: available.filter((p) => p.category_id === cat.slug),
-  })).filter((cat) => cat.products.length > 0)
+  const collections = dbCategories
+    .map((cat) => ({
+      ...cat,
+      products: available.filter((p) => p.category_id === cat.slug),
+    }))
+    .filter((cat) => cat.products.length > 0)
 
   if (loading) {
     return (

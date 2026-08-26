@@ -4,6 +4,7 @@ import Link from "next/link"
 import { Bell, ShoppingBag, Tag, Truck, Megaphone, Package, CheckCheck, Trash2 } from "lucide-react"
 import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
+import { createClient } from "@/lib/supabase/client"
 
 interface Notification {
   id: string
@@ -39,6 +40,8 @@ export default function NotificationsPage() {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
+    const supabase = createClient()
+
     fetch("/api/notifications")
       .then((r) => r.json())
       .then((data) => {
@@ -46,6 +49,35 @@ export default function NotificationsPage() {
         setLoading(false)
       })
       .catch(() => setLoading(false))
+
+    let channel: ReturnType<ReturnType<typeof createClient>["channel"]> | null = null
+
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      if (!user) return
+
+      channel = supabase
+        .channel("notifications-changes")
+        .on(
+          "postgres_changes",
+          { event: "*", schema: "public", table: "notifications", filter: `user_id=eq.${user.id}` },
+          (payload) => {
+            if (payload.eventType === "INSERT") {
+              setNotifications((prev) => [payload.new as Notification, ...prev])
+            } else if (payload.eventType === "UPDATE") {
+              setNotifications((prev) =>
+                prev.map((n) => (n.id === payload.new.id ? (payload.new as Notification) : n))
+              )
+            } else if (payload.eventType === "DELETE") {
+              setNotifications((prev) => prev.filter((n) => n.id !== payload.old.id))
+            }
+          }
+        )
+        .subscribe()
+    })
+
+    return () => {
+      if (channel) supabase.removeChannel(channel)
+    }
   }, [])
 
   const unreadCount = notifications.filter((n) => !n.read).length

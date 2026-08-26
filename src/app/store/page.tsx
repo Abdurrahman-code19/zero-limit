@@ -3,6 +3,7 @@
 import { useState, useEffect, useMemo } from "react"
 
 import Link from "next/link"
+import Image from "next/image"
 import { motion } from "framer-motion"
 import { 
   ArrowRight, Heart, ShoppingBag, Star, Eye, Loader2,
@@ -167,10 +168,13 @@ export default function StorePage() {
             {FEATURED_COLLECTIONS.map((col, i) => (
               <Link key={col.name} href={`/product/${col.slug}`} className="group block">
                 <div className="relative aspect-[16/9] overflow-hidden bg-muted">
-                  <img
+                  <Image
                     src={col.image}
                     alt={col.name}
-                    className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
+                    fill
+                    sizes="(max-width: 768px) 100vw, 33vw"
+                    className="object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
+                    loading="lazy"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
                   <div className="absolute inset-0 flex items-center justify-center">
@@ -265,10 +269,13 @@ export default function StorePage() {
                 <div key={item.id} className="text-center space-y-3">
                   <Link href={`/product/${item.slug}`} className="block">
                     <div className="aspect-square bg-muted rounded-lg max-w-[200px] mx-auto overflow-hidden">
-                      <img
+                      <Image
                         src={item.images[0]}
                         alt={item.name}
+                        width={200}
+                        height={200}
                         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                        loading="lazy"
                       />
                     </div>
                   </Link>
@@ -393,10 +400,13 @@ function ProductCard({ item, index }: { item: Product; index: number }) {
     >
       <Link href={`/product/${item.slug}`} className="group block">
         <div className="relative aspect-[3/4] bg-muted overflow-hidden mb-3">
-          <img
+          <Image
             src={item.images[0]}
             alt={item.name}
-            className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
+            fill
+            sizes="(max-width: 768px) 50vw, 25vw"
+            className="object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
+            loading="lazy"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity z-10" />
           {tag && (

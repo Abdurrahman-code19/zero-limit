@@ -181,10 +181,13 @@ export default function HomePage() {
                         : { clipPath: "polygon(15% 0, 100% 0, 100% 100%, 0% 100%)", opacity: 0, scale: 1.05 }}
                       transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
                     >
-                      <img
+                      <Image
                         src={slide.image}
                         alt={slide.product}
-                        className="absolute inset-0 w-full h-full object-cover"
+                        fill
+                        sizes="50vw"
+                        className="object-cover"
+                        loading="lazy"
                       />
                       <div className="absolute inset-0 bg-black/40" />
                       <div className="absolute inset-0 flex items-center justify-center">
@@ -297,10 +300,13 @@ export default function HomePage() {
                   >
                     <Link href={`/collections/${col.slug}`}>
                       <div className="group relative aspect-[3/4] overflow-hidden bg-muted cursor-pointer">
-                        <img
+                        <Image
                           src={col.image}
                           alt={col.name}
-                          className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 ease-out"
+                          fill
+                          sizes="(max-width: 768px) 100vw, 33vw"
+                          className="object-cover group-hover:scale-110 transition-transform duration-700 ease-out"
+                          loading="lazy"
                         />
                         <div className={`absolute inset-0 bg-gradient-to-t via-black/40 to-transparent z-10 ${isDark ? "from-black" : "from-black/60"}`} />
                         <div className="absolute bottom-0 left-0 right-0 p-8 z-20">
@@ -345,10 +351,13 @@ export default function HomePage() {
                     <Link href={`/product/${item.slug}`}>
                       <div className="group cursor-pointer">
                         <div className="relative aspect-[3/4] bg-muted overflow-hidden mb-4">
-                          <img
+                          <Image
                             src={item.image}
                             alt={item.name}
-                            className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
+                            fill
+                            sizes="(max-width: 768px) 50vw, 25vw"
+                            className="object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
+                            loading="lazy"
                           />
                           {item.tag && (
                             <span className="absolute top-3 left-3 z-10 text-[10px] tracking-wider uppercase bg-foreground text-background px-2 py-1">

@@ -8,8 +8,8 @@ import { SlidersHorizontal, Grid3X3, List, Heart, X, Search, ShoppingBag, Loader
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { ProductCard } from "@/components/store/product-card"
-import { PRODUCT_CATEGORIES } from "@/constants"
 import { useProducts } from "@/hooks/use-products"
+import { useCategories } from "@/hooks/use-categories"
 import { formatCurrency } from "@/utils"
 
 const SORT_OPTIONS = [
@@ -18,10 +18,6 @@ const SORT_OPTIONS = [
   { value: "price-desc", label: "Price: High to Low" },
   { value: "popular", label: "Most Popular" },
 ]
-
-const CATEGORY_LABELS: Record<string, string> = Object.fromEntries(
-  PRODUCT_CATEGORIES.map((c) => [c.slug, c.name])
-)
 
 const COLOR_NAME_MAP: Record<string, string> = {
   "#000000": "Black",
@@ -154,6 +150,7 @@ function ShopContent() {
   const [priceMax, setPriceMax] = useState("")
 
   const { products: dbProducts, loading } = useProducts()
+  const { categories: dbCategories } = useCategories()
   const available = useMemo(() => dbProducts.filter((p) => p.is_published), [dbProducts])
 
   const sizes = useMemo(
@@ -167,9 +164,9 @@ function ShopContent() {
   )
 
   const categories = useMemo(() => {
-    const slugs = Array.from(new Set(available.map((p) => p.category_id)))
-    return PRODUCT_CATEGORIES.filter((c) => slugs.includes(c.slug))
-  }, [available])
+    const productCategoryIds = new Set(available.map((p) => p.category_id))
+    return dbCategories.filter((c) => productCategoryIds.has(c.slug))
+  }, [available, dbCategories])
 
   const filtered = useMemo(() => {
     let result = available
@@ -311,7 +308,7 @@ function ShopContent() {
       <div className="flex items-end justify-between mb-8 flex-wrap gap-4">
         <div>
           <h1 className="text-2xl md:text-3xl font-light">
-            {activeCategory === "all" ? "Shop All" : CATEGORY_LABELS[activeCategory] ?? "Shop"}
+            {activeCategory === "all" ? "Shop All" : dbCategories.find((c) => c.slug === activeCategory)?.name ?? "Shop"}
           </h1>
           <p className="text-sm text-muted-foreground mt-1">
             Premium Zero Limit pieces

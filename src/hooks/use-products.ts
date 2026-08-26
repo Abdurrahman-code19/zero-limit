@@ -2,6 +2,8 @@
 
 import { useEffect, useState } from "react"
 import { createClient } from "@/lib/supabase/client"
+import { withRetry } from "@/lib/retry"
+import { safeString, safeNumber, safeArray } from "@/lib/safe-data"
 import type { Product } from "@/types"
 
 interface DBProduct {
@@ -35,21 +37,21 @@ function mapProduct(db: DBProduct, variants: DBVariant[]): Product {
   const colors = [...new Set(productVariants.map((v) => v.color).filter(Boolean))] as string[]
 
   return {
-    id: db.id,
-    name: db.name,
-    slug: db.slug,
-    description: db.description ?? "",
-    price: db.price,
-    compare_at_price: db.compare_at_price ?? undefined,
-    images: db.images ?? [],
-    category_id: db.categories?.slug ?? db.category_id,
+    id: safeString(db.id, crypto.randomUUID()),
+    name: safeString(db.name, "Untitled"),
+    slug: safeString(db.slug),
+    description: safeString(db.description),
+    price: safeNumber(db.price),
+    compare_at_price: db.compare_at_price != null ? safeNumber(db.compare_at_price) : undefined,
+    images: safeArray<string>(db.images),
+    category_id: safeString(db.categories?.slug, safeString(db.category_id)),
     sizes: sizes.length > 0 ? sizes : ["One Size"],
     colors: colors.length > 0 ? colors : ["#111111"],
-    stock: db.stock_quantity,
-    is_featured: db.is_featured,
-    is_published: db.is_active,
-    created_at: db.created_at,
-    updated_at: db.updated_at,
+    stock: safeNumber(db.stock_quantity),
+    is_featured: Boolean(db.is_featured),
+    is_published: Boolean(db.is_active),
+    created_at: safeString(db.created_at),
+    updated_at: safeString(db.updated_at),
   }
 }
 
@@ -61,30 +63,41 @@ export function useProducts() {
     const supabase = createClient()
 
     async function fetchProducts() {
-      const [productsRes, variantsRes] = await Promise.all([
-        supabase
-          .from("products")
-          .select("*, categories(slug)")
-          .eq("is_active", true)
-          .order("created_at", { ascending: false }),
-        supabase
-          .from("product_variants")
-          .select("product_id, size, color")
-          .eq("is_active", true),
-      ])
+      try {
+        const [productsRes, variantsRes] = await Promise.all([
+          withRetry(() =>
+            supabase
+              .from("products")
+              .select("*, categories(slug)")
+              .eq("is_active", true)
+              .order("created_at", { ascending: false })
+              .then((res) => {
+                if (res.error) throw res.error
+                return res
+              })
+          ),
+          withRetry(() =>
+            supabase
+              .from("product_variants")
+              .select("product_id, size, color")
+              .eq("is_active", true)
+              .then((res) => {
+                if (res.error) throw res.error
+                return res
+              })
+          ),
+        ])
 
-      if (productsRes.error || variantsRes.error) {
-        console.error("Failed to fetch products:", productsRes.error ?? variantsRes.error)
+        const dbProducts = (productsRes.data ?? []) as unknown as DBProduct[]
+        const dbVariants = (variantsRes.data ?? []) as DBVariant[]
+
+        const mapped = dbProducts.map((p) => mapProduct(p, dbVariants))
+        setProducts(mapped)
+      } catch (err) {
+        console.error("Failed to fetch products:", err)
+      } finally {
         setLoading(false)
-        return
       }
-
-      const dbProducts = (productsRes.data ?? []) as unknown as DBProduct[]
-      const dbVariants = (variantsRes.data ?? []) as DBVariant[]
-
-      const mapped = dbProducts.map((p) => mapProduct(p, dbVariants))
-      setProducts(mapped)
-      setLoading(false)
     }
 
     fetchProducts()
