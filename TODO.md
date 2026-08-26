@@ -71,7 +71,7 @@
 - [x] **47. Show variant-level stock** — If size "M" is sold out but "L" is in stock, page shows no indication.
 - [ ] **48. Implement coupon/discount system** — `Coupon` type exists (`types/index.ts:100-110`) but no implementation.
 - [ ] **49. Implement address book** — `Address` type exists (`types/index.ts:74-84`) but no saved addresses feature.
-- [ ] **50. Implement product reviews** — Type exists, ratings hardcoded. No review submission or display.
+- [x] **50. Implement product reviews** — Type exists, ratings hardcoded. No review submission or display.
 - [x] **51. Add order notes/comments for admin** — Admin cannot add internal notes to orders.
 - [x] **52. Add order status transition date tracking** — Timeline shows steps but not when each transition occurred.
 - [x] **53. Fix order number generation** — `src/app/api/orders/route.ts:60` — uses `Math.random()`. Use `crypto.randomUUID()` or DB sequence.

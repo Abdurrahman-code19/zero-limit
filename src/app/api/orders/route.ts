@@ -29,6 +29,8 @@ const OrderSchema = z.object({
   }),
   subtotal: z.number().min(0),
   shipping_cost: z.number().min(0),
+  discount: z.number().min(0).optional().default(0),
+  coupon_id: z.string().uuid().optional(),
   total: z.number().min(0),
   payment_reference: z.string().min(1).max(100),
   payment_method: z.string().max(50),
@@ -65,7 +67,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Invalid order data", details: parsed.error.flatten() }, { status: 400 })
     }
 
-    const { items, shipping, subtotal, shipping_cost, total, payment_reference, payment_method } = parsed.data
+    const { items, shipping, subtotal, shipping_cost, discount, coupon_id, total, payment_reference, payment_method } = parsed.data
 
     const { verified, amount: paidAmount } = await verifyPayment(payment_reference)
     if (!verified) {
@@ -122,11 +124,12 @@ export async function POST(req: NextRequest) {
         payment_status: "paid",
         subtotal,
         shipping_fee: shipping_cost,
-        discount: 0,
+        discount,
         total,
         shipping_address: shipping,
         payment_method,
         payment_reference,
+        coupon_id: coupon_id || null,
       })
       .select()
       .single()
@@ -169,6 +172,10 @@ export async function POST(req: NextRequest) {
         p_id: item.product_id,
         p_quantity: item.quantity,
       })
+    }
+
+    if (coupon_id) {
+      await supabase.rpc("apply_coupon_atomic", { p_coupon_id: coupon_id })
     }
 
     sendOrderConfirmation({

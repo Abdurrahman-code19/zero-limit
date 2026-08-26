@@ -84,10 +84,38 @@ export default function CheckoutPage() {
   const [showReview, setShowReview] = useState(false)
   const [reviewConfirmed, setReviewConfirmed] = useState(false)
   const paystackTriggerRef = useRef<HTMLButtonElement>(null)
+  const [couponCode, setCouponCode] = useState("")
+  const [couponError, setCouponError] = useState<string | null>(null)
+  const [couponLoading, setCouponLoading] = useState(false)
+  const [appliedCoupon, setAppliedCoupon] = useState<{ id: string; code: string; discount: number; type: string; value: number } | null>(null)
 
   const subtotal = getTotal()
   const shipping = subtotal >= 50000 ? 0 : 2000
-  const total = subtotal + shipping
+  const discount = appliedCoupon?.discount ?? 0
+  const total = subtotal + shipping - discount
+
+  const handleApplyCoupon = async () => {
+    if (!couponCode.trim()) return
+    setCouponLoading(true)
+    setCouponError(null)
+    try {
+      const res = await fetch("/api/coupons/validate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ code: couponCode.trim(), subtotal }),
+      })
+      const data = await res.json()
+      if (!res.ok) {
+        setCouponError(data.error || "Invalid coupon")
+        return
+      }
+      setAppliedCoupon(data)
+    } catch {
+      setCouponError("Failed to validate coupon")
+    } finally {
+      setCouponLoading(false)
+    }
+  }
 
   useEffect(() => {
     if (reviewConfirmed) {
@@ -181,6 +209,8 @@ export default function CheckoutPage() {
           },
           subtotal,
           shipping_cost: shipping,
+          discount,
+          coupon_id: appliedCoupon?.id ?? null,
           total,
           payment_reference: reference,
           payment_method: verifyData.data.channel || "paystack",
@@ -340,6 +370,7 @@ export default function CheckoutPage() {
               <hr />
               <div className="flex justify-between"><span className="text-muted-foreground">Subtotal</span><span>{formatCurrency(subtotal)}</span></div>
               <div className="flex justify-between"><span className="text-muted-foreground">Shipping</span><span>{shipping === 0 ? "Free" : formatCurrency(shipping)}</span></div>
+              {discount > 0 && <div className="flex justify-between text-green-600"><span>Discount</span><span>-{formatCurrency(discount)}</span></div>}
               <div className="flex justify-between font-semibold text-base pt-2 border-t"><span>Total</span><span>{formatCurrency(total)}</span></div>
             </div>
             <div className="flex gap-3 pt-2">
@@ -579,6 +610,37 @@ export default function CheckoutPage() {
               <span className="text-muted-foreground">Shipping</span>
               <span>{shipping === 0 ? "Free" : formatCurrency(shipping)}</span>
             </div>
+            {appliedCoupon && (
+              <div className="flex justify-between text-sm text-green-600">
+                <span>Discount ({appliedCoupon.code})</span>
+                <span>-{formatCurrency(discount)}</span>
+              </div>
+            )}
+            {!appliedCoupon && (
+              <div className="flex gap-2">
+                <Input
+                  value={couponCode}
+                  onChange={(e) => { setCouponCode(e.target.value.toUpperCase()); setCouponError(null) }}
+                  placeholder="Coupon code"
+                  className="text-sm h-9"
+                />
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="shrink-0 text-xs"
+                  disabled={couponLoading || !couponCode.trim()}
+                  onClick={handleApplyCoupon}
+                >
+                  {couponLoading ? <Loader2 className="h-3 w-3 animate-spin" /> : "Apply"}
+                </Button>
+              </div>
+            )}
+            {couponError && <p className="text-xs text-red-500">{couponError}</p>}
+            {appliedCoupon && (
+              <Button variant="ghost" size="sm" className="text-xs h-7 p-0" onClick={() => { setAppliedCoupon(null); setCouponCode(""); setCouponError(null) }}>
+                Remove coupon
+              </Button>
+            )}
             <Separator />
             <div className="flex justify-between font-semibold">
               <span>Total</span>
