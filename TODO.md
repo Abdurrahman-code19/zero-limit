@@ -51,7 +51,7 @@
 - [ ] **32. Send payment failure email** — If payment fails, no email to customer or admin.
 - [x] **33. Fix collection_products RLS** — `supabase/migrations/001_initial_schema.sql:125-130` — no RLS enabled. Any user can read/write.
 - [x] **34. Add status transition validation** — Admin can jump from "delivered" to "pending". Enforce valid state machine: `pending → confirmed → processing → shipped → delivered`.
-- [ ] **35. Fix variant stock decrement** — `src/app/api/orders/route.ts:112` — checkout never sends `variant_id`, so variant stock is never touched.
+- [x] **35. Fix variant stock decrement** — `src/app/api/orders/route.ts:112` — checkout never sends `variant_id`, so variant stock is never touched.
 - [x] **36. Fix guest email fallback** — `src/app/(store)/checkout/page.tsx:400` sends `pending@checkout.com` to Paystack if email empty. Require valid email.
 - [x] **37. Fix newsletter form** — `src/app/store/page.tsx:295` — `onSubmit={(e) => e.preventDefault()}` does nothing. Actually save email to DB or mailing list.
 
@@ -83,7 +83,7 @@
 - [x] **59. Fix orders.user_id ON DELETE SET NULL** — `supabase/migrations/001_initial_schema.sql:157` — orphaned orders become invisible. Use ON DELETE RESTRICT.
 - [x] **60. Validate admin status update request body** — `src/app/api/admin/orders/[id]/status/route.ts:28` — no try/catch on `request.json()`.
 - [ ] **61. Implement payment_status transition validation** — Orders can jump from `refunded` back to `paid`.
-- [ ] **62. Refetch stale cart prices before checkout** — Cart stores Product snapshot. Refresh prices from DB before checkout.
+- [x] **62. Refetch stale cart prices before checkout** — Cart stores Product snapshot. Refresh prices from DB before checkout.
 
 ---
 

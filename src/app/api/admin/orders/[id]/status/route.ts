@@ -4,6 +4,7 @@ import { sendOrderStatusUpdate } from "@/lib/email/order-status-update"
 import { z } from "zod"
 
 const VALID_STATUSES = ["pending", "confirmed", "processing", "shipped", "delivered", "cancelled", "refunded"]
+const VALID_PAYMENT_STATUSES = ["pending", "paid", "failed", "refunded"]
 
 const ALLOWED_TRANSITIONS: Record<string, string[]> = {
   pending: ["confirmed", "cancelled"],
@@ -15,8 +16,16 @@ const ALLOWED_TRANSITIONS: Record<string, string[]> = {
   refunded: [],
 }
 
+const PAYMENT_TRANSITIONS: Record<string, string[]> = {
+  pending: ["paid", "failed", "refunded"],
+  paid: ["refunded"],
+  failed: ["pending", "refunded"],
+  refunded: [],
+}
+
 const StatusUpdateSchema = z.object({
   status: z.enum(VALID_STATUSES as [string, ...string[]]).optional(),
+  payment_status: z.enum(VALID_PAYMENT_STATUSES as [string, ...string[]]).optional(),
   tracking_number: z.string().max(100).optional(),
 })
 
@@ -53,29 +62,41 @@ export async function PATCH(
     return NextResponse.json({ error: "Invalid data", details: parsed.error.flatten() }, { status: 400 })
   }
 
-  const { status, tracking_number } = parsed.data
+  const { status, payment_status, tracking_number } = parsed.data
 
   const updateData: Record<string, unknown> = {
     updated_at: new Date().toISOString(),
   }
 
-  if (status) {
+  if (status || payment_status) {
     const { data: currentOrder } = await supabase
       .from("orders")
-      .select("status")
+      .select("status, payment_status")
       .eq("id", params.id)
       .single()
 
     if (currentOrder) {
-      const allowed = ALLOWED_TRANSITIONS[currentOrder.status] ?? []
-      if (!allowed.includes(status)) {
-        return NextResponse.json(
-          { error: `Cannot transition from "${currentOrder.status}" to "${status}"` },
-          { status: 400 }
-        )
+      if (status) {
+        const allowed = ALLOWED_TRANSITIONS[currentOrder.status] ?? []
+        if (!allowed.includes(status)) {
+          return NextResponse.json(
+            { error: `Cannot transition from "${currentOrder.status}" to "${status}"` },
+            { status: 400 }
+          )
+        }
+        updateData.status = status
+      }
+      if (payment_status) {
+        const allowed = PAYMENT_TRANSITIONS[currentOrder.payment_status] ?? []
+        if (!allowed.includes(payment_status)) {
+          return NextResponse.json(
+            { error: `Cannot transition payment from "${currentOrder.payment_status}" to "${payment_status}"` },
+            { status: 400 }
+          )
+        }
+        updateData.payment_status = payment_status
       }
     }
-    updateData.status = status
   }
 
   if (tracking_number !== undefined) {

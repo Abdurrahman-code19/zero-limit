@@ -31,6 +31,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Separator } from "@/components/ui/separator"
+import { useSessionTimeout } from "@/hooks/use-session-timeout"
 
 const sidebarItems = [
   { label: "Dashboard", href: "/admin/dashboard", icon: LayoutDashboard },
@@ -68,6 +69,7 @@ export default function AdminLayout({
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [profile, setProfile] = useState<AdminProfile | null>(null)
   const [checking, setChecking] = useState(true)
+  useSessionTimeout()
 
   useEffect(() => {
     const supabase = createClient()
