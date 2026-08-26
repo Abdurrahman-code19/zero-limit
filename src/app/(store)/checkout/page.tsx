@@ -123,6 +123,11 @@ export default function CheckoutPage() {
         setVerifyError(
           verifyData.error || "Payment verification failed. Contact support."
         )
+        fetch("/api/paystack/failed-payment", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email, reference, amount: total }),
+        }).catch(() => {})
         setVerifying(false)
         return
       }

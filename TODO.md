@@ -64,16 +64,16 @@
 - [x] **40. Add updated_at auto-update triggers** — Tables with `updated_at` columns have no DB trigger. Code manually sets it in some routes but not all.
 - [x] **41. Restrict activity_logs INSERT policy** — `supabase/migrations/001_initial_schema.sql:396` — `WITH CHECK (true)` lets any authenticated user insert audit logs.
 - [x] **42. Add price filter to shop page** — `src/app/shop/page.tsx` — no price range filter. Essential for fashion e-commerce.
-- [ ] **43. Fix "Recently Viewed" — currently fake** — `src/app/store/page.tsx:279-284` just shows first 3 products. Implement actual localStorage-based viewed history.
+- [x] **43. Fix "Recently Viewed" — currently fake** — `src/app/store/page.tsx:279-284` just shows first 3 products. Implement actual localStorage-based viewed history.
 - [x] **44. Remove hardcoded product ratings** — `src/app/(store)/product/[slug]/page.tsx:128-137` always shows "4.8 (42 reviews)". Remove or connect to real review system.
-- [ ] **45. Add size guide** — Product detail page advertises sizing but no size chart exists. Create `/size-guide` page.
+- [x] **45. Add size guide** — Product detail page advertises sizing but no size chart exists. Create `/size-guide` page.
 - [x] **46. Show stock on product page** — No stock count or low-stock warning displayed.
 - [ ] **47. Show variant-level stock** — If size "M" is sold out but "L" is in stock, page shows no indication.
 - [ ] **48. Implement coupon/discount system** — `Coupon` type exists (`types/index.ts:100-110`) but no implementation.
 - [ ] **49. Implement address book** — `Address` type exists (`types/index.ts:74-84`) but no saved addresses feature.
 - [ ] **50. Implement product reviews** — Type exists, ratings hardcoded. No review submission or display.
-- [ ] **51. Add order notes/comments for admin** — Admin cannot add internal notes to orders.
-- [ ] **52. Add order status transition date tracking** — Timeline shows steps but not when each transition occurred.
+- [x] **51. Add order notes/comments for admin** — Admin cannot add internal notes to orders.
+- [x] **52. Add order status transition date tracking** — Timeline shows steps but not when each transition occurred.
 - [x] **53. Fix order number generation** — `src/app/api/orders/route.ts:60` — uses `Math.random()`. Use `crypto.randomUUID()` or DB sequence.
 - [x] **54. Add delivery state dropdown** — Checkout state field is free text. Should be dropdown of valid Nigerian states.
 - [ ] **55. Add order review step before Paystack** — No confirmation before opening payment window.
@@ -90,7 +90,7 @@
 ## Phase 5 — LOW / Polish (18 issues)
 
 - [ ] **63. Add CSP headers** — `next.config.ts`, `vercel.json` — no Content-Security-Policy.
-- [ ] **64. Add CORS config** — `vercel.json` — no explicit CORS headers.
+- [x] **64. Add CORS config** — `vercel.json` — no explicit CORS headers.
 - [x] **65. Fix `.env.example` gitignore** — `.gitignore:37` gitignores `.env.example`. It should be committed.
 - [ ] **66. Apply session timeout to admin** — `src/components/layout/store-shell.tsx:36` — 15min timeout only in store, not admin.
 - [x] **67. Sanitize error messages** — `src/app/api/admin/orders/[id]/status/route.ts:63` — returns Supabase error messages directly. Hide internal details.

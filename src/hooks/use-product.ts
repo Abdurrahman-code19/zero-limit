@@ -24,15 +24,23 @@ interface DBProduct {
 }
 
 interface DBVariant {
+  id: string
   product_id: string
   size: string | null
   color: string | null
+  stock_quantity: number
 }
 
 function mapProduct(db: DBProduct, variants: DBVariant[]): Product {
   const productVariants = variants.filter((v) => v.product_id === db.id)
   const sizes = [...new Set(productVariants.map((v) => v.size).filter(Boolean))] as string[]
   const colors = [...new Set(productVariants.map((v) => v.color).filter(Boolean))] as string[]
+
+  const variant_stock: Record<string, number> = {}
+  for (const v of productVariants) {
+    const key = `${v.size ?? ""}-${v.color ?? ""}`
+    variant_stock[key] = v.stock_quantity
+  }
 
   return {
     id: db.id,
@@ -46,6 +54,7 @@ function mapProduct(db: DBProduct, variants: DBVariant[]): Product {
     sizes: sizes.length > 0 ? sizes : ["One Size"],
     colors: colors.length > 0 ? colors : ["#111111"],
     stock: db.stock_quantity,
+    variant_stock: Object.keys(variant_stock).length > 0 ? variant_stock : undefined,
     is_featured: db.is_featured,
     is_published: db.is_active,
     created_at: db.created_at,
@@ -69,7 +78,7 @@ export function useProduct(slug: string) {
           .single(),
         supabase
           .from("product_variants")
-          .select("product_id, size, color")
+          .select("id, product_id, size, color, stock_quantity")
           .eq("is_active", true),
       ])
 
@@ -109,7 +118,7 @@ export function useRelatedProducts(currentProduct: Product | null, count = 4) {
           .limit(count),
         supabase
           .from("product_variants")
-          .select("product_id, size, color")
+          .select("id, product_id, size, color, stock_quantity")
           .eq("is_active", true),
       ])
 

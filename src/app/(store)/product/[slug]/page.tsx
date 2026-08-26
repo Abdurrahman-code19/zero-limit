@@ -24,6 +24,7 @@ import { useWishlistStore } from "@/store/wishlist"
 import { formatCurrency } from "@/utils"
 import { useProduct, useRelatedProducts } from "@/hooks/use-product"
 import { trackRecentlyViewed } from "@/hooks/use-recently-viewed"
+import { ProductImage } from "@/components/store/product-image"
 import { getProductTags } from "@/lib/products"
 
 export default function ProductPage({
@@ -112,10 +113,11 @@ export default function ProductPage({
           transition={{ duration: 0.5 }}
           className="relative aspect-[3/4] bg-muted overflow-hidden"
         >
-          <img
+          <ProductImage
             src={product.images[0] ?? "/favicon.png"}
             alt={product.name}
-            className="w-full h-full object-cover"
+            fill
+            className="object-cover"
           />
           {tags.length > 0 && (
             <Badge className="absolute top-4 left-4 z-10 bg-foreground text-background text-[10px] tracking-wider uppercase rounded-none">
@@ -171,19 +173,27 @@ export default function ProductPage({
               Size <span className="text-muted-foreground font-normal">— {defaultSize}</span>
             </p>
             <div className="flex flex-wrap gap-2">
-              {product.sizes.map((s) => (
-                <button
-                  key={s}
-                  onClick={() => setSize(s)}
-                  className={`min-w-12 h-12 px-3 border text-sm transition-colors ${
-                    defaultSize === s
-                      ? "border-foreground bg-foreground text-background"
-                      : "border-border hover:border-foreground"
-                  }`}
-                >
-                  {s}
-                </button>
-              ))}
+              {product.sizes.map((s) => {
+                const stockKey = `${s}-${color ?? ""}`
+                const variantStock = product.variant_stock?.[stockKey]
+                const isOOS = variantStock !== undefined ? variantStock <= 0 : false
+                return (
+                  <button
+                    key={s}
+                    onClick={() => !isOOS && setSize(s)}
+                    disabled={isOOS}
+                    className={`min-w-12 h-12 px-3 border text-sm transition-colors ${
+                      isOOS
+                        ? "border-border opacity-30 cursor-not-allowed line-through"
+                        : defaultSize === s
+                          ? "border-foreground bg-foreground text-background"
+                          : "border-border hover:border-foreground"
+                    }`}
+                  >
+                    {s}
+                  </button>
+                )
+              })}
             </div>
           </div>
 
@@ -298,10 +308,11 @@ export default function ProductPage({
           {related.map((p) => (
             <Link key={p.id} href={`/product/${p.slug}`} className="group block">
               <div className="relative aspect-[3/4] bg-muted overflow-hidden mb-3">
-                <img
+                <ProductImage
                   src={p.images[0]}
                   alt={p.name}
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
+                  fill
+                  className="object-cover group-hover:scale-105 transition-transform duration-500"
                 />
               </div>
               <h4 className="text-sm font-medium mb-1 group-hover:text-muted-foreground transition-colors">

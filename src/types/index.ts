@@ -18,10 +18,10 @@ export interface Product {
   compare_at_price?: number
   images: string[]
   category_id: string
-  collection_id?: string
   sizes: string[]
   colors: string[]
   stock: number
+  variant_stock?: Record<string, number>
   is_featured: boolean
   is_published: boolean
   created_at: string

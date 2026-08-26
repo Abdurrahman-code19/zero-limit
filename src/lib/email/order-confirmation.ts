@@ -104,12 +104,31 @@ export async function sendOrderConfirmation(data: OrderEmailData) {
     return { success: false, skipped: true }
   }
 
+  const itemList = data.items.map((i) => `  ${i.name} (x${i.quantity}) — ₦${(i.price * i.quantity).toLocaleString()}`).join("\n")
+
+  const plainText = `Order Confirmed — ${data.orderNumber}
+
+Thank you for your order.
+
+Items:
+${itemList}
+
+Subtotal: ₦${data.subtotal.toLocaleString()}
+Shipping: ${data.shipping === 0 ? "Free" : `₦${data.shipping.toLocaleString()}`}
+Total: ₦${data.total.toLocaleString()}
+
+Ship to: ${data.shippingAddress.first_name} ${data.shippingAddress.last_name}
+${data.shippingAddress.address}, ${data.shippingAddress.city}, ${data.shippingAddress.state}
+
+— Zero Limit`
+
   try {
     await resend.emails.send({
       from: FROM,
       to: data.to,
       subject: `Order Confirmed — ${data.orderNumber}`,
       html: buildOrderEmailHtml(data),
+      text: plainText,
     })
     return { success: true }
   } catch (error) {
