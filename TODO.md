@@ -69,7 +69,7 @@
 - [x] **45. Add size guide** — Product detail page advertises sizing but no size chart exists. Create `/size-guide` page.
 - [x] **46. Show stock on product page** — No stock count or low-stock warning displayed.
 - [x] **47. Show variant-level stock** — If size "M" is sold out but "L" is in stock, page shows no indication.
-- [ ] **48. Implement coupon/discount system** — `Coupon` type exists (`types/index.ts:100-110`) but no implementation.
+- [x] **48. Implement coupon/discount system** — `Coupon` type exists (`types/index.ts:100-110`) but no implementation.
 - [ ] **49. Implement address book** — `Address` type exists (`types/index.ts:74-84`) but no saved addresses feature.
 - [x] **50. Implement product reviews** — Type exists, ratings hardcoded. No review submission or display.
 - [x] **51. Add order notes/comments for admin** — Admin cannot add internal notes to orders.
