@@ -4,7 +4,7 @@
 
 ### Security
 - [x] Verify `.env.local` is in `.gitignore` and never committed to GitHub
-- [ ] Verify Supabase RLS policies are active on ALL tables (profiles, products, product_variants, orders, order_items, reviews, coupons, addresses, activity_logs, return_requests, store_settings, cms_content)
+- [x] Verify Supabase RLS policies are active on ALL tables (20/20 tables have RLS enabled and policies)
 - [x] Add Content-Security-Policy header to `next.config.ts`
 - [x] Add Strict-Transport-Security header to `next.config.ts`
 - [x] Rate-limit the `signUp` server action (prevent mass account creation)
