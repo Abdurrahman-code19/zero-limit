@@ -159,7 +159,7 @@ export default function AddressesPage() {
                   </span>
                 )}
                 <p className="text-xs text-muted-foreground tracking-wider uppercase">{addr.label}</p>
-                <p className="font-medium text-sm">{addr.first_name || addr.full_name} {addr.last_name || ""}</p>
+                <p className="font-medium text-sm">{`${(addr as unknown as Record<string, string>).full_name || addr.first_name} ${(addr as unknown as Record<string, string>).last_name || ""}`}</p>
                 <p className="text-sm text-muted-foreground">{addr.address}</p>
                 <p className="text-sm text-muted-foreground">{addr.city}, {addr.state}</p>
                 {addr.phone && <p className="text-sm text-muted-foreground">{addr.phone}</p>}

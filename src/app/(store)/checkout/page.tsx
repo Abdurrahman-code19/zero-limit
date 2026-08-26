@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useRef, useState } from "react"
+import { useEffect, useState } from "react"
 import Link from "next/link"
 import { motion } from "framer-motion"
 import {
@@ -50,7 +50,7 @@ export default function CheckoutPage() {
     // Refetch stale cart prices from DB
     const supabase = createClient()
     const refreshPrices = async () => {
-      const productIds = items.map((i) => i.product_id)
+      const productIds = items.map((i) => i.product.id)
       if (productIds.length === 0) return
       const { data: products } = await supabase
         .from("products")
@@ -60,9 +60,9 @@ export default function CheckoutPage() {
       const priceMap = new Map(products.map((p) => [p.id, p.price]))
       const { updateItemPrice } = useCartStore.getState()
       for (const item of items) {
-        const freshPrice = priceMap.get(item.product_id)
-        if (freshPrice && freshPrice !== item.price) {
-          updateItemPrice(item.id, freshPrice)
+        const freshPrice = priceMap.get(item.product.id)
+        if (freshPrice && freshPrice !== item.product.price) {
+          updateItemPrice(item.product.id, freshPrice)
         }
       }
     }
@@ -83,7 +83,6 @@ export default function CheckoutPage() {
   const [verifyError, setVerifyError] = useState<string | null>(null)
   const [showReview, setShowReview] = useState(false)
   const [reviewConfirmed, setReviewConfirmed] = useState(false)
-  const paystackTriggerRef = useRef<HTMLButtonElement>(null)
   const [couponCode, setCouponCode] = useState("")
   const [couponError, setCouponError] = useState<string | null>(null)
   const [couponLoading, setCouponLoading] = useState(false)
@@ -532,7 +531,6 @@ export default function CheckoutPage() {
               amount={total}
               beforePay={handleBeforePay}
               onSuccess={handlePaymentSuccess}
-              triggerRef={paystackTriggerRef}
               metadata={{
                 user_id: userId,
                 shipping_address: { first_name: firstName, last_name: lastName, address, city, state, phone, shipping_cost: shipping, subtotal },

@@ -32,8 +32,9 @@ const StatusUpdateSchema = z.object({
 
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
+  const { id } = await params
   const supabase = await createClient()
 
   const { data: { user } } = await supabase.auth.getUser()
@@ -73,7 +74,7 @@ export async function PATCH(
     const { data: currentOrder } = await supabase
       .from("orders")
       .select("status, payment_status")
-      .eq("id", params.id)
+      .eq("id", id)
       .single()
 
     if (currentOrder) {
@@ -115,7 +116,7 @@ export async function PATCH(
   const { data: order, error } = await supabase
     .from("orders")
     .update(updateData)
-    .eq("id", params.id)
+    .eq("id", id)
     .select("*, profiles(email, full_name), order_items(name, quantity)")
     .single()
 
@@ -130,9 +131,9 @@ export async function PATCH(
     if (status) entry.status = status
     if (payment_status) entry.payment_status = payment_status
     supabase.rpc("append_order_status_history", {
-      p_order_id: params.id,
+      p_order_id: id,
       p_entry: entry,
-    }).catch((err) => console.error("[Status] Failed to append history:", err))
+    }).then(() => {}, (err: Error) => console.error("[Status] Failed to append history:", err))
   }
 
   // Send status update email (non-blocking)
@@ -141,7 +142,7 @@ export async function PATCH(
       to: order.profiles.email,
       orderNumber: order.order_number,
       status,
-      tracking_number: order.tracking_number,
+      trackingNumber: order.tracking_number,
     }).catch((err) => console.error("[Email] Status update email failed:", err))
   }
 
