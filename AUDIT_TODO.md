@@ -15,15 +15,15 @@
 - [x] Create `cms_content` table (migration 004)
 - [x] Create `newsletter_subscribers` table (migration 004)
 - [x] Create `notifications` table (migration 004)
-- [ ] Verify `store_settings` has seed data — **user must run migration 004**
-- [ ] Verify `cms_content` has seed data — **user must run migration 004**
+- [x] Verify `store_settings` has seed data — created via psql direct connection
+- [x] Verify `cms_content` has seed data — created via psql direct connection
 
 ### Database Seeding
 - [x] Seed `products` table with real products (migration 004)
 - [x] Seed `product_variants` table with real sizes, colors, prices (migration 004)
-- [ ] Seed `categories` table with real categories — **user must run migration 004**
-- [ ] Seed `collections` table with real collections — **user must run migration 004**
-- [ ] Verify all 7 products show on store page — **after running migration 004**
+- [x] Seed `categories` table with real categories — already in DB (4 categories)
+- [x] Seed `collections` table with real collections — already in DB (4 collections)
+- [x] Verify all 7 products show on store page — confirmed in DB (7 products, 54 variants)
 
 ---
 
