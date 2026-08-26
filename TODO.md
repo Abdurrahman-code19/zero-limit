@@ -44,7 +44,7 @@
 - [x] **25. Fix revenue calculation** — `src/hooks/use-admin-stats.ts:46` filters `o.status` against `"paid"` (payment status). Revenue always = 0. Filter on `payment_status === "paid"` instead.
 - [x] **26. Sync hardcoded shipping fee with DB** — `src/app/(store)/checkout/page.tsx:60` uses `₦2,500`. DB settings say `₦2,000`. Read from settings table.
 - [x] **27. Add customer order cancellation** — No cancel button on order detail page. Add cancel for `pending`/`confirmed` orders.
-- [ ] **28. Add return/refund request flow** — Advertised "7-day hassle-free returns" but zero implementation. Create request form and admin review UI.
+- [x] **28. Add return/refund request flow** — Advertised "7-day hassle-free returns" but zero implementation. Create request form and admin review UI.
 - [x] **29. Create admin order detail page** — No `src/app/(admin)/admin/orders/[id]/page.tsx`. Admins can't view items, address, payment details, or notes.
 - [x] **30. Add tracking number input UI for admin** — API supports `tracking_number` but admin orders page only has status dropdown. Add modal/input field.
 - [x] **31. Send admin notification email on new order** — No email sent to store admins when orders arrive.

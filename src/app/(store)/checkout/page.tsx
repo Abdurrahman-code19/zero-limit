@@ -163,28 +163,6 @@ export default function CheckoutPage() {
     setVerifying(true)
     setVerifyError(null)
     try {
-      // Step 1: Verify payment with Paystack
-      const verifyRes = await fetch("/api/paystack/verify", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ reference }),
-      })
-      const verifyData = await verifyRes.json()
-
-      if (!verifyRes.ok || !verifyData.status) {
-        setVerifyError(
-          verifyData.error || "Payment verification failed. Contact support."
-        )
-        fetch("/api/paystack/failed-payment", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ email, reference, amount: total }),
-        }).catch(() => {})
-        setVerifying(false)
-        return
-      }
-
-      // Step 2: Persist order to database
       const orderRes = await fetch("/api/orders", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -213,25 +191,29 @@ export default function CheckoutPage() {
           coupon_id: appliedCoupon?.id ?? null,
           total,
           payment_reference: reference,
-          payment_method: verifyData.data.channel || "paystack",
+          payment_method: "paystack",
         }),
       })
-      const orderDataRes = await orderRes.json()
+      const data = await orderRes.json()
 
       if (!orderRes.ok) {
-        // Payment succeeded but order persist failed — still show success
-        // but note the issue
-        console.error("Order persist failed:", orderDataRes.error)
-        setPaymentData(verifyData.data)
+        if (orderRes.status >= 400) {
+          fetch("/api/paystack/failed-payment", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ email, reference, amount: total }),
+          }).catch(() => {})
+        }
+        setVerifyError(data.error || "Order creation failed. Contact support.")
         setVerifying(false)
         return
       }
 
       clearCart()
-      setPaymentData(verifyData.data)
-      setOrderData(orderDataRes.data)
+      setPaymentData({ reference, amount: total, currency: "NGN", channel: "paystack", paid_at: new Date().toISOString(), customer_email: email })
+      setOrderData(data.data)
     } catch {
-      setVerifyError("Could not verify payment. Contact support with your reference.")
+      setVerifyError("Could not complete order. Contact support with your payment reference.")
       setVerifying(false)
     }
   }
