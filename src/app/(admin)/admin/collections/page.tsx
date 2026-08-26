@@ -42,13 +42,20 @@ export default function CollectionsPage() {
     e.preventDefault()
     if (!name.trim()) return
     setSaving(true)
-    const supabase = createClient()
     const slug = generateSlug(name)
 
     if (editingId) {
-      await supabase.from("collections").update({ name: name.trim(), slug, description: description.trim() || null }).eq("id", editingId)
+      await fetch(`/api/admin/collections?id=${editingId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name: name.trim(), slug, description: description.trim() || "" }),
+      })
     } else {
-      await supabase.from("collections").insert({ name: name.trim(), slug, description: description.trim() || null })
+      await fetch("/api/admin/collections", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name: name.trim(), slug, description: description.trim() || "" }),
+      })
     }
 
     setName(""); setDescription(""); setEditingId(null); setShowForm(false); setSaving(false)
@@ -57,8 +64,7 @@ export default function CollectionsPage() {
 
   async function handleDelete(id: string, collName: string) {
     if (!confirm(`Delete collection "${collName}"?`)) return
-    const supabase = createClient()
-    await supabase.from("collections").delete().eq("id", id)
+    await fetch(`/api/admin/collections?id=${id}`, { method: "DELETE" })
     loadCollections()
   }
 

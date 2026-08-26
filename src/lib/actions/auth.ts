@@ -11,24 +11,55 @@ const supabaseAdmin = createClient(
   { auth: { autoRefreshToken: false, persistSession: false } }
 )
 
-export async function signUp(formData: FormData) {
+const signupAttempts = new Map<string, { count: number; resetAt: number }>()
+
+function checkSignupRateLimit(ip: string): boolean {
+  const now = Date.now()
+  const entry = signupAttempts.get(ip)
+  if (!entry || now > entry.resetAt) {
+    signupAttempts.set(ip, { count: 1, resetAt: now + 60_000 })
+    return true
+  }
+  entry.count++
+  return entry.count <= 3
+}
+
+export async function signUp(formData: FormData, ipAddress?: string) {
   const email = formData.get("email") as string
   const password = formData.get("password") as string
   const firstName = formData.get("firstName") as string
   const lastName = formData.get("lastName") as string
 
+  const ip = ipAddress || "unknown"
+  if (!checkSignupRateLimit(ip)) {
+    return { error: "Too many signup attempts. Please wait a minute and try again." }
+  }
+
   if (!email || !password) {
     return { error: "Email and password are required" }
   }
 
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+  if (!emailRegex.test(email)) {
+    return { error: "Please enter a valid email address" }
+  }
+
+  if (password.length < 8) {
+    return { error: "Password must be at least 8 characters" }
+  }
+
+  if (email.length > 255) {
+    return { error: "Email is too long" }
+  }
+
   const { data: userData, error: createError } = await supabaseAdmin.auth.admin.createUser({
-    email,
+    email: email.toLowerCase().trim(),
     password,
     email_confirm: true,
     user_metadata: {
-      first_name: firstName || "",
-      last_name: lastName || "",
-      full_name: `${firstName || ""} ${lastName || ""}`.trim(),
+      first_name: (firstName || "").slice(0, 100),
+      last_name: (lastName || "").slice(0, 100),
+      full_name: `${firstName || ""} ${lastName || ""}`.trim().slice(0, 200),
     },
   })
 

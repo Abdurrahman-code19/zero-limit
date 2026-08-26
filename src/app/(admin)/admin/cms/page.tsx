@@ -44,14 +44,17 @@ export default function CMSPage() {
 
   async function handleSave() {
     setSaving(true)
-    const supabase = createClient()
     for (const page of pages) {
-      await supabase.from("cms_content").upsert({
-        id: page.id,
-        page_key: page.page_key,
-        title: page.title,
-        content: page.content,
-        updated_at: new Date().toISOString(),
+      await fetch("/api/admin/cms", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          page_key: page.page_key,
+          page_title: page.title,
+          meta_title: page.title,
+          meta_description: page.content.slice(0, 200),
+          sections: [{ type: "text", content: page.content }],
+        }),
       })
     }
     setSaving(false)

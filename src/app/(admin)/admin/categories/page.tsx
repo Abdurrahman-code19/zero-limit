@@ -60,13 +60,20 @@ export default function CategoriesPage() {
     e.preventDefault()
     if (!name.trim()) return
     setSaving(true)
-    const supabase = createClient()
     const slug = generateSlug(name)
 
     if (editingId) {
-      await supabase.from("categories").update({ name: name.trim(), slug, description: description.trim() || null }).eq("id", editingId)
+      await fetch(`/api/admin/categories?id=${editingId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name: name.trim(), slug, description: description.trim() || "" }),
+      })
     } else {
-      await supabase.from("categories").insert({ name: name.trim(), slug, description: description.trim() || null })
+      await fetch("/api/admin/categories", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name: name.trim(), slug, description: description.trim() || "" }),
+      })
     }
 
     setName("")
@@ -79,8 +86,7 @@ export default function CategoriesPage() {
 
   async function handleDelete(id: string, catName: string) {
     if (!confirm(`Delete category "${catName}"? Products in this category will lose their category assignment.`)) return
-    const supabase = createClient()
-    await supabase.from("categories").delete().eq("id", id)
+    await fetch(`/api/admin/categories?id=${id}`, { method: "DELETE" })
     loadCategories()
   }
 

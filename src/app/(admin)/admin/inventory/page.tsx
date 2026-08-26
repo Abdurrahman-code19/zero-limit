@@ -59,8 +59,11 @@ export default function InventoryPage() {
 
   async function updateStock(id: string, newStock: number) {
     setUpdatingId(id)
-    const supabase = createClient()
-    await supabase.from("products").update({ stock_quantity: newStock, updated_at: new Date().toISOString() }).eq("id", id)
+    await fetch("/api/admin/inventory", {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ product_id: id, stock_quantity: newStock }),
+    })
     setItems((prev) => prev.map((item) => item.id === id ? { ...item, stock_quantity: newStock } : item))
     setEditStock((prev) => { const n = { ...prev }; delete n[id]; return n })
     setUpdatingId(null)

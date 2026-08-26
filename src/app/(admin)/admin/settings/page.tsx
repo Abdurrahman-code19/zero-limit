@@ -58,15 +58,14 @@ export default function SettingsPage() {
     e.preventDefault()
     setSaving(true)
     setSaved(false)
-    const supabase = createClient()
 
-    const { error } = await supabase
-      .from("store_settings")
-      .upsert({ id: 1, ...settings, updated_at: new Date().toISOString() })
+    const res = await fetch("/api/admin/settings", {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(settings),
+    })
 
-    if (error) {
-      console.error("Failed to save settings:", error)
-    } else {
+    if (res.ok) {
       setSaved(true)
       setTimeout(() => setSaved(false), 3000)
     }

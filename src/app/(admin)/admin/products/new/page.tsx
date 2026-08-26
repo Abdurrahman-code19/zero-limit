@@ -96,50 +96,44 @@ export default function NewProductPage() {
     if (!validate()) return
 
     setSaving(true)
-    const supabase = createClient()
     const slug = generateSlug(name)
 
-    const { data: product, error: productError } = await supabase
-      .from("products")
-      .insert({
-        name: name.trim(),
-        slug,
-        description: description.trim(),
-        price: Number(price),
-        compare_at_price: compareAtPrice ? Number(compareAtPrice) : null,
-        category_id: categoryId,
-        images,
-        stock_quantity: Number(stockQuantity),
-        is_active: isActive,
-        is_featured: isFeatured,
-        is_new: isNew,
-        tags,
-      })
-      .select("id")
-      .single()
-
-    if (productError) {
-      setErrors({ submit: productError.message })
-      setSaving(false)
-      return
-    }
-
-    // Create variants from sizes × colors
+    const variants = []
     if (sizes.length > 0 && colors.length > 0) {
-      const variants = []
       for (const size of sizes) {
         for (const color of colors) {
           variants.push({
-            product_id: product.id,
             size,
             color,
             price: Number(price),
-            stock_quantity: Math.floor(Number(stockQuantity) / (sizes.length * colors.length)),
+            stock: Math.floor(Number(stockQuantity) / (sizes.length * colors.length)),
             is_active: true,
           })
         }
       }
-      await supabase.from("product_variants").insert(variants)
+    }
+
+    const res = await fetch("/api/admin/products", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        name: name.trim(),
+        slug,
+        description: description.trim(),
+        price: Number(price),
+        image_url: images[0] || "",
+        category_id: categoryId || null,
+        is_active: isActive,
+        stock_quantity: Number(stockQuantity),
+        variants,
+      }),
+    })
+
+    if (!res.ok) {
+      const data = await res.json()
+      setErrors({ submit: data.error || "Failed to create product" })
+      setSaving(false)
+      return
     }
 
     router.push("/admin/products")

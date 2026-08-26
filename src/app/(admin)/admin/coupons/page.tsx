@@ -51,20 +51,24 @@ export default function AdminCouponsPage() {
     setCreating(true)
     setError(null)
 
-    const supabase = createClient()
-    const { error: insertError } = await supabase.from("coupons").insert({
-      code: code.trim().toUpperCase(),
-      description: description || null,
-      discount_type: discountType,
-      discount_value: parseFloat(discountValue),
-      min_order_amount: minOrder ? parseFloat(minOrder) : null,
-      max_uses: maxUses ? parseInt(maxUses) : null,
-      expires_at: expiresAt || null,
-      is_active: true,
+    const res = await fetch("/api/admin/coupons", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        code: code.trim().toUpperCase(),
+        description: description || "",
+        discount_type: discountType,
+        discount_value: parseFloat(discountValue),
+        min_order_amount: minOrder ? parseFloat(minOrder) : 0,
+        max_uses: maxUses ? parseInt(maxUses) : null,
+        expires_at: expiresAt || null,
+        is_active: true,
+      }),
     })
 
-    if (insertError) {
-      setError(insertError.message)
+    if (!res.ok) {
+      const data = await res.json()
+      setError(data.error || "Failed to create coupon")
     } else {
       setCode("")
       setDescription("")
@@ -79,14 +83,16 @@ export default function AdminCouponsPage() {
 
   const handleDelete = async (id: string) => {
     if (!confirm("Delete this coupon?")) return
-    const supabase = createClient()
-    await supabase.from("coupons").delete().eq("id", id)
+    await fetch(`/api/admin/coupons?id=${id}`, { method: "DELETE" })
     setCoupons((prev) => prev.filter((c) => c.id !== id))
   }
 
   const handleToggle = async (id: string, isActive: boolean) => {
-    const supabase = createClient()
-    await supabase.from("coupons").update({ is_active: !isActive }).eq("id", id)
+    await fetch(`/api/admin/coupons?id=${id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ is_active: !isActive }),
+    })
     setCoupons((prev) => prev.map((c) => (c.id === id ? { ...c, is_active: !isActive } : c)))
   }
 

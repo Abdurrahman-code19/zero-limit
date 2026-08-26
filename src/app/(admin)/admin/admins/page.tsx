@@ -37,8 +37,11 @@ export default function AdminsPage() {
 
   async function removeAdmin(id: string, name: string) {
     if (!confirm(`Remove admin role from "${name}"? They will become a customer.`)) return
-    const supabase = createClient()
-    await supabase.from("profiles").update({ role: "customer" }).eq("id", id)
+    await fetch("/api/admin/admins", {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ user_id: id, role: "customer" }),
+    })
     loadAdmins()
   }
 

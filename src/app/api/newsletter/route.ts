@@ -12,16 +12,21 @@ export async function POST(req: NextRequest) {
   }
 
   const supabase = await createClient()
+  const email = parsed.data.email.toLowerCase().trim()
 
-  const { error } = await supabase.from("activity_logs").insert({
+  const { error: subError } = await supabase
+    .from("newsletter_subscribers")
+    .upsert({ email, source: "website" }, { onConflict: "email" })
+
+  if (subError) {
+    console.error("[Newsletter] Failed to save subscriber:", subError)
+  }
+
+  await supabase.from("activity_logs").insert({
     user_id: null,
     action: "newsletter_subscribe",
-    details: { email: parsed.data.email },
+    details: { email },
   })
-
-  if (error) {
-    console.error("[Newsletter] Failed to log subscription:", error)
-  }
 
   return NextResponse.json({ success: true })
 }

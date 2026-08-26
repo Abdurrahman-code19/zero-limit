@@ -59,8 +59,7 @@ export default function ReviewsPage() {
 
   async function handleDelete(id: string) {
     if (!confirm("Delete this review?")) return
-    const supabase = createClient()
-    await supabase.from("reviews").delete().eq("id", id)
+    await fetch(`/api/admin/reviews?id=${id}`, { method: "DELETE" })
     setReviews((prev) => prev.filter((r) => r.id !== id))
   }
 

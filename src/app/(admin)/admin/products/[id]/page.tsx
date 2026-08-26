@@ -148,50 +148,42 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
     if (!validate()) return
 
     setSaving(true)
-    const supabase = createClient()
 
-    const { error: updateError } = await supabase
-      .from("products")
-      .update({
-        name: name.trim(),
-        description: description.trim(),
-        price: Number(price),
-        compare_at_price: compareAtPrice ? Number(compareAtPrice) : null,
-        category_id: categoryId,
-        images,
-        stock_quantity: Number(stockQuantity),
-        is_active: isActive,
-        is_featured: isFeatured,
-        is_new: isNew,
-        tags,
-        updated_at: new Date().toISOString(),
-      })
-      .eq("id", id)
-
-    if (updateError) {
-      setErrors({ submit: updateError.message })
-      setSaving(false)
-      return
-    }
-
-    // Rebuild variants: delete old, create new
-    await supabase.from("product_variants").delete().eq("product_id", id)
-
+    const variants = []
     if (sizes.length > 0 && colors.length > 0) {
-      const newVariants = []
       for (const size of sizes) {
         for (const color of colors) {
-          newVariants.push({
-            product_id: id,
+          variants.push({
             size,
             color,
             price: Number(price),
-            stock_quantity: Math.floor(Number(stockQuantity) / (sizes.length * colors.length)),
+            stock: Math.floor(Number(stockQuantity) / (sizes.length * colors.length)),
             is_active: true,
           })
         }
       }
-      await supabase.from("product_variants").insert(newVariants)
+    }
+
+    const res = await fetch(`/api/admin/products?id=${id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        name: name.trim(),
+        description: description.trim(),
+        price: Number(price),
+        image_url: images[0] || "",
+        category_id: categoryId || null,
+        is_active: isActive,
+        stock_quantity: Number(stockQuantity),
+        variants,
+      }),
+    })
+
+    if (!res.ok) {
+      const data = await res.json()
+      setErrors({ submit: data.error || "Failed to update product" })
+      setSaving(false)
+      return
     }
 
     router.push("/admin/products")
@@ -200,9 +192,7 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
   async function handleDelete() {
     if (!confirm(`Delete "${name}"? This cannot be undone.`)) return
     setDeleting(true)
-    const supabase = createClient()
-    await supabase.from("product_variants").delete().eq("product_id", id)
-    await supabase.from("products").delete().eq("id", id)
+    await fetch(`/api/admin/products?id=${id}`, { method: "DELETE" })
     router.push("/admin/products")
   }
 
