@@ -14,34 +14,29 @@ import { useProducts } from "@/hooks/use-products"
 import { formatCurrency } from "@/utils"
 import { useWishlistStore } from "@/store/wishlist"
 import { useRecentlyViewed } from "@/hooks/use-recently-viewed"
+import { useCategories } from "@/hooks/use-categories"
+import { useCollections } from "@/hooks/use-collections"
 import type { Product } from "@/types"
 
-const CATEGORIES = [
-  { name: "T-Shirts", href: "/shop?category=t-shirts", emoji: "👕" },
-  { name: "Shirts", href: "/shop?category=shirts", emoji: "👔" },
-  { name: "Caps & Beanies", href: "/shop?category=caps", emoji: "🧢" },
-  { name: "Hoodies & Quarter Zips", href: "/shop?category=hoodies", emoji: "🧥" },
+const CATEGORY_EMOJI: Record<string, string> = {
+  "t-shirts": "\u{1F455}",
+  shirts: "\u{1F454}",
+  caps: "\u{1F9E2}",
+  hoodies: "\u{1F9E5}",
+  "quarter-zips": "\u{1F9E5}",
+}
+
+const CATEGORY_FALLBACK = [
+  { name: "T-Shirts", slug: "t-shirts", emoji: "\u{1F455}" },
+  { name: "Shirts", slug: "shirts", emoji: "\u{1F454}" },
+  { name: "Caps & Beanies", slug: "caps", emoji: "\u{1F9E2}" },
+  { name: "Hoodies & Quarter Zips", slug: "hoodies", emoji: "\u{1F9E5}" },
 ]
 
-const FEATURED_COLLECTIONS = [
-  {
-    name: "Checkers Shirt",
-    slug: "zero-limit-checkers-shirt",
-    desc: "Statement woven",
-    image: "/products/zero-limit-checkers-shirt-1.jpeg",
-  },
-  {
-    name: "Lightning Strike",
-    slug: "zero-limit-lightning-strike",
-    desc: "Bold graphic",
-    image: "/products/zero-limit-lightning-strike-1.jpeg",
-  },
-  {
-    name: "Quarter Zip",
-    slug: "zero-limit-quarter-zip",
-    desc: "Layered staple",
-    image: "/products/zero-limit-quarter-zip-1.jpeg",
-  },
+const COLLECTION_FALLBACK = [
+  { name: "Checkers Shirt", slug: "zero-limit-checkers-shirt", description: "Statement woven", image_url: "/products/zero-limit-checkers-shirt-1.jpeg" },
+  { name: "Lightning Strike", slug: "zero-limit-lightning-strike", description: "Bold graphic", image_url: "/products/zero-limit-lightning-strike-1.jpeg" },
+  { name: "Quarter Zip", slug: "zero-limit-quarter-zip", description: "Layered staple", image_url: "/products/zero-limit-quarter-zip-1.jpeg" },
 ]
 
 const QUICK_ACTIONS = [
@@ -57,8 +52,27 @@ export default function StorePage() {
   const [mounted, setMounted] = useState(false)
   const { products: PRODUCTS, loading } = useProducts()
   const recentlyViewed = useRecentlyViewed()
+  const { categories: dbCategories } = useCategories()
+  const { collections: dbCollections } = useCollections()
 
   useEffect(() => { setMounted(true) }, [])
+
+  const CATEGORIES = dbCategories.length > 0
+    ? dbCategories.map((c) => ({
+        name: c.name,
+        href: `/shop?category=${c.slug}`,
+        emoji: CATEGORY_EMOJI[c.slug] || "\u{1F455}",
+      }))
+    : CATEGORY_FALLBACK
+
+  const FEATURED_COLLECTIONS = dbCollections.length > 0
+    ? dbCollections.slice(0, 3).map((c) => ({
+        name: c.name,
+        slug: c.slug,
+        desc: c.description || "",
+        image: c.image_url || COLLECTION_FALLBACK.find((f) => f.slug === c.slug)?.image_url || "/products/zero-limit-lightning-strike-1.jpeg",
+      }))
+    : COLLECTION_FALLBACK.map((c) => ({ ...c, desc: c.description, image: c.image_url }))
 
   if (!mounted || loading) {
     return (

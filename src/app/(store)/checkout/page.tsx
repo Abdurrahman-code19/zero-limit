@@ -20,6 +20,7 @@ import { useCartStore } from "@/store/cart"
 import { formatCurrency } from "@/utils"
 import { PaystackButton } from "@/components/checkout/paystack-button"
 import { createClient } from "@/lib/supabase/client"
+import { useStoreSettings } from "@/hooks/use-store-settings"
 
 interface PaymentData {
   reference: string
@@ -40,6 +41,7 @@ export default function CheckoutPage() {
   const { items, getTotal, getItemCount, clearCart } = useCartStore()
   const [mounted, setMounted] = useState(false)
   const [userId, setUserId] = useState<string | null>(null)
+  const { settings } = useStoreSettings()
 
   useEffect(() => {
     setMounted(true)
@@ -89,7 +91,7 @@ export default function CheckoutPage() {
   const [appliedCoupon, setAppliedCoupon] = useState<{ id: string; code: string; discount: number; type: string; value: number } | null>(null)
 
   const subtotal = getTotal()
-  const shipping = subtotal >= 50000 ? 0 : 2000
+  const shipping = subtotal >= settings.free_shipping_threshold ? 0 : settings.shipping_fee
   const discount = appliedCoupon?.discount ?? 0
   const total = subtotal + shipping - discount
 
@@ -630,7 +632,7 @@ export default function CheckoutPage() {
               <Truck className="h-3.5 w-3.5" />
               {shipping === 0
                 ? "You qualify for free delivery"
-                : `Add ${formatCurrency(50000 - subtotal)} more for free delivery`}
+                : `Add ${formatCurrency(settings.free_shipping_threshold - subtotal)} more for free delivery`}
             </div>
           </div>
         </div>

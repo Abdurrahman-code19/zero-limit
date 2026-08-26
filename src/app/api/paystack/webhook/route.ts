@@ -95,7 +95,7 @@ export async function POST(req: NextRequest) {
 
   if (orderError) {
     console.error("[Webhook] Order insert error:", orderError)
-    return NextResponse.json({ received: true })
+    return NextResponse.json({ received: false, error: "Order creation failed" }, { status: 500 })
   }
 
   const orderItems = items.map((item: any) => ({
@@ -115,22 +115,24 @@ export async function POST(req: NextRequest) {
   if (itemsError) {
     console.error("[Webhook] Order items insert error:", itemsError)
     await supabase.from("orders").delete().eq("id", order.id)
-    return NextResponse.json({ received: true })
+    return NextResponse.json({ received: false, error: "Order items creation failed" }, { status: 500 })
   }
 
   for (const item of items) {
     if (item.variant_id) {
-      await supabase.rpc("decrement_stock_atomic", {
+      const { error: varStockErr } = await supabase.rpc("decrement_stock_atomic", {
         p_table: "product_variants",
         p_id: item.variant_id,
         p_quantity: item.quantity,
       })
+      if (varStockErr) console.error("[Webhook] Variant stock decrement failed:", varStockErr)
     }
-    await supabase.rpc("decrement_stock_atomic", {
+    const { error: prodStockErr } = await supabase.rpc("decrement_stock_atomic", {
       p_table: "products",
       p_id: item.product_id,
       p_quantity: item.quantity,
     })
+    if (prodStockErr) console.error("[Webhook] Product stock decrement failed:", prodStockErr)
   }
 
   console.log(`[Webhook] Order ${orderNumber} created from webhook for ref ${reference}`)

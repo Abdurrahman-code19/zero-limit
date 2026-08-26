@@ -63,7 +63,40 @@ export async function PATCH(request: NextRequest) {
   const updateData: Record<string, unknown> = { status, admin_notes: admin_notes || null }
 
   if (status === "approved" || status === "completed") {
-    await supabase.from("orders").update({ status: "refunded", payment_status: "refunded" }).eq("id", ret.order_id)
+    const { data: order } = await supabase
+      .from("orders")
+      .select("payment_reference, total")
+      .eq("id", ret.order_id)
+      .single()
+
+    if (order?.payment_reference && process.env.PAYSTACK_SECRET_KEY) {
+      try {
+        const refundRes = await fetch("https://api.paystack.co/refund", {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${process.env.PAYSTACK_SECRET_KEY}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            transaction: order.payment_reference,
+            amount: Math.round(order.total * 100),
+            note: admin_notes || "Return refund",
+          }),
+        })
+        if (!refundRes.ok) {
+          const refundErr = await refundRes.text()
+          console.error("[Returns] Paystack refund failed:", refundErr)
+        }
+      } catch (err) {
+        console.error("[Returns] Paystack refund call failed:", err)
+      }
+    }
+
+    const { error: orderUpdateErr } = await supabase
+      .from("orders")
+      .update({ status: "refunded", payment_status: "refunded" })
+      .eq("id", ret.order_id)
+    if (orderUpdateErr) console.error("[Returns] Order refund update failed:", orderUpdateErr)
   }
 
   const { error } = await supabase.from("return_requests").update(updateData).eq("id", id)

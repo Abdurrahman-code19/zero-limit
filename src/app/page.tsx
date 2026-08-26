@@ -16,6 +16,7 @@ import { useTheme } from "@/components/theme/theme-provider"
 import { useCartStore } from "@/store/cart"
 import { useWishlistStore } from "@/store/wishlist"
 import { useProducts } from "@/hooks/use-products"
+import { useCollections } from "@/hooks/use-collections"
 import { formatCurrency } from "@/utils"
 
 const HERO_SLIDES = [
@@ -31,25 +32,10 @@ const FEATURES = [
   { icon: Award, title: "Premium Quality", desc: "Curated fabrics & craftsmanship" },
 ]
 
-const COLLECTIONS = [
-  {
-    name: "T-Shirts",
-    slug: "t-shirts",
-    desc: "Graphic tees & tank tops",
-    image: "/products/zero-limit-lightning-strike-1.jpeg",
-  },
-  {
-    name: "Shirts",
-    slug: "shirts",
-    desc: "Statement checkered fits",
-    image: "/products/zero-limit-checkers-shirt-1.jpeg",
-  },
-  {
-    name: "Caps & Beanies",
-    slug: "caps",
-    desc: "The Zero Limit Bernie",
-    image: "/products/zero-limit-bernie-1.jpeg",
-  },
+const COLLECTION_FALLBACK = [
+  { name: "T-Shirts", slug: "t-shirts", description: "Graphic tees & tank tops", image_url: "/products/zero-limit-lightning-strike-1.jpeg" },
+  { name: "Shirts", slug: "shirts", description: "Statement checkered fits", image_url: "/products/zero-limit-checkers-shirt-1.jpeg" },
+  { name: "Caps & Beanies", slug: "caps", description: "The Zero Limit Bernie", image_url: "/products/zero-limit-bernie-1.jpeg" },
 ]
 
 export default function HomePage() {
@@ -63,6 +49,16 @@ export default function HomePage() {
   const addItem = useCartStore((s) => s.addItem)
   const toggleWishlist = useWishlistStore((s) => s.toggle)
   const { products: PRODUCTS } = useProducts()
+  const { collections } = useCollections()
+
+  const COLLECTIONS = collections.length > 0
+    ? collections.map((c) => ({
+        name: c.name,
+        slug: c.slug,
+        desc: c.description || "",
+        image: c.image_url || COLLECTION_FALLBACK.find((f) => f.slug === c.slug)?.image_url || "/products/zero-limit-lightning-strike-1.jpeg",
+      }))
+    : COLLECTION_FALLBACK.map((c) => ({ name: c.name, slug: c.slug, desc: c.description, image: c.image_url }))
 
   const NEW_ARRIVALS = useMemo(() =>
     PRODUCTS.map((p, i) => ({
@@ -234,16 +230,10 @@ export default function HomePage() {
             {/* Social icons */}
             <div className="fixed bottom-8 right-8 z-50 flex flex-col gap-4">
               {[
-                { icon: Instagram, label: "Instagram", href: "#" },
-                { icon: (props: React.SVGProps<SVGSVGElement>) => (
-                  <svg viewBox="0 0 24 24" fill="currentColor" {...props}><path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1v-3.5a6.37 6.37 0 00-.79-.05A6.34 6.34 0 003.15 15.2a6.34 6.34 0 0010.86 4.44 6.3 6.3 0 001.82-4.48V8.12a8.23 8.23 0 004.76 1.5v-3.4a4.85 4.85 0 01-1-.53z"/></svg>
-                ), label: "TikTok", href: "#" },
+                { icon: Instagram, label: "Instagram", href: "https://www.instagram.com/zerolimit.store?igsh=dmw4NGNwM2IxdDNm&igsi=dmw4NGNwM2IxdDNm&utm_source=qr" },
                 { icon: (props: React.SVGProps<SVGSVGElement>) => (
                   <svg viewBox="0 0 24 24" fill="currentColor" {...props}><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.625.846 5.059 2.284 7.034L.789 23.492a.5.5 0 00.627.616l4.558-1.21A11.952 11.952 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 22c-2.437 0-4.713-.836-6.511-2.236l-.455-.367-2.728.727.727-2.728-.367-.455A9.965 9.965 0 012 12C2 6.486 6.486 2 12 2s10 4.486 10 10-4.486 10-10 10z"/></svg>
-                ), label: "WhatsApp", href: "#" },
-                { icon: (props: React.SVGProps<SVGSVGElement>) => (
-                  <svg viewBox="0 0 24 24" fill="currentColor" {...props}><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
-                ), label: "Facebook", href: "#" },
+                ), label: "WhatsApp", href: "https://wa.me/23409044325763" },
               ].map((social) => (
                 <a
                   key={social.label}

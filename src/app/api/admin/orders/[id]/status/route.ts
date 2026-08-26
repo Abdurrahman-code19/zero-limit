@@ -146,5 +146,26 @@ export async function PATCH(
     }).catch((err) => console.error("[Email] Status update email failed:", err))
   }
 
+  // Create in-app notification (non-blocking)
+  if (status && order.user_id) {
+    const statusMessages: Record<string, { title: string; message: string }> = {
+      confirmed: { title: "Order Confirmed", message: `Your order ${order.order_number} has been confirmed and is being processed.` },
+      processing: { title: "Order Processing", message: `Your order ${order.order_number} is now being prepared.` },
+      shipped: { title: "Order Shipped", message: `Your order ${order.order_number} has been shipped! ${order.tracking_number ? `Tracking: ${order.tracking_number}` : ""}` },
+      delivered: { title: "Order Delivered", message: `Your order ${order.order_number} has been delivered. Enjoy!` },
+      cancelled: { title: "Order Cancelled", message: `Your order ${order.order_number} has been cancelled.` },
+      refunded: { title: "Order Refunded", message: `Your order ${order.order_number} has been refunded.` },
+    }
+    const notif = statusMessages[status]
+    if (notif) {
+      supabase.from("notifications").insert({
+        user_id: order.user_id,
+        type: "order",
+        title: notif.title,
+        message: notif.message,
+      }).then(() => {}, (err: Error) => console.error("[Notification] Failed to create:", err))
+    }
+  }
+
   return NextResponse.json({ order })
 }
