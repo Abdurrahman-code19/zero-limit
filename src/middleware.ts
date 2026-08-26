@@ -66,6 +66,20 @@ export async function updateSession(request: NextRequest) {
     if (!checkRateLimit(ip)) {
       return NextResponse.json({ error: "Too many requests" }, { status: 429 })
     }
+
+    const method = request.method
+    if (["POST", "PUT", "PATCH", "DELETE"].includes(method)) {
+      const origin = request.headers.get("origin")
+      const host = request.headers.get("host")
+      if (origin && host) {
+        try {
+          const originHost = new URL(origin).host
+          if (originHost !== host) {
+            return NextResponse.json({ error: "Forbidden" }, { status: 403 })
+          }
+        } catch { /* invalid origin header */ }
+      }
+    }
   }
 
   const isProtectedRoute = protectedRoutes.some(route =>

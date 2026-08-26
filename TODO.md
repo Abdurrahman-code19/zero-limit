@@ -76,7 +76,7 @@
 - [x] **52. Add order status transition date tracking** — Timeline shows steps but not when each transition occurred.
 - [x] **53. Fix order number generation** — `src/app/api/orders/route.ts:60` — uses `Math.random()`. Use `crypto.randomUUID()` or DB sequence.
 - [x] **54. Add delivery state dropdown** — Checkout state field is free text. Should be dropdown of valid Nigerian states.
-- [ ] **55. Add order review step before Paystack** — No confirmation before opening payment window.
+- [x] **55. Add order review step before Paystack** — No confirmation before opening payment window.
 - [x] **56. Log email failures** — `src/app/api/orders/route.ts:157` — `.catch(() => {})` swallows errors silently.
 - [x] **57. Add `PAYSTACK_SECRET_KEY` to `.env.example`** — Currently missing, misleading for developers.
 - [x] **58. Add plain-text email fallback** — Emails are HTML-only. Some clients strip HTML.
@@ -101,11 +101,11 @@
 - [x] **72. Add `not-found.tsx`** — No custom 404 page.
 - [x] **73. Add SEO metadata exports** — Root layout metadata in place. Page-level metadata not feasible for client components.
 - [x] **74. Add `sitemap.ts` and `robots.ts`** — No sitemap or robots.txt generation.
-- [ ] **75. Fix static product IDs vs DB UUIDs** — `src/lib/products.ts` uses `"real-1"` etc. DB uses UUIDs.
+- [x] **75. Fix static product IDs vs DB UUIDs** — `src/lib/products.ts` uses `"real-1"` etc. DB uses UUIDs. Static array removed, only `getProductTags` kept.
 - [x] **76. Sync TypeScript types with DB schema** — `src/types/index.ts` has `stock`, `is_published` but DB has `stock_quantity`, `is_active`. Mapping already done in hooks.
 - [x] **77. Add missing DB indexes** — `orders.payment_reference`, `orders.payment_status + created_at`, `coupons.code`.
 - [x] **78. Add product_variants composite unique index** — No `UNIQUE(product_id, size, color)` constraint. Duplicates possible.
-- [ ] **79. Add product image gallery** — Only first image shown. No carousel for multi-image products.
+- [x] **79. Add product image gallery** — Only first image shown. No carousel for multi-image products.
 
 ---
 
