@@ -101,6 +101,7 @@
 - [ ] Update size guide page to pull from `cms_content` table
 - [ ] Add real product images for all products
 - [x] Remove "COMING SOON" tags from in-stock products
+- [x] Fix privacy page email (privacy@zerolimit.store → zerolimitunlimited@gmail.com)
 
 ### Error Handling
 - [ ] Add proper error boundaries for all page routes
