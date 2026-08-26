@@ -1,20 +1,200 @@
 "use client"
 
-import { Tags } from "lucide-react"
-import { Card, CardContent } from "@/components/ui/card"
+import { useState, useEffect } from "react"
+import { Plus, Trash2, Pencil, Loader2, X } from "lucide-react"
+import { createClient } from "@/lib/supabase/client"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Badge } from "@/components/ui/badge"
 
-export default function AdminCategoriesPage() {
+interface Category {
+  id: string
+  name: string
+  slug: string
+  description: string | null
+  created_at: string
+  _count?: number
+}
+
+export default function CategoriesPage() {
+  const [categories, setCategories] = useState<Category[]>([])
+  const [loading, setLoading] = useState(true)
+  const [showForm, setShowForm] = useState(false)
+  const [editingId, setEditingId] = useState<string | null>(null)
+  const [saving, setSaving] = useState(false)
+  const [name, setName] = useState("")
+  const [description, setDescription] = useState("")
+
+  useEffect(() => {
+    loadCategories()
+  }, [])
+
+  async function loadCategories() {
+    const supabase = createClient()
+    const { data: cats } = await supabase
+      .from("categories")
+      .select("*")
+      .order("name")
+
+    if (cats) {
+      const withCounts = await Promise.all(
+        cats.map(async (cat) => {
+          const { count } = await supabase
+            .from("products")
+            .select("*", { count: "exact", head: true })
+            .eq("category_id", cat.id)
+          return { ...cat, _count: count ?? 0 }
+        })
+      )
+      setCategories(withCounts)
+    }
+    setLoading(false)
+  }
+
+  function generateSlug(text: string) {
+    return text.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "")
+  }
+
+  async function handleSave(e: React.FormEvent) {
+    e.preventDefault()
+    if (!name.trim()) return
+    setSaving(true)
+    const supabase = createClient()
+    const slug = generateSlug(name)
+
+    if (editingId) {
+      await supabase.from("categories").update({ name: name.trim(), slug, description: description.trim() || null }).eq("id", editingId)
+    } else {
+      await supabase.from("categories").insert({ name: name.trim(), slug, description: description.trim() || null })
+    }
+
+    setName("")
+    setDescription("")
+    setEditingId(null)
+    setShowForm(false)
+    setSaving(false)
+    loadCategories()
+  }
+
+  async function handleDelete(id: string, catName: string) {
+    if (!confirm(`Delete category "${catName}"? Products in this category will lose their category assignment.`)) return
+    const supabase = createClient()
+    await supabase.from("categories").delete().eq("id", id)
+    loadCategories()
+  }
+
+  function startEdit(cat: Category) {
+    setEditingId(cat.id)
+    setName(cat.name)
+    setDescription(cat.description ?? "")
+    setShowForm(true)
+  }
+
+  function cancelEdit() {
+    setEditingId(null)
+    setName("")
+    setDescription("")
+    setShowForm(false)
+  }
+
+  if (loading) {
+    return (
+      <div className="space-y-6">
+        <h1 className="text-2xl font-bold">Categories</h1>
+        <div className="space-y-3">
+          {[1, 2, 3].map((i) => (
+            <div key={i} className="h-16 animate-pulse bg-muted rounded" />
+          ))}
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold">Categories</h1>
-        <p className="text-muted-foreground">Organize your product categories</p>
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-bold">Categories</h1>
+          <p className="text-muted-foreground">{categories.length} categories</p>
+        </div>
+        <Button onClick={() => { cancelEdit(); setShowForm(!showForm) }}>
+          <Plus className="h-4 w-4 mr-2" />
+          Add Category
+        </Button>
       </div>
+
+      {showForm && (
+        <Card>
+          <CardHeader>
+            <CardTitle>{editingId ? "Edit Category" : "New Category"}</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <form onSubmit={handleSave} className="space-y-4">
+              <div>
+                <label className="text-sm font-medium">Name *</label>
+                <Input value={name} onChange={(e) => setName(e.target.value)} placeholder="Category name" className="mt-1" required />
+              </div>
+              <div>
+                <label className="text-sm font-medium">Description</label>
+                <Input value={description} onChange={(e) => setDescription(e.target.value)} placeholder="Optional description" className="mt-1" />
+              </div>
+              <div className="flex gap-2">
+                <Button type="submit" disabled={saving}>
+                  {saving ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : null}
+                  {editingId ? "Update" : "Create"}
+                </Button>
+                <Button type="button" variant="outline" onClick={cancelEdit}>Cancel</Button>
+              </div>
+            </form>
+          </CardContent>
+        </Card>
+      )}
+
       <Card>
-        <CardContent className="flex flex-col items-center justify-center py-16">
-          <Tags className="h-12 w-12 text-muted-foreground mb-4" />
-          <p className="text-lg font-medium text-muted-foreground">Coming Soon</p>
-          <p className="text-sm text-muted-foreground mt-1">Category management is under development</p>
+        <CardContent className="p-0">
+          <table className="w-full">
+            <thead>
+              <tr className="border-b">
+                <th className="text-left p-4 font-medium">Category</th>
+                <th className="text-left p-4 font-medium">Slug</th>
+                <th className="text-left p-4 font-medium">Products</th>
+                <th className="text-right p-4 font-medium">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {categories.length === 0 ? (
+                <tr>
+                  <td colSpan={4} className="p-8 text-center text-muted-foreground">
+                    No categories yet. Create one to organize your products.
+                  </td>
+                </tr>
+              ) : (
+                categories.map((cat) => (
+                  <tr key={cat.id} className="border-b last:border-0 hover:bg-muted/50">
+                    <td className="p-4">
+                      <p className="font-medium">{cat.name}</p>
+                      {cat.description && <p className="text-xs text-muted-foreground mt-0.5">{cat.description}</p>}
+                    </td>
+                    <td className="p-4 text-sm text-muted-foreground">{cat.slug}</td>
+                    <td className="p-4">
+                      <Badge variant="secondary">{cat._count ?? 0}</Badge>
+                    </td>
+                    <td className="p-4">
+                      <div className="flex items-center justify-end gap-1">
+                        <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => startEdit(cat)}>
+                          <Pencil className="h-4 w-4" />
+                        </Button>
+                        <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive" onClick={() => handleDelete(cat.id, cat.name)}>
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
         </CardContent>
       </Card>
     </div>
