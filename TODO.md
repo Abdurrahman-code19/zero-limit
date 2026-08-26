@@ -40,7 +40,7 @@
 ## Phase 3 — HIGH E-Commerce Logic (15 issues)
 
 - [x] **23. Implement Paystack webhook route** — (duplicate of #5, critical for both security and e-commerce) Create `src/app/api/paystack/webhook/route.ts` with signature verification.
-- [ ] **24. Client-driven payment flow → server-driven** — `src/app/(store)/checkout/page.tsx:84-151` — entire verify → order → email is client-orchestrated. Move to single server-side flow.
+- [x] **24. Client-driven payment flow → server-driven** — `src/app/(store)/checkout/page.tsx:84-151` — entire verify → order → email is client-orchestrated. Move to single server-side flow.
 - [x] **25. Fix revenue calculation** — `src/hooks/use-admin-stats.ts:46` filters `o.status` against `"paid"` (payment status). Revenue always = 0. Filter on `payment_status === "paid"` instead.
 - [x] **26. Sync hardcoded shipping fee with DB** — `src/app/(store)/checkout/page.tsx:60` uses `₦2,500`. DB settings say `₦2,000`. Read from settings table.
 - [x] **27. Add customer order cancellation** — No cancel button on order detail page. Add cancel for `pending`/`confirmed` orders.
