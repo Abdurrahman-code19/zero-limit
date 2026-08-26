@@ -94,8 +94,8 @@ export default function PrivacyPage() {
           <h2 className="text-lg font-medium text-foreground mb-3">8. Contact Us</h2>
           <p>
             For privacy-related inquiries, contact us at{" "}
-            <a href="mailto:privacy@zerolimit.store" className="text-foreground underline">
-              privacy@zerolimit.store
+            <a href="mailto:zerolimitunlimited@gmail.com" className="text-foreground underline">
+              zerolimitunlimited@gmail.com
             </a>
           </p>
         </section>
