@@ -7,6 +7,7 @@ import {
   Search,
   Trash2,
   Eye,
+  Pencil,
   Package,
   EyeOff,
 } from "lucide-react"
@@ -155,6 +156,11 @@ export default function AdminProductsPage() {
                           <Link href={`/product/${product.slug}`}>
                             <Button variant="ghost" size="icon" className="h-8 w-8">
                               <Eye className="h-4 w-4" />
+                            </Button>
+                          </Link>
+                          <Link href={`/admin/products/${product.id}`}>
+                            <Button variant="ghost" size="icon" className="h-8 w-8">
+                              <Pencil className="h-4 w-4" />
                             </Button>
                           </Link>
                           <Button
