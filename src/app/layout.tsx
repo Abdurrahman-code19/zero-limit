@@ -20,6 +20,9 @@ export const metadata: Metadata = {
   icons: {
     icon: "/favicon.png",
   },
+  verification: {
+    google: "i-PWsrp8tuxwd6Egx9qcpAVy_q7kaY_DNeZNFazER0U",
+  },
   openGraph: {
     title: "Zero Limit | Premium Fashion E-commerce",
     description: "Premium fashion for the bold and confident. No limits, just style.",
