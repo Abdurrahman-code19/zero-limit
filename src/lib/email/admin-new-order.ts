@@ -1,7 +1,7 @@
 import { Resend } from "resend"
 
 const resend = new Resend(process.env.RESEND_API_KEY)
-const FROM = process.env.EMAIL_FROM ?? "zerolimitunlimited@gmail.com"
+const FROM = process.env.EMAIL_FROM ?? "onboarding@resend.dev"
 
 interface AdminNewOrderEmailProps {
   orderNumber: string
