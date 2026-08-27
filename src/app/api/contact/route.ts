@@ -16,7 +16,7 @@ export async function POST(request: Request) {
     }
 
     await resend.emails.send({
-      from: "orders@zerolimit.store",
+      from: process.env.EMAIL_FROM ?? "zerolimitunlimited@gmail.com",
       to: email,
       subject: `We received your message - ${subject}`,
       html: `
@@ -32,7 +32,7 @@ export async function POST(request: Request) {
     })
 
     await resend.emails.send({
-      from: "orders@zerolimit.store",
+      from: process.env.EMAIL_FROM ?? "zerolimitunlimited@gmail.com",
       to: "zerolimitunlimited@gmail.com",
       subject: `New Contact Form Submission: ${subject}`,
       html: `

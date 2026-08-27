@@ -90,8 +90,8 @@ export default function TermsPage() {
           <h2 className="text-lg font-medium text-foreground mb-3">9. Contact</h2>
           <p>
             For questions about these terms, please contact us at{" "}
-            <a href="mailto:support@zerolimit.store" className="text-foreground underline">
-              support@zerolimit.store
+            <a href="mailto:zerolimitunlimited@gmail.com" className="text-foreground underline">
+              zerolimitunlimited@gmail.com
             </a>
           </p>
         </section>

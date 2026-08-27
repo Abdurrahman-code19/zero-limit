@@ -3,7 +3,7 @@ import { Resend } from "resend"
 import { z } from "zod"
 
 const resend = new Resend(process.env.RESEND_API_KEY)
-const FROM = process.env.EMAIL_FROM ?? "orders@zerolimit.store"
+const FROM = process.env.EMAIL_FROM ?? "zerolimitunlimited@gmail.com"
 
 const Schema = z.object({
   email: z.string().email(),

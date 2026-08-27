@@ -3,7 +3,7 @@ import { escapeHtml } from "@/utils"
 
 const resend = new Resend(process.env.RESEND_API_KEY)
 
-const FROM = "Zero Limit <orders@zerolimit.store>"
+const FROM = "Zero Limit <zerolimitunlimited@gmail.com>"
 
 interface OrderEmailData {
   to: string

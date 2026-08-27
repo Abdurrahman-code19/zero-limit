@@ -26,8 +26,7 @@ export default function ContactPage() {
             </div>
             <div>
               <h3 className="font-medium mb-1">Email</h3>
-              <p className="text-sm text-muted-foreground">support@zerolimit.store</p>
-              <p className="text-sm text-muted-foreground">orders@zerolimit.store</p>
+              <p className="text-sm text-muted-foreground">zerolimitunlimited@gmail.com</p>
             </div>
           </div>
 
