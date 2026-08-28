@@ -37,12 +37,15 @@ export function useStoreSettings() {
 
   useEffect(() => {
     const supabase = createClient()
-    supabase
-      .from("store_settings")
-      .select("*")
-      .limit(1)
-      .single()
-      .then(({ data }) => {
+
+    async function loadSettings() {
+      try {
+        const { data } = await supabase
+          .from("store_settings")
+          .select("*")
+          .limit(1)
+          .single()
+
         if (data) {
           setSettings({
             store_name: data.store_name ?? DEFAULTS.store_name,
@@ -58,9 +61,14 @@ export function useStoreSettings() {
             announcement_active: data.announcement_active ?? DEFAULTS.announcement_active,
           })
         }
+      } catch {
+        // ignore
+      } finally {
         setLoading(false)
-      })
-      .catch(() => setLoading(false))
+      }
+    }
+
+    loadSettings()
   }, [])
 
   return { settings, loading }
