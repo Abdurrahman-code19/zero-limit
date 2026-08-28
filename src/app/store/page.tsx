@@ -17,6 +17,7 @@ import { useWishlistStore } from "@/store/wishlist"
 import { useRecentlyViewed } from "@/hooks/use-recently-viewed"
 import { useCategories } from "@/hooks/use-categories"
 import { useCollections } from "@/hooks/use-collections"
+import { collectionImage } from "@/lib/collection-images"
 import type { Product } from "@/types"
 
 const CATEGORY_EMOJI: Record<string, string> = {
@@ -67,11 +68,11 @@ export default function StorePage() {
     : CATEGORY_FALLBACK
 
   const FEATURED_COLLECTIONS = dbCollections.length > 0
-    ? dbCollections.slice(0, 3).map((c) => ({
+    ? dbCollections.slice(0, 3).map((c, i) => ({
         name: c.name,
         slug: c.slug,
         desc: c.description || "",
-        image: c.image_url || COLLECTION_FALLBACK.find((f) => f.slug === c.slug)?.image_url || "/products/zero-limit-lightning-strike-1.jpeg",
+        image: collectionImage(c.name, i, c.image_url),
       }))
     : COLLECTION_FALLBACK.map((c) => ({ ...c, desc: c.description, image: c.image_url }))
 

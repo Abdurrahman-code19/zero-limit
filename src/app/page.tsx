@@ -17,6 +17,7 @@ import { useCartStore } from "@/store/cart"
 import { useWishlistStore } from "@/store/wishlist"
 import { useProducts } from "@/hooks/use-products"
 import { useCollections } from "@/hooks/use-collections"
+import { collectionImage } from "@/lib/collection-images"
 import { formatCurrency } from "@/utils"
 
 const HERO_SLIDES = [
@@ -52,11 +53,11 @@ export default function HomePage() {
   const { collections } = useCollections()
 
   const COLLECTIONS = collections.length > 0
-    ? collections.map((c) => ({
+    ? collections.map((c, i) => ({
         name: c.name,
         slug: c.slug,
         desc: c.description || "",
-        image: c.image_url || COLLECTION_FALLBACK.find((f) => f.slug === c.slug)?.image_url || "/products/zero-limit-lightning-strike-1.jpeg",
+        image: collectionImage(c.name, i, c.image_url),
       }))
     : COLLECTION_FALLBACK.map((c) => ({ name: c.name, slug: c.slug, desc: c.description, image: c.image_url }))
 
