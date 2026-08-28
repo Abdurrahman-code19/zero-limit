@@ -1,11 +1,23 @@
 import type { Metadata } from "next"
+import { createServerClient } from "@supabase/ssr"
 import { createClient } from "@/lib/supabase/server"
 import ProductContent from "./product-content"
 
 export const revalidate = 3600
 
 export async function generateStaticParams() {
-  const supabase = await createClient()
+  const supabase = await createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    {
+      cookies: {
+        getAll() {
+          return []
+        },
+        setAll() {},
+      },
+    }
+  )
   const { data } = await supabase
     .from("products")
     .select("slug")
