@@ -63,7 +63,8 @@ export default function TermsPage() {
           <h2 className="text-lg font-medium text-foreground mb-3">6. Intellectual Property</h2>
           <p>
             All content on this website, including logos, images, designs, and text, is the property of
-            Zero Limit and is protected by copyright laws. Unauthorized use or reproduction of any content
+            Zero Limit, owned and operated by RIIT GLOBAL TECH, and is protected by copyright laws.
+            Unauthorized use or reproduction of any content
             is strictly prohibited.
           </p>
         </section>

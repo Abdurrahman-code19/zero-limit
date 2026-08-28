@@ -299,7 +299,7 @@ export default function HomePage() {
                     viewport={{ once: true }}
                     transition={{ duration: 0.6, delay: i * 0.15 }}
                   >
-                    <Link href={`/collections/${col.slug}`}>
+                    <Link href="/collections">
                       <div className="group relative aspect-[3/4] overflow-hidden bg-muted cursor-pointer">
                         <Image
                           src={col.image}
@@ -451,7 +451,7 @@ export default function HomePage() {
                 ))}
               </div>
               <div className="border-t border-border pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
-                <p className="text-[11px] text-muted-foreground">&copy; {new Date().getFullYear()} Zero Limit. All rights reserved.</p>
+                <p className="text-[11px] text-muted-foreground">&copy; {new Date().getFullYear()} RIIT GLOBAL TECH. All rights reserved.</p>
               </div>
             </div>
           </footer>

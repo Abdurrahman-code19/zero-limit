@@ -25,7 +25,7 @@ export async function GET(request: NextRequest) {
   const { error } = await supabase
     .from("orders")
     .update({ payment_status: paymentStatus, updated_at: new Date().toISOString() })
-    .eq("reference", reference)
+    .eq("payment_reference", reference)
 
   if (error) {
     return NextResponse.json({ error: error.message }, { status: 500 })

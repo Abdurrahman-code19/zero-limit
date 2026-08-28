@@ -82,7 +82,7 @@ function buildStatusEmailHtml(data: StatusUpdateEmailData): string {
       ` : ""}
     </div>
     <div style="background:#111;padding:24px;text-align:center;">
-      <p style="margin:0;font-size:12px;color:#666;">© ${new Date().getFullYear()} Zero Limit. All rights reserved.</p>
+      <p style="margin:0;font-size:12px;color:#666;">© ${new Date().getFullYear()} RIIT GLOBAL TECH. All rights reserved.</p>
     </div>
   </div>
 </body>
