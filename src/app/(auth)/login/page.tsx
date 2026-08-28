@@ -38,7 +38,7 @@ function LoginForm() {
     setIsLoading(true)
     setError(null)
 
-    const { error: authError } = await supabase.auth.signInWithPassword({
+    const { data, error: authError } = await supabase.auth.signInWithPassword({
       email,
       password,
     })
@@ -51,6 +51,20 @@ function LoginForm() {
       }
       setIsLoading(false)
       return
+    }
+
+    if (data.user) {
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("role")
+        .eq("id", data.user.id)
+        .single()
+
+      if (profile && (profile.role === "admin" || profile.role === "super_admin")) {
+        router.push("/admin/dashboard")
+        router.refresh()
+        return
+      }
     }
 
     router.push(redirect)
