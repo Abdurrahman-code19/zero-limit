@@ -28,10 +28,10 @@ const CATEGORY_EMOJI: Record<string, string> = {
 }
 
 const CATEGORY_FALLBACK = [
-  { name: "T-Shirts", slug: "t-shirts", emoji: "\u{1F455}" },
-  { name: "Shirts", slug: "shirts", emoji: "\u{1F454}" },
-  { name: "Caps & Beanies", slug: "caps", emoji: "\u{1F9E2}" },
-  { name: "Hoodies & Quarter Zips", slug: "hoodies", emoji: "\u{1F9E5}" },
+  { name: "T-Shirts", href: "/shop?category=t-shirts", emoji: "\u{1F455}" },
+  { name: "Shirts", href: "/shop?category=shirts", emoji: "\u{1F454}" },
+  { name: "Caps & Beanies", href: "/shop?category=caps", emoji: "\u{1F9E2}" },
+  { name: "Hoodies & Quarter Zips", href: "/shop?category=hoodies", emoji: "\u{1F9E5}" },
 ]
 
 const COLLECTION_FALLBACK = [
