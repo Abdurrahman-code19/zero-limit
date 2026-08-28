@@ -1,9 +1,10 @@
 import { Resend } from "resend"
 import { escapeHtml } from "@/utils"
+import { FROM_ORDERS } from "./senders"
 
 const resend = new Resend(process.env.RESEND_API_KEY)
 
-const FROM = "Zero Limit <onboarding@resend.dev>"
+const FROM = FROM_ORDERS
 
 interface StatusUpdateEmailData {
   to: string

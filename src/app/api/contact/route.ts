@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server"
 import { Resend } from "resend"
+import { FROM_REPLY, FROM_CONTACT, ADMIN_EMAIL } from "@/lib/email/senders"
 
 const resend = new Resend(process.env.RESEND_API_KEY)
 
@@ -16,7 +17,7 @@ export async function POST(request: Request) {
     }
 
     await resend.emails.send({
-      from: process.env.EMAIL_FROM ?? "onboarding@resend.dev",
+      from: FROM_REPLY,
       to: email,
       subject: `We received your message - ${subject}`,
       html: `
@@ -32,8 +33,8 @@ export async function POST(request: Request) {
     })
 
     await resend.emails.send({
-      from: process.env.EMAIL_FROM ?? "onboarding@resend.dev",
-      to: "zerolimitunlimited@gmail.com",
+      from: FROM_CONTACT,
+      to: ADMIN_EMAIL,
       subject: `New Contact Form Submission: ${subject}`,
       html: `
         <h2>New Contact Form Submission</h2>

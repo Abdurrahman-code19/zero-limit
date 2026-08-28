@@ -19,7 +19,7 @@ export interface StoreSettings {
 
 const DEFAULTS: StoreSettings = {
   store_name: "Zero Limit",
-  store_email: "zerolimitunlimited@gmail.com",
+  store_email: "support@zerolimit.store",
   store_phone: "",
   store_address: "Lagos, Nigeria",
   shipping_fee: 2000,

@@ -9,6 +9,6 @@ export default function robots(): MetadataRoute.Robots {
         disallow: ["/admin/", "/api/"],
       },
     ],
-    sitemap: "https://zero-limit-tau.vercel.app/sitemap.xml",
+    sitemap: "https://www.zerolimit.store/sitemap.xml",
   }
 }

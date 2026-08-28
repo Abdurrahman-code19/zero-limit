@@ -1,7 +1,7 @@
 import type { MetadataRoute } from "next"
 import { createClient } from "@supabase/supabase-js"
 
-const base = "https://zero-limit-tau.vercel.app"
+const base = "https://www.zerolimit.store"
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const staticPages: MetadataRoute.Sitemap = [

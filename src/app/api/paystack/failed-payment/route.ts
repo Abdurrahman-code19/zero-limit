@@ -1,9 +1,10 @@
 import { NextRequest, NextResponse } from "next/server"
 import { Resend } from "resend"
 import { z } from "zod"
+import { FROM_ORDERS, ADMIN_EMAIL } from "@/lib/email/senders"
 
 const resend = new Resend(process.env.RESEND_API_KEY)
-const FROM = process.env.EMAIL_FROM ?? "onboarding@resend.dev"
+const FROM = FROM_ORDERS
 
 const Schema = z.object({
   email: z.string().email(),
@@ -31,7 +32,7 @@ export async function POST(req: NextRequest) {
         <p>We couldn't process your payment${reference ? ` (ref: <strong>${reference}</strong>)` : ""}.</p>
         ${amount ? `<p>Amount: <strong>₦${amount.toLocaleString()}</strong></p>` : ""}
         <p>No charges were made. Please try again or contact support if the issue persists.</p>
-        <a href="https://zero-limit-tau.vercel.app/cart" style="display: inline-block; padding: 10px 24px; background: #000; color: #fff; text-decoration: none; font-size: 13px; margin-top: 16px;">Return to Cart</a>
+        <a href="https://www.zerolimit.store/cart" style="display: inline-block; padding: 10px 24px; background: #000; color: #fff; text-decoration: none; font-size: 13px; margin-top: 16px;">Return to Cart</a>
       </div>
     `,
   }).catch((err) => console.error("[Email] Payment failure email failed:", err))
@@ -39,7 +40,7 @@ export async function POST(req: NextRequest) {
   // Notify admin
   await resend.emails.send({
     from: FROM,
-    to: "zerolimitunlimited@gmail.com",
+    to: ADMIN_EMAIL,
     subject: `Payment Failed — ${email}`,
     html: `
       <div style="font-family: system-ui, sans-serif; padding: 24px; background: #f9fafb; color: #111;">

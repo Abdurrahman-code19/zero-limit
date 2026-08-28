@@ -117,7 +117,7 @@ export async function signInWithGoogle() {
   const { data } = await supabase.auth.signInWithOAuth({
     provider: "google",
     options: {
-      redirectTo: `${process.env.NEXT_PUBLIC_SITE_URL || "https://zero-limit-tau.vercel.app"}/auth/callback`,
+      redirectTo: `${process.env.NEXT_PUBLIC_SITE_URL || "https://www.zerolimit.store"}/auth/callback`,
     },
   })
 

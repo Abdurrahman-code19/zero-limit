@@ -1,7 +1,8 @@
 import { Resend } from "resend"
+import { FROM_ORDERS, ADMIN_EMAIL } from "./senders"
 
 const resend = new Resend(process.env.RESEND_API_KEY)
-const FROM = process.env.EMAIL_FROM ?? "onboarding@resend.dev"
+const FROM = FROM_ORDERS
 
 interface AdminNewOrderEmailProps {
   orderNumber: string
@@ -20,7 +21,7 @@ export async function sendAdminNewOrder({
 }: AdminNewOrderEmailProps) {
   await resend.emails.send({
     from: FROM,
-    to: "zerolimitunlimited@gmail.com",
+    to: ADMIN_EMAIL,
     subject: `New Order — ${orderNumber}`,
     html: `
       <div style="font-family: system-ui, sans-serif; padding: 24px; background: #f9fafb; color: #111;">
@@ -31,7 +32,7 @@ export async function sendAdminNewOrder({
           <tr><td style="padding: 8px 0; color: #666;">Items</td><td style="padding: 8px 0;">${itemCount}</td></tr>
           <tr><td style="padding: 8px 0; color: #666;">Total</td><td style="padding: 8px 0; font-weight: 600;">₦${total.toLocaleString()}</td></tr>
         </table>
-        <a href="https://zero-limit-tau.vercel.app/admin/orders" style="display: inline-block; padding: 10px 24px; background: #000; color: #fff; text-decoration: none; font-size: 13px; letter-spacing: 0.05em;">View in Admin</a>
+        <a href="https://www.zerolimit.store/admin/orders" style="display: inline-block; padding: 10px 24px; background: #000; color: #fff; text-decoration: none; font-size: 13px; letter-spacing: 0.05em;">View in Admin</a>
       </div>
     `,
   })
