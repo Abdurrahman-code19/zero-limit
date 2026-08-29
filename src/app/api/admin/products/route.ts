@@ -33,7 +33,7 @@ const ProductSchema = z.object({
     size: z.string().min(1).max(10),
     color: z.string().min(1).max(20),
     price: z.number().positive(),
-    stock: z.number().int().min(0),
+    stock_quantity: z.number().int().min(0),
     is_active: z.boolean().optional().default(true),
   })).optional(),
 }).strict()
@@ -57,7 +57,7 @@ export async function POST(request: NextRequest) {
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
 
   if (variants && variants.length > 0) {
-    const variantRows = variants.map(v => ({ ...v, product_id: product.id }))
+    const variantRows = variants.map(v => ({ ...v, name: `${v.size} / ${v.color}`, product_id: product.id }))
     const { error: varError } = await admin.supabase.from("product_variants").insert(variantRows)
     if (varError) {
       await admin.supabase.from("products").delete().eq("id", product.id)

@@ -125,7 +125,7 @@ export default function NewProductPage() {
             size,
             color,
             price: Number(price),
-            stock: Math.floor(Number(stockQuantity) / (sizes.length * colors.length)),
+            stock_quantity: Math.floor(Number(stockQuantity) / (sizes.length * colors.length)),
             is_active: true,
           })
         }

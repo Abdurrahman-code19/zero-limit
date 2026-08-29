@@ -176,7 +176,7 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
             size,
             color,
             price: Number(price),
-            stock: Math.floor(Number(stockQuantity) / (sizes.length * colors.length)),
+            stock_quantity: Math.floor(Number(stockQuantity) / (sizes.length * colors.length)),
             is_active: true,
           })
         }
