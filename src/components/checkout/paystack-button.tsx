@@ -126,6 +126,7 @@ export function PaystackButton({
   return (
     <div className="space-y-3">
       <Button
+        data-paystack-trigger
         onClick={handlePay}
         disabled={disabled || loading}
         className="w-full bg-foreground text-background hover:bg-foreground/90 text-xs tracking-widest uppercase rounded-none py-6"
