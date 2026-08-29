@@ -2,9 +2,10 @@
 
 import { useState, useEffect, use } from "react"
 import { useRouter } from "next/navigation"
-import { ArrowLeft, X, Loader2, Trash2 } from "lucide-react"
+import { ArrowLeft, X, Loader2, Trash2, Upload } from "lucide-react"
 import Link from "next/link"
 import { createClient } from "@/lib/supabase/client"
+import { uploadProductImage } from "@/lib/upload-image"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
@@ -70,6 +71,7 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
   const [isNew, setIsNew] = useState(false)
   const [tags, setTags] = useState<string[]>([])
   const [tagInput, setTagInput] = useState("")
+  const [uploadingImage, setUploadingImage] = useState(false)
 
   useEffect(() => {
     const supabase = createClient()
@@ -131,6 +133,23 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
 
   function removeItem(idx: number, list: string[], setList: (v: string[]) => void) {
     setList(list.filter((_, i) => i !== idx))
+  }
+
+  async function handleImageUpload(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0]
+    e.target.value = ""
+    if (!file) return
+    setUploadingImage(true)
+    setErrors((prev) => ({ ...prev, image: "" }))
+    try {
+      const url = await uploadProductImage(file)
+      setImages((prev) => (prev.includes(url) ? prev : [...prev, url]))
+    } catch (err) {
+      setErrors((prev) => ({ ...prev, image: err instanceof Error ? err.message : "Upload failed" }))
+      setTimeout(() => setErrors((prev) => ({ ...prev, image: "" })), 3000)
+    } finally {
+      setUploadingImage(false)
+    }
   }
 
   function validate(): boolean {
@@ -306,6 +325,26 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
             <CardTitle>Images</CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">
+            <div className="flex items-center gap-3">
+              <input
+                id="product-image-upload"
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={handleImageUpload}
+                disabled={uploadingImage}
+              />
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => document.getElementById("product-image-upload")?.click()}
+                disabled={uploadingImage}
+              >
+                {uploadingImage ? <Loader2 className="h-4 w-4 animate-spin" /> : <Upload className="h-4 w-4" />}
+                {uploadingImage ? "Uploading..." : "Upload from computer"}
+              </Button>
+              <span className="text-xs text-muted-foreground">or paste a URL below</span>
+            </div>
             <div className="flex gap-2">
               <Input
                 value={imageInput}
@@ -342,6 +381,8 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
                 ))}
               </div>
             )}
+            <p className="text-xs text-muted-foreground">Upload from your computer or paste image URLs one at a time. First image is the thumbnail.</p>
+            {errors.image && <p className="text-xs text-destructive">{errors.image}</p>}
           </CardContent>
         </Card>
 
