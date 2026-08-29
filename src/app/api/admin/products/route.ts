@@ -25,7 +25,7 @@ const ProductSchema = z.object({
   slug: z.string().min(1).max(200),
   description: z.string().max(5000).optional().default(""),
   price: z.number().positive(),
-  image_url: z.string().max(500).optional().default(""),
+  images: z.array(z.string().max(500)).max(20).optional().default([]),
   category_id: z.string().uuid().nullable().optional(),
   is_active: z.boolean().optional().default(true),
   stock_quantity: z.number().int().min(0).optional().default(0),

@@ -190,7 +190,7 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
         name: name.trim(),
         description: description.trim(),
         price: Number(price),
-        image_url: images[0] || "",
+        images,
         category_id: categoryId || null,
         is_active: isActive,
         stock_quantity: Number(stockQuantity),
