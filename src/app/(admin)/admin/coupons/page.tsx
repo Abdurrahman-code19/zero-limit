@@ -11,7 +11,7 @@ interface Coupon {
   id: string
   code: string
   description: string | null
-  discount_type: "percentage" | "fixed" | "free_shipping"
+  discount_type: "percentage" | "fixed"
   discount_value: number
   min_order_amount: number | null
   max_uses: number | null
@@ -26,7 +26,7 @@ export default function AdminCouponsPage() {
   const [loading, setLoading] = useState(true)
   const [code, setCode] = useState("")
   const [description, setDescription] = useState("")
-  const [discountType, setDiscountType] = useState<"percentage" | "fixed" | "free_shipping">("percentage")
+  const [discountType, setDiscountType] = useState<"percentage" | "fixed">("percentage")
   const [discountValue, setDiscountValue] = useState("")
   const [minOrder, setMinOrder] = useState("")
   const [maxUses, setMaxUses] = useState("")
@@ -121,7 +121,6 @@ export default function AdminCouponsPage() {
               <select value={discountType} onChange={(e) => setDiscountType(e.target.value as typeof discountType)} className="w-full border border-input bg-background px-3 py-2 text-sm rounded-md">
                 <option value="percentage">Percentage</option>
                 <option value="fixed">Fixed (₦)</option>
-                <option value="free_shipping">Free Shipping</option>
               </select>
             </div>
             <div>
@@ -175,7 +174,7 @@ export default function AdminCouponsPage() {
                   <td className="px-4 py-3 font-mono font-medium">{coupon.code}</td>
                   <td className="px-4 py-3 capitalize">{coupon.discount_type}</td>
                   <td className="px-4 py-3">
-                    {coupon.discount_type === "percentage" ? `${coupon.discount_value}%` : coupon.discount_type === "fixed" ? `₦${coupon.discount_value.toLocaleString()}` : "Free"}
+                    {coupon.discount_type === "percentage" ? `${coupon.discount_value}%` : `₦${coupon.discount_value.toLocaleString()}`}
                   </td>
                   <td className="px-4 py-3">{coupon.used_count}{coupon.max_uses ? ` / ${coupon.max_uses}` : ""}</td>
                   <td className="px-4 py-3">
