@@ -102,7 +102,7 @@ export async function PATCH(request: NextRequest) {
   if (variants) {
     await admin.supabase.from("product_variants").delete().eq("product_id", id)
     if (variants.length > 0) {
-      const variantRows = variants.map(v => ({ ...v, product_id: id }))
+      const variantRows = variants.map(v => ({ ...v, name: `${v.size} / ${v.color}`, product_id: id }))
       const { error: varError } = await admin.supabase.from("product_variants").insert(variantRows)
       if (varError) return NextResponse.json({ error: varError.message }, { status: 500 })
     }
