@@ -1,6 +1,6 @@
 "use client"
 
-import { Suspense, useState } from "react"
+import { Suspense, useEffect, useState } from "react"
 import Link from "next/link"
 import Image from "next/image"
 import { useRouter, useSearchParams } from "next/navigation"
@@ -10,6 +10,50 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { useTheme } from "@/components/theme/theme-provider"
 import { createClient } from "@/lib/supabase/client"
+
+const MAX_ATTEMPTS_BEFORE_LOCK = 6
+const MAX_LOCK_SECONDS = 600
+
+function getLockKey(email: string) {
+  return `zl_login_attempts_${email.trim().toLowerCase()}`
+}
+
+interface LockState {
+  count: number
+  lockedUntil: number | null
+}
+
+function readLockState(email: string): LockState {
+  try {
+    const raw = localStorage.getItem(getLockKey(email))
+    if (!raw) return { count: 0, lockedUntil: null }
+    const parsed = JSON.parse(raw)
+    return {
+      count: Number(parsed.count) || 0,
+      lockedUntil: parsed.lockedUntil || null,
+    }
+  } catch {
+    return { count: 0, lockedUntil: null }
+  }
+}
+
+function recordLockState(email: string, state: LockState) {
+  try {
+    localStorage.setItem(getLockKey(email), JSON.stringify(state))
+  } catch {}
+}
+
+function clearLockState(email: string) {
+  try {
+    localStorage.removeItem(getLockKey(email))
+  } catch {}
+}
+
+function lockForFailures(failCount: number): number {
+  if (failCount < MAX_ATTEMPTS_BEFORE_LOCK) return 0
+  const steps = failCount - MAX_ATTEMPTS_BEFORE_LOCK
+  return Math.min(30 * 2 ** steps, MAX_LOCK_SECONDS)
+}
 
 export default function LoginPage() {
   return (
@@ -26,6 +70,8 @@ function LoginForm() {
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [message, setMessage] = useState<string | null>(null)
+  const [lockUntil, setLockUntil] = useState<number | null>(null)
+  const [remaining, setRemaining] = useState(0)
   const { theme } = useTheme()
   const isDark = theme === "dark"
   const router = useRouter()
@@ -33,10 +79,35 @@ function LoginForm() {
   const redirect = searchParams.get("redirect") || "/store"
   const supabase = createClient()
 
+  useEffect(() => {
+    if (!lockUntil) return
+    const tick = () => {
+      const diff = lockUntil - Date.now()
+      if (diff <= 0) {
+        setRemaining(0)
+        setLockUntil(null)
+        setError(null)
+        return
+      }
+      setRemaining(Math.ceil(diff / 1000))
+    }
+    tick()
+    const interval = setInterval(tick, 1000)
+    return () => clearInterval(interval)
+  }, [lockUntil])
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    setIsLoading(true)
     setError(null)
+
+    const lockState = readLockState(email)
+    if (lockState.lockedUntil && lockState.lockedUntil > Date.now()) {
+      setLockUntil(lockState.lockedUntil)
+      setIsLoading(false)
+      return
+    }
+
+    setIsLoading(true)
 
     const { data, error: authError } = await supabase.auth.signInWithPassword({
       email,
@@ -44,14 +115,29 @@ function LoginForm() {
     })
 
     if (authError) {
-      if (authError.message.includes("Email not confirmed")) {
-        setError("Please check your email and confirm your account before signing in.")
+      const failCount = readLockState(email).count + 1
+      const lockSeconds = lockForFailures(failCount)
+      if (lockSeconds > 0) {
+        recordLockState(email, {
+          count: failCount,
+          lockedUntil: Date.now() + lockSeconds * 1000,
+        })
+        setLockUntil(Date.now() + lockSeconds * 1000)
+        setMessage(null)
+        setError(null)
       } else {
-        setError(authError.message)
+        recordLockState(email, { count: failCount, lockedUntil: null })
+        if (authError.message.includes("Email not confirmed")) {
+          setError("Please check your email and confirm your account before signing in.")
+        } else {
+          setError(authError.message)
+        }
       }
       setIsLoading(false)
       return
     }
+
+    clearLockState(email)
 
     if (data.user) {
       const { data: profile } = await supabase
@@ -124,6 +210,15 @@ function LoginForm() {
             </div>
           )}
 
+          {remaining > 0 && (
+            <div className="mb-6 p-4 rounded-lg bg-amber-500/10 border border-amber-500/20 flex items-start gap-3">
+              <AlertCircle className="h-5 w-5 text-amber-500 shrink-0 mt-0.5" />
+              <p className="text-sm text-amber-600 dark:text-amber-400">
+                Too many failed attempts. Please try again in {remaining}s.
+              </p>
+            </div>
+          )}
+
           {message && (
             <div className="mb-6 p-4 rounded-lg bg-green-500/10 border border-green-500/20">
               <p className="text-sm text-green-600 dark:text-green-400">{message}</p>
@@ -183,7 +278,7 @@ function LoginForm() {
             <Button
               type="submit"
               className="w-full h-12 text-[13px] tracking-widest uppercase"
-              disabled={isLoading}
+              disabled={isLoading || remaining > 0}
             >
               {isLoading ? (
                 <motion.div

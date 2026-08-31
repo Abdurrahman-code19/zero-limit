@@ -54,7 +54,7 @@ export async function updateSession(request: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser()
 
-  const protectedRoutes = ['/orders', '/profile', '/wishlist', '/addresses', '/notifications']
+  const protectedRoutes = ['/orders', '/profile', '/wishlist', '/addresses', '/notifications', '/checkout']
   const authRoutes = ['/login', '/register', '/forgot-password', '/reset-password']
   const adminRoute = '/admin'
   const apiRoute = '/api'
