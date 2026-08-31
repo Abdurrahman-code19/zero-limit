@@ -64,19 +64,30 @@ export default function LoginPage() {
 }
 
 function LoginForm() {
+  const router = useRouter()
+  const searchParams = useSearchParams()
+  const rawRedirect = searchParams.get("redirect")
+  const redirect =
+    rawRedirect &&
+    rawRedirect.startsWith("/") &&
+    !rawRedirect.startsWith("//") &&
+    !rawRedirect.startsWith("/\\")
+      ? rawRedirect
+      : "/store"
   const [showPassword, setShowPassword] = useState(false)
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [isLoading, setIsLoading] = useState(false)
-  const [error, setError] = useState<string | null>(null)
+  const [error, setError] = useState<string | null>(
+    searchParams.get("deactivated") === "1"
+      ? "This account has been deactivated. Please contact support for assistance."
+      : null
+  )
   const [message, setMessage] = useState<string | null>(null)
   const [lockUntil, setLockUntil] = useState<number | null>(null)
   const [remaining, setRemaining] = useState(0)
   const { theme } = useTheme()
   const isDark = theme === "dark"
-  const router = useRouter()
-  const searchParams = useSearchParams()
-  const redirect = searchParams.get("redirect") || "/store"
   const supabase = createClient()
 
   useEffect(() => {
@@ -127,10 +138,10 @@ function LoginForm() {
         setError(null)
       } else {
         recordLockState(email, { count: failCount, lockedUntil: null })
-        if (authError.message.includes("Email not confirmed")) {
-          setError("Please check your email and confirm your account before signing in.")
-        } else {
+        if (/rate limit|security purposes|too many attempts/i.test(authError.message)) {
           setError(authError.message)
+        } else {
+          setError("Invalid email or password. Please try again.")
         }
       }
       setIsLoading(false)
@@ -142,9 +153,15 @@ function LoginForm() {
     if (data.user) {
       const { data: profile } = await supabase
         .from("profiles")
-        .select("role")
+        .select("role, is_active")
         .eq("id", data.user.id)
         .single()
+
+      if (profile && profile.is_active === false) {
+        setIsLoading(false)
+        setError("This account has been deactivated. Please contact support for assistance.")
+        return
+      }
 
       if (profile && (profile.role === "admin" || profile.role === "super_admin")) {
         router.push("/admin/dashboard")
