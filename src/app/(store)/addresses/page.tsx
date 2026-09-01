@@ -6,6 +6,7 @@ import { Loader2, Plus, Trash2, MapPin, Star } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card, CardContent } from "@/components/ui/card"
+import { ConfirmDialog } from "@/components/ui/confirm-dialog"
 import { createClient } from "@/lib/supabase/client"
 import type { Address } from "@/types"
 
@@ -25,6 +26,7 @@ export default function AddressesPage() {
   const [city, setCity] = useState("")
   const [state, setState] = useState("")
   const [isDefault, setIsDefault] = useState(false)
+  const [confirmId, setConfirmId] = useState<string | null>(null)
 
   const fetchAddresses = async () => {
     const res = await fetch("/api/addresses")
@@ -61,8 +63,8 @@ export default function AddressesPage() {
   }
 
   const handleDelete = async (id: string) => {
-    if (!confirm("Delete this address?")) return
     await fetch(`/api/addresses?id=${id}`, { method: "DELETE" })
+    setConfirmId(null)
     setAddresses((prev) => prev.filter((a) => a.id !== id))
   }
 
@@ -163,7 +165,7 @@ export default function AddressesPage() {
                 <p className="text-sm text-muted-foreground">{addr.address}</p>
                 <p className="text-sm text-muted-foreground">{addr.city}, {addr.state}</p>
                 {addr.phone && <p className="text-sm text-muted-foreground">{addr.phone}</p>}
-                <Button variant="ghost" size="sm" className="text-xs text-red-500 hover:text-red-600 p-0 h-auto mt-2" onClick={() => addr.id && handleDelete(addr.id)}>
+                <Button variant="ghost" size="sm" className="text-xs text-red-500 hover:text-red-600 p-0 h-auto mt-2" onClick={() => addr.id && setConfirmId(addr.id)}>
                   <Trash2 className="h-3 w-3 mr-1" /> Remove
                 </Button>
               </CardContent>
@@ -171,6 +173,14 @@ export default function AddressesPage() {
           ))}
         </div>
       )}
+
+      <ConfirmDialog
+        open={confirmId !== null}
+        onOpenChange={(open) => { if (!open) setConfirmId(null) }}
+        title="Delete address"
+        description="Are you sure you want to delete this address? This cannot be recovered."
+        onConfirm={() => confirmId && handleDelete(confirmId)}
+      />
     </div>
   )
 }

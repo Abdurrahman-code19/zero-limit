@@ -78,7 +78,8 @@ export default function ActivityLogsPage() {
       </div>
       <Card>
         <CardContent className="p-0">
-          <table className="w-full">
+          <div className="overflow-x-auto">
+            <table className="w-full">
             <thead><tr className="border-b">
               <th className="text-left p-4 font-medium">Action</th>
               <th className="text-left p-4 font-medium">Entity</th>
@@ -104,7 +105,8 @@ export default function ActivityLogsPage() {
                 )
               })}
             </tbody>
-          </table>
+            </table>
+          </div>
         </CardContent>
       </Card>
     </div>

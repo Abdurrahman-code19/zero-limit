@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
+import { ConfirmDialog } from "@/components/ui/confirm-dialog"
 
 interface Category {
   id: string
@@ -25,6 +26,7 @@ export default function CategoriesPage() {
   const [saving, setSaving] = useState(false)
   const [name, setName] = useState("")
   const [description, setDescription] = useState("")
+  const [confirmTarget, setConfirmTarget] = useState<{ id: string; name: string } | null>(null)
 
   useEffect(() => {
     loadCategories()
@@ -85,8 +87,8 @@ export default function CategoriesPage() {
   }
 
   async function handleDelete(id: string, catName: string) {
-    if (!confirm(`Delete category "${catName}"? Products in this category will lose their category assignment.`)) return
     await fetch(`/api/admin/categories?id=${id}`, { method: "DELETE" })
+    setConfirmTarget(null)
     loadCategories()
   }
 
@@ -159,7 +161,8 @@ export default function CategoriesPage() {
 
       <Card>
         <CardContent className="p-0">
-          <table className="w-full">
+          <div className="overflow-x-auto">
+            <table className="w-full">
             <thead>
               <tr className="border-b">
                 <th className="text-left p-4 font-medium">Category</th>
@@ -191,7 +194,7 @@ export default function CategoriesPage() {
                         <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => startEdit(cat)}>
                           <Pencil className="h-4 w-4" />
                         </Button>
-                        <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive" onClick={() => handleDelete(cat.id, cat.name)}>
+                        <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive" onClick={() => setConfirmTarget({ id: cat.id, name: cat.name })}>
                           <Trash2 className="h-4 w-4" />
                         </Button>
                       </div>
@@ -200,9 +203,18 @@ export default function CategoriesPage() {
                 ))
               )}
             </tbody>
-          </table>
+            </table>
+          </div>
         </CardContent>
       </Card>
+
+      <ConfirmDialog
+        open={confirmTarget !== null}
+        onOpenChange={(open) => { if (!open) setConfirmTarget(null) }}
+        title="Delete category"
+        description={`Are you sure you want to delete "${confirmTarget?.name}"? Products in this category will lose their category assignment. This cannot be recovered.`}
+        onConfirm={() => confirmTarget && handleDelete(confirmTarget.id, confirmTarget.name)}
+      />
     </div>
   )
 }

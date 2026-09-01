@@ -134,8 +134,8 @@ export default function HomePage() {
           <LandingNav />
 
           {/* ─── HERO SECTION ─── */}
-          <section className="relative h-screen flex">
-            <div className="w-full md:w-1/2 flex flex-col justify-center px-8 md:px-16 lg:px-24 z-10">
+          <section className="min-h-screen md:h-screen flex flex-col md:flex-row">
+            <div className="w-full md:w-1/2 flex flex-col justify-center px-8 md:px-16 lg:px-24 z-10 pt-28 md:pt-0">
               <motion.div
                 initial={{ opacity: 0, y: 30 }}
                 animate={{ opacity: splashDone ? 1 : 0, y: splashDone ? 0 : 30 }}
@@ -163,7 +163,7 @@ export default function HomePage() {
             </div>
 
             {/* Right: Diagonal Slider */}
-            <div className="hidden md:block w-1/2 relative overflow-hidden">
+            <div className="block w-full md:w-1/2 relative h-[45vh] md:h-auto overflow-hidden">
               <div
                 className="absolute inset-0 cursor-grab active:cursor-grabbing"
                 onMouseDown={(e) => handleDragStart(e.clientX)}

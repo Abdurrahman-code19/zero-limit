@@ -89,7 +89,7 @@ export default function WishlistPage() {
                     >
                       <ShoppingBag className="h-3 w-3 mr-1" /> Add to Cart
                     </Button>
-                    <Button size="sm" variant="ghost" className="h-8" onClick={() => syncRemove(item.id)}>
+                    <Button size="sm" variant="ghost" className="h-8 min-h-[44px] min-w-[44px]" onClick={() => syncRemove(item.id)}>
                       <Trash2 className="h-3 w-3 text-destructive" />
                     </Button>
                   </div>

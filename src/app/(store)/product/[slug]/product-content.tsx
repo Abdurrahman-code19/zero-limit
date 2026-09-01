@@ -123,7 +123,7 @@ export default function ProductContent({ slug }: { slug: string }) {
             )}
           </div>
           {product.images.length > 1 && (
-            <div className="flex gap-2 overflow-x-auto">
+            <div className="flex gap-2 overflow-x-auto pb-2 scroll-smooth scrollbar-thin scrollbar-thumb-muted scrollbar-track-transparent">
               {product.images.map((img, i) => (
                 <button
                   key={i}

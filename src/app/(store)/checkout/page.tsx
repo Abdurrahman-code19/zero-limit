@@ -301,7 +301,7 @@ export default function CheckoutPage() {
             A confirmation will be sent to{" "}
             <span className="text-foreground">{email}</span>
           </p>
-          <div className="flex gap-3 justify-center">
+          <div className="flex flex-col sm:flex-row gap-3 justify-center">
             <Link href="/orders" className="block">
               <Button variant="outline" className="text-xs tracking-widest uppercase rounded-none px-10 py-6">
                 View My Orders
@@ -356,7 +356,7 @@ export default function CheckoutPage() {
               {discount > 0 && <div className="flex justify-between text-green-600"><span>Discount</span><span>-{formatCurrency(discount)}</span></div>}
               <div className="flex justify-between font-semibold text-base pt-2 border-t"><span>Total</span><span>{formatCurrency(total)}</span></div>
             </div>
-            <div className="flex gap-3 pt-2">
+            <div className="flex flex-col sm:flex-row gap-3 pt-2">
               <Button variant="outline" className="flex-1" onClick={() => setShowReview(false)}>Go Back</Button>
               <Button className="flex-1 bg-foreground text-background hover:bg-foreground/90" onClick={handleReviewConfirm}>Confirm & Pay</Button>
             </div>
@@ -377,7 +377,7 @@ export default function CheckoutPage() {
         <span className="text-foreground">Checkout</span>
       </div>
 
-      <h1 className="text-3xl font-light mb-8">Checkout</h1>
+      <h1 className="text-2xl md:text-3xl font-light mb-8">Checkout</h1>
 
       <div className="grid lg:grid-cols-3 gap-10">
         {/* Shipping form */}

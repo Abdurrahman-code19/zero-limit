@@ -79,7 +79,7 @@ export function SearchOverlay({ open, onClose }: SearchOverlayProps) {
             <button
               type="button"
               onClick={onClose}
-              className="mr-4 p-1 hover:bg-muted rounded-md text-muted-foreground"
+              className="mr-4 min-h-[44px] min-w-[44px] flex items-center justify-center hover:bg-muted rounded-md text-muted-foreground"
             >
               <X className="h-5 w-5" />
             </button>

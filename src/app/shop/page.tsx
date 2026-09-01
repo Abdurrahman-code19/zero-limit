@@ -510,7 +510,7 @@ function ShopContent() {
 function ListRow({ product }: { product: { id: string; slug: string; name: string; price: number; images: string[]; stock: number } }) {
   return (
     <Link href={`/product/${product.slug}`} className="group flex gap-4 border p-4 hover:shadow-lg transition-shadow">
-      <div className="w-32 aspect-[3/4] bg-muted overflow-hidden shrink-0">
+      <div className="w-24 sm:w-32 aspect-[3/4] bg-muted overflow-hidden shrink-0">
         <img
           src={product.images[0]}
           alt={product.name}

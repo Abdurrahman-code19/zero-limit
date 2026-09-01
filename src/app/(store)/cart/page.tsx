@@ -59,9 +59,9 @@ export default function CartPage() {
       </div>
 
       <div className="flex items-center justify-between mb-8">
-        <h1 className="text-3xl font-light">
+        <h1 className="text-2xl md:text-3xl font-light">
           Your Cart{" "}
-          <span className="text-muted-foreground text-xl">
+          <span className="text-muted-foreground text-lg md:text-xl">
             ({getItemCount()})
           </span>
         </h1>
@@ -106,7 +106,7 @@ export default function CartPage() {
                     onClick={() =>
                       removeItem(item.product.id, item.size, item.color)
                     }
-                    className="text-muted-foreground hover:text-destructive shrink-0"
+                    className="text-muted-foreground hover:text-destructive shrink-0 min-h-[44px] min-w-[44px] -mr-2 flex items-center justify-center"
                     aria-label="Remove item"
                   >
                     <Trash2 className="h-4 w-4" />
@@ -128,12 +128,12 @@ export default function CartPage() {
                           item.quantity - 1
                         )
                       }
-                      className="px-3 py-1.5 hover:bg-muted transition-colors"
+                      className="px-3 min-h-[44px] min-w-[40px] flex items-center justify-center hover:bg-muted transition-colors"
                       aria-label="Decrease quantity"
                     >
-                      <Minus className="h-3.5 w-3.5" />
+                      <Minus className="h-4 w-4" />
                     </button>
-                    <span className="px-4 text-sm">{item.quantity}</span>
+                    <span className="px-3 text-sm min-w-[28px] text-center">{item.quantity}</span>
                     <button
                       onClick={() =>
                         updateQuantity(
@@ -143,10 +143,10 @@ export default function CartPage() {
                           item.quantity + 1
                         )
                       }
-                      className="px-3 py-1.5 hover:bg-muted transition-colors"
+                      className="px-3 min-h-[44px] min-w-[40px] flex items-center justify-center hover:bg-muted transition-colors"
                       aria-label="Increase quantity"
                     >
-                      <Plus className="h-3.5 w-3.5" />
+                      <Plus className="h-4 w-4" />
                     </button>
                   </div>
                   <p className="font-semibold text-sm">

@@ -52,6 +52,7 @@ export default async function SizeGuidePage() {
           </p>
 
           <div className="border rounded-lg overflow-hidden">
+            <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
                 <tr className="bg-muted/50">
@@ -72,6 +73,7 @@ export default async function SizeGuidePage() {
                 ))}
               </tbody>
             </table>
+            </div>
           </div>
 
           <div className="mt-8 space-y-4 text-sm text-muted-foreground">

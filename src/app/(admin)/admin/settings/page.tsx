@@ -102,7 +102,7 @@ export default function SettingsPage() {
               <label className="text-sm font-medium">Store Name</label>
               <Input value={settings.store_name} onChange={(e) => updateField("store_name", e.target.value)} className="mt-1" />
             </div>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label className="text-sm font-medium">Support Email</label>
                 <Input type="email" value={settings.store_email} onChange={(e) => updateField("store_email", e.target.value)} className="mt-1" />
@@ -124,7 +124,7 @@ export default function SettingsPage() {
             <CardTitle>Shipping</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label className="text-sm font-medium">Default Shipping Fee (₦)</label>
                 <Input type="number" value={settings.shipping_fee} onChange={(e) => updateField("shipping_fee", Number(e.target.value))} min="0" className="mt-1" />

@@ -74,12 +74,12 @@ export function ProductCard({ product }: ProductCardProps) {
             )}
           </div>
 
-          {/* Actions */}
-          <div className="absolute top-2 right-2 flex flex-col gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+          {/* Actions - always visible on touch devices, hover on desktop */}
+          <div className="absolute top-2 right-2 flex flex-col gap-2 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity">
             <Button
               size="icon"
               variant="secondary"
-              className="h-8 w-8"
+              className="h-10 w-10 md:h-8 md:w-8"
               onClick={handleAddToWishlist}
               aria-label={mounted && isWishlisted ? "Remove from wishlist" : "Add to wishlist"}
             >
@@ -88,9 +88,10 @@ export function ProductCard({ product }: ProductCardProps) {
             <Button
               size="icon"
               variant="secondary"
-              className="h-8 w-8"
+              className="h-10 w-10 md:h-8 md:w-8"
               onClick={handleAddToCart}
               disabled={product.stock <= 0}
+              aria-label="Add to cart"
             >
               <ShoppingBag className="h-4 w-4" />
             </Button>

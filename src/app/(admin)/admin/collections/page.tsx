@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
+import { ConfirmDialog } from "@/components/ui/confirm-dialog"
 
 interface Collection {
   id: string
@@ -24,6 +25,7 @@ export default function CollectionsPage() {
   const [saving, setSaving] = useState(false)
   const [name, setName] = useState("")
   const [description, setDescription] = useState("")
+  const [confirmTarget, setConfirmTarget] = useState<{ id: string; name: string } | null>(null)
 
   useEffect(() => { loadCollections() }, [])
 
@@ -63,8 +65,8 @@ export default function CollectionsPage() {
   }
 
   async function handleDelete(id: string, collName: string) {
-    if (!confirm(`Delete collection "${collName}"?`)) return
     await fetch(`/api/admin/collections?id=${id}`, { method: "DELETE" })
+    setConfirmTarget(null)
     loadCollections()
   }
 
@@ -103,7 +105,8 @@ export default function CollectionsPage() {
 
       <Card>
         <CardContent className="p-0">
-          <table className="w-full">
+          <div className="overflow-x-auto">
+            <table className="w-full">
             <thead><tr className="border-b">
               <th className="text-left p-4 font-medium">Collection</th>
               <th className="text-left p-4 font-medium">Slug</th>
@@ -119,15 +122,24 @@ export default function CollectionsPage() {
                   <td className="p-4 text-right">
                     <div className="flex items-center justify-end gap-1">
                       <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => startEdit(coll)}><Pencil className="h-4 w-4" /></Button>
-                      <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive" onClick={() => handleDelete(coll.id, coll.name)}><Trash2 className="h-4 w-4" /></Button>
+                      <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive" onClick={() => setConfirmTarget({ id: coll.id, name: coll.name })}><Trash2 className="h-4 w-4" /></Button>
                     </div>
                   </td>
                 </tr>
               ))}
             </tbody>
-          </table>
+            </table>
+          </div>
         </CardContent>
       </Card>
+
+      <ConfirmDialog
+        open={confirmTarget !== null}
+        onOpenChange={(open) => { if (!open) setConfirmTarget(null) }}
+        title="Delete collection"
+        description={`Are you sure you want to delete "${confirmTarget?.name}"? This cannot be recovered.`}
+        onConfirm={() => confirmTarget && handleDelete(confirmTarget.id, confirmTarget.name)}
+      />
     </div>
   )
 }

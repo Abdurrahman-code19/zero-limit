@@ -7,6 +7,7 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
+import { ConfirmDialog } from "@/components/ui/confirm-dialog"
 
 interface ReviewWithProduct {
   id: string
@@ -23,6 +24,7 @@ export default function ReviewsPage() {
   const [reviews, setReviews] = useState<ReviewWithProduct[]>([])
   const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState("")
+  const [confirmId, setConfirmId] = useState<string | null>(null)
 
   useEffect(() => { loadReviews() }, [])
 
@@ -58,8 +60,8 @@ export default function ReviewsPage() {
   }
 
   async function handleDelete(id: string) {
-    if (!confirm("Delete this review?")) return
     await fetch(`/api/admin/reviews?id=${id}`, { method: "DELETE" })
+    setConfirmId(null)
     setReviews((prev) => prev.filter((r) => r.id !== id))
   }
 
@@ -85,7 +87,8 @@ export default function ReviewsPage() {
       </div>
       <Card>
         <CardContent className="p-0">
-          <table className="w-full">
+          <div className="overflow-x-auto">
+            <table className="w-full">
             <thead>
               <tr className="border-b">
                 <th className="text-left p-4 font-medium">Product</th>
@@ -119,7 +122,7 @@ export default function ReviewsPage() {
                     <td className="p-4 text-sm text-muted-foreground max-w-xs truncate">{review.comment ?? "—"}</td>
                     <td className="p-4 text-sm text-muted-foreground">{new Date(review.created_at).toLocaleDateString()}</td>
                     <td className="p-4 text-right">
-                      <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive" onClick={() => handleDelete(review.id)}>
+                      <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive" onClick={() => setConfirmId(review.id)}>
                         <Trash2 className="h-4 w-4" />
                       </Button>
                     </td>
@@ -127,9 +130,18 @@ export default function ReviewsPage() {
                 ))
               )}
             </tbody>
-          </table>
+            </table>
+          </div>
         </CardContent>
       </Card>
+
+      <ConfirmDialog
+        open={confirmId !== null}
+        onOpenChange={(open) => { if (!open) setConfirmId(null) }}
+        title="Delete review"
+        description="Are you sure you want to delete this review? This cannot be recovered."
+        onConfirm={() => confirmId && handleDelete(confirmId)}
+      />
     </div>
   )
 }

@@ -56,7 +56,7 @@ export default async function FAQPage() {
     <div className="container mx-auto px-4 py-16 max-w-3xl">
       <div className="text-center mb-12">
         <p className="text-[11px] tracking-[0.4em] uppercase text-muted-foreground mb-3">Help Center</p>
-        <h1 className="text-4xl font-light mb-4">Frequently Asked Questions</h1>
+        <h1 className="text-3xl md:text-4xl font-light mb-4">Frequently Asked Questions</h1>
         <p className="text-muted-foreground">
           Find answers to common questions about shopping with Zero Limit.
         </p>

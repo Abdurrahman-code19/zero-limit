@@ -42,7 +42,8 @@ export function CartDrawer({ open, onClose }: CartDrawerProps) {
             </h2>
             <button
               onClick={onClose}
-              className="p-1 hover:bg-muted rounded-md"
+              className="p-2 -mr-2 hover:bg-muted rounded-md min-h-[44px] min-w-[44px] flex items-center justify-center"
+              aria-label="Close cart"
             >
               <X className="h-5 w-5" />
             </button>
@@ -101,7 +102,8 @@ export function CartDrawer({ open, onClose }: CartDrawerProps) {
                               item.color
                             )
                           }
-                          className="text-muted-foreground hover:text-destructive shrink-0"
+                          className="text-muted-foreground hover:text-destructive shrink-0 min-h-[44px] min-w-[44px] -mr-2 flex items-center justify-center"
+                          aria-label={`Remove ${item.product.name}`}
                         >
                           <Trash2 className="h-4 w-4" />
                         </button>
@@ -122,11 +124,12 @@ export function CartDrawer({ open, onClose }: CartDrawerProps) {
                                 item.quantity - 1
                               )
                             }
-                            className="px-2 py-0.5 hover:bg-muted"
+                            className="px-3 py-2 hover:bg-muted min-h-[44px] min-w-[40px] flex items-center justify-center"
+                            aria-label="Decrease quantity"
                           >
-                            <Minus className="h-3 w-3" />
+                            <Minus className="h-3.5 w-3.5" />
                           </button>
-                          <span className="px-3 py-0.5 text-sm">
+                          <span className="px-3 text-sm min-w-[28px] text-center">
                             {item.quantity}
                           </span>
                           <button
@@ -138,9 +141,10 @@ export function CartDrawer({ open, onClose }: CartDrawerProps) {
                                 item.quantity + 1
                               )
                             }
-                            className="px-2 py-0.5 hover:bg-muted"
+                            className="px-3 py-2 hover:bg-muted min-h-[44px] min-w-[40px] flex items-center justify-center"
+                            aria-label="Increase quantity"
                           >
-                            <Plus className="h-3 w-3" />
+                            <Plus className="h-3.5 w-3.5" />
                           </button>
                         </div>
                         <p className="text-sm font-semibold">

@@ -15,6 +15,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
+import { ConfirmDialog } from "@/components/ui/confirm-dialog"
 import { formatCurrency } from "@/utils"
 import { useAdminProducts } from "@/hooks/use-admin-products"
 
@@ -22,16 +23,17 @@ export default function AdminProductsPage() {
   const { products, loading, deleteProduct, toggleProductStatus } = useAdminProducts()
   const [search, setSearch] = useState("")
   const [deletingId, setDeletingId] = useState<string | null>(null)
+  const [confirmTarget, setConfirmTarget] = useState<{ id: string; name: string } | null>(null)
 
   const filteredProducts = products.filter((product) =>
     product.name.toLowerCase().includes(search.toLowerCase())
   )
 
   async function handleDelete(id: string, name: string) {
-    if (!confirm(`Delete "${name}"? This cannot be undone.`)) return
     setDeletingId(id)
     await deleteProduct(id)
     setDeletingId(null)
+    setConfirmTarget(null)
   }
 
   async function handleToggleStatus(id: string, currentStatus: boolean) {
@@ -179,7 +181,7 @@ export default function AdminProductsPage() {
                             variant="ghost"
                             size="icon"
                             className="h-8 w-8 text-destructive"
-                            onClick={() => handleDelete(product.id, product.name)}
+                            onClick={() => setConfirmTarget({ id: product.id, name: product.name })}
                             disabled={deletingId === product.id}
                           >
                             <Trash2 className="h-4 w-4" />
@@ -194,6 +196,15 @@ export default function AdminProductsPage() {
           </div>
         </CardContent>
       </Card>
+
+      <ConfirmDialog
+        open={confirmTarget !== null}
+        onOpenChange={(open) => { if (!open) setConfirmTarget(null) }}
+        title="Delete product"
+        description={`Are you sure you want to delete "${confirmTarget?.name}"? This cannot be recovered.`}
+        loading={deletingId !== null}
+        onConfirm={() => confirmTarget && handleDelete(confirmTarget.id, confirmTarget.name)}
+      />
     </div>
   )
 }

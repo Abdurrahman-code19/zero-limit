@@ -59,7 +59,7 @@ export default function CollectionsPage() {
         </div>
       </div>
 
-      <div className="space-y-20">
+      <div className="space-y-12 md:space-y-20">
         {collections.map((col, i) => (
           <section key={col.slug} id={col.slug}>
             <motion.div

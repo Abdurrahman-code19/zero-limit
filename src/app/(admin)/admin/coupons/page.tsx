@@ -5,6 +5,7 @@ import { Plus, Loader2, Trash2, TicketPercent } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card, CardContent } from "@/components/ui/card"
+import { ConfirmDialog } from "@/components/ui/confirm-dialog"
 import { createClient } from "@/lib/supabase/client"
 
 interface Coupon {
@@ -33,6 +34,7 @@ export default function AdminCouponsPage() {
   const [expiresAt, setExpiresAt] = useState("")
   const [creating, setCreating] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [confirmId, setConfirmId] = useState<string | null>(null)
 
   const fetchCoupons = async () => {
     const supabase = createClient()
@@ -82,8 +84,8 @@ export default function AdminCouponsPage() {
   }
 
   const handleDelete = async (id: string) => {
-    if (!confirm("Delete this coupon?")) return
     await fetch(`/api/admin/coupons?id=${id}`, { method: "DELETE" })
+    setConfirmId(null)
     setCoupons((prev) => prev.filter((c) => c.id !== id))
   }
 
@@ -156,7 +158,8 @@ export default function AdminCouponsPage() {
         </div>
       ) : (
         <div className="border rounded-lg overflow-hidden">
-          <table className="w-full text-sm">
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
             <thead className="bg-muted/50 text-left">
               <tr>
                 <th className="px-4 py-3 font-medium">Code</th>
@@ -186,16 +189,25 @@ export default function AdminCouponsPage() {
                     {coupon.expires_at ? new Date(coupon.expires_at).toLocaleDateString() : "Never"}
                   </td>
                   <td className="px-4 py-3">
-                    <Button variant="ghost" size="sm" onClick={() => handleDelete(coupon.id)}>
+                    <Button variant="ghost" size="sm" onClick={() => setConfirmId(coupon.id)}>
                       <Trash2 className="h-4 w-4 text-red-500" />
                     </Button>
                   </td>
                 </tr>
               ))}
             </tbody>
-          </table>
+            </table>
+          </div>
         </div>
       )}
+
+      <ConfirmDialog
+        open={confirmId !== null}
+        onOpenChange={(open) => { if (!open) setConfirmId(null) }}
+        title="Delete coupon"
+        description="Are you sure you want to delete this coupon? This cannot be recovered."
+        onConfirm={() => confirmId && handleDelete(confirmId)}
+      />
     </div>
   )
 }

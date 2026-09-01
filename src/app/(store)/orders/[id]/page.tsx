@@ -6,6 +6,7 @@ import Link from "next/link"
 import { ArrowLeft, Loader2, Package, Truck, CheckCircle, Clock, XCircle, MapPin, RefreshCw } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
+import { ConfirmDialog } from "@/components/ui/confirm-dialog"
 import { createClient } from "@/lib/supabase/client"
 import { formatCurrency, formatDate } from "@/utils"
 
@@ -78,6 +79,7 @@ export default function OrderDetailPage() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [cancelling, setCancelling] = useState(false)
+  const [confirmCancel, setConfirmCancel] = useState(false)
   const [showReturnForm, setShowReturnForm] = useState(false)
   const [returnReason, setReturnReason] = useState("")
   const [returnSubmitting, setReturnSubmitting] = useState(false)
@@ -141,7 +143,6 @@ export default function OrderDetailPage() {
   const canCancel = ["pending", "confirmed"].includes(order.status)
 
   async function handleCancel() {
-    if (!confirm("Are you sure you want to cancel this order?")) return
     setCancelling(true)
     try {
       const res = await fetch(`/api/orders/${order!.id}/cancel`, {
@@ -152,6 +153,7 @@ export default function OrderDetailPage() {
       }
     } catch { /* ignore */ }
     setCancelling(false)
+    setConfirmCancel(false)
   }
 
   async function handleReturnRequest() {
@@ -217,7 +219,7 @@ export default function OrderDetailPage() {
           <Button
             variant="destructive"
             size="sm"
-            onClick={handleCancel}
+            onClick={() => setConfirmCancel(true)}
             disabled={cancelling}
           >
             {cancelling ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <XCircle className="h-4 w-4 mr-2" />}
@@ -257,17 +259,17 @@ export default function OrderDetailPage() {
                 const StepIcon = step.icon
                 const isComplete = i <= currentStep
                 return (
-                  <div key={step.key} className="flex flex-col items-center" style={{ width: `${100 / statusSteps.length}%` }}>
+                  <div key={step.key} className="flex flex-col items-center min-w-0" style={{ width: `${100 / statusSteps.length}%` }}>
                     <div
-                      className={`w-10 h-10 rounded-full flex items-center justify-center border-2 transition-colors ${
+                      className={`w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center border-2 transition-colors ${
                         isComplete
                           ? "bg-foreground border-foreground text-background"
                           : "bg-background border-muted text-muted-foreground"
                       }`}
                     >
-                      <StepIcon className="h-4 w-4" />
+                      <StepIcon className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
                     </div>
-                    <span className={`text-xs mt-2 text-center ${isComplete ? "text-foreground font-medium" : "text-muted-foreground"}`}>
+                    <span className={`text-[10px] sm:text-xs mt-2 text-center leading-tight ${isComplete ? "text-foreground font-medium" : "text-muted-foreground"}`}>
                       {step.label}
                     </span>
                   </div>
@@ -406,6 +408,16 @@ export default function OrderDetailPage() {
           Back to Orders
         </Button>
       </Link>
+
+      <ConfirmDialog
+        open={confirmCancel}
+        onOpenChange={setConfirmCancel}
+        title="Cancel order"
+        description="Are you sure you want to cancel this order? This cannot be undone."
+        confirmLabel="Cancel Order"
+        loading={cancelling}
+        onConfirm={handleCancel}
+      />
     </div>
   )
 }

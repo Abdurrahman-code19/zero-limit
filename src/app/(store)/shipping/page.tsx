@@ -29,7 +29,7 @@ export default async function ShippingPage() {
     <div className="container mx-auto px-4 py-16 max-w-3xl">
       <div className="text-center mb-12">
         <p className="text-[11px] tracking-[0.4em] uppercase text-muted-foreground mb-3">Delivery</p>
-        <h1 className="text-4xl font-light mb-4">Shipping Information</h1>
+        <h1 className="text-3xl md:text-4xl font-light mb-4">Shipping Information</h1>
       </div>
 
       <div className="grid md:grid-cols-3 gap-6 mb-12">
@@ -50,6 +50,7 @@ export default async function ShippingPage() {
         <section>
           <h2 className="text-xl font-medium mb-4">Shipping Rates & Delivery Times</h2>
           <div className="border border-border rounded-lg overflow-hidden">
+            <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b bg-muted/50">
@@ -68,6 +69,7 @@ export default async function ShippingPage() {
                 ))}
               </tbody>
             </table>
+            </div>
           </div>
           <p className="text-xs text-muted-foreground mt-3">
             Shipping fee is a flat ₦{shippingFee.toLocaleString()} added at checkout for standard delivery. Free shipping on orders over ₦{freeShippingThreshold.toLocaleString()}.

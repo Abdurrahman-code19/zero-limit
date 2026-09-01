@@ -4,6 +4,7 @@ import Link from "next/link"
 import { Bell, ShoppingBag, Tag, Truck, Megaphone, Package, CheckCheck, Trash2 } from "lucide-react"
 import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
+import { ConfirmDialog } from "@/components/ui/confirm-dialog"
 import { createClient } from "@/lib/supabase/client"
 
 interface Notification {
@@ -38,6 +39,7 @@ function timeAgo(date: string): string {
 export default function NotificationsPage() {
   const [notifications, setNotifications] = useState<Notification[]>([])
   const [loading, setLoading] = useState(true)
+  const [confirmClear, setConfirmClear] = useState(false)
 
   useEffect(() => {
     const supabase = createClient()
@@ -93,6 +95,7 @@ export default function NotificationsPage() {
 
   const clearAll = async () => {
     await fetch("/api/notifications", { method: "DELETE" })
+    setConfirmClear(false)
     setNotifications([])
   }
 
@@ -104,12 +107,12 @@ export default function NotificationsPage() {
         <span className="text-foreground">Notifications</span>
       </div>
 
-      <div className="flex items-center justify-between mb-8">
+      <div className="flex flex-wrap items-center justify-between gap-3 mb-8">
         <div>
           <h1 className="text-2xl font-bold">Notifications</h1>
           <p className="text-sm text-muted-foreground mt-1">{unreadCount} unread</p>
         </div>
-        <div className="flex gap-2">
+        <div className="flex gap-2 flex-wrap">
           {unreadCount > 0 && (
             <Button variant="ghost" size="sm" className="text-xs text-muted-foreground" onClick={markAllRead}>
               <CheckCheck className="h-4 w-4 mr-1" />
@@ -117,7 +120,7 @@ export default function NotificationsPage() {
             </Button>
           )}
           {notifications.length > 0 && (
-            <Button variant="ghost" size="sm" className="text-xs text-destructive" onClick={clearAll}>
+            <Button variant="ghost" size="sm" className="text-xs text-destructive" onClick={() => setConfirmClear(true)}>
               <Trash2 className="h-4 w-4 mr-1" />
               Clear All
             </Button>
@@ -167,6 +170,15 @@ export default function NotificationsPage() {
           })}
         </div>
       )}
+
+      <ConfirmDialog
+        open={confirmClear}
+        onOpenChange={setConfirmClear}
+        title="Clear all notifications"
+        description="Are you sure you want to clear all notifications? This cannot be recovered."
+        confirmLabel="Clear All"
+        onConfirm={clearAll}
+      />
     </div>
   )
 }

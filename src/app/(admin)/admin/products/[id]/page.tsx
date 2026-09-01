@@ -11,6 +11,7 @@ import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
+import { ConfirmDialog } from "@/components/ui/confirm-dialog"
 
 interface Category {
   id: string
@@ -50,6 +51,7 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
   const [saving, setSaving] = useState(false)
   const [loading, setLoading] = useState(true)
   const [deleting, setDeleting] = useState(false)
+  const [confirmDelete, setConfirmDelete] = useState(false)
   const [categories, setCategories] = useState<Category[]>([])
   const [errors, setErrors] = useState<Record<string, string>>({})
   const [variants, setVariants] = useState<DBVariant[]>([])
@@ -209,7 +211,6 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
   }
 
   async function handleDelete() {
-    if (!confirm(`Delete "${name}"? This cannot be undone.`)) return
     setDeleting(true)
     await fetch(`/api/admin/products?id=${id}`, { method: "DELETE" })
     router.push("/admin/products")
@@ -240,7 +241,7 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
             <p className="text-muted-foreground">{name}</p>
           </div>
         </div>
-        <Button variant="destructive" size="sm" onClick={handleDelete} disabled={deleting}>
+        <Button variant="destructive" size="sm" onClick={() => setConfirmDelete(true)} disabled={deleting}>
           <Trash2 className="h-4 w-4 mr-1" />
           Delete
         </Button>
@@ -276,7 +277,7 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
                 className="mt-1"
               />
             </div>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label className="text-sm font-medium">Price (₦) *</label>
                 <Input
@@ -368,16 +369,17 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
             {images.length > 0 && (
               <div className="flex flex-wrap gap-2">
                 {images.map((url, i) => (
-                  <div key={i} className="relative group">
-                    <img src={url} alt="" className="w-20 h-20 object-cover rounded-md border" />
-                    <button
-                      type="button"
-                      onClick={() => removeItem(i, images, setImages)}
-                      className="absolute -top-1.5 -right-1.5 bg-destructive text-white rounded-full p-0.5 opacity-0 group-hover:opacity-100 transition-opacity"
-                    >
-                      <X className="h-3 w-3" />
-                    </button>
-                  </div>
+                    <div key={i} className="relative group">
+                      <img src={url} alt="" className="w-20 h-20 object-cover rounded-md border" />
+                      <button
+                        type="button"
+                        onClick={() => removeItem(i, images, setImages)}
+                        className="absolute -top-2 -right-2 bg-destructive text-white rounded-full p-1.5 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity min-h-[24px] min-w-[24px]"
+                        aria-label="Remove image"
+                      >
+                        <X className="h-3 w-3" />
+                      </button>
+                    </div>
                 ))}
               </div>
             )}
@@ -576,6 +578,15 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
           </Link>
         </div>
       </form>
+
+      <ConfirmDialog
+        open={confirmDelete}
+        onOpenChange={setConfirmDelete}
+        title="Delete product"
+        description={`Are you sure you want to delete "${name}"? This cannot be recovered.`}
+        loading={deleting}
+        onConfirm={handleDelete}
+      />
     </div>
   )
 }

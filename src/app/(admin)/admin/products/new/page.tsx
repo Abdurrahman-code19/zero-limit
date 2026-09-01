@@ -202,7 +202,7 @@ export default function NewProductPage() {
                 className="mt-1"
               />
             </div>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label className="text-sm font-medium">Price (₦) *</label>
                 <Input
@@ -299,7 +299,8 @@ export default function NewProductPage() {
                     <button
                       type="button"
                       onClick={() => removeItem(i, images, setImages)}
-                      className="absolute -top-1.5 -right-1.5 bg-destructive text-white rounded-full p-0.5 opacity-0 group-hover:opacity-100 transition-opacity"
+                      className="absolute -top-2 -right-2 bg-destructive text-white rounded-full p-1.5 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity min-h-[24px] min-w-[24px]"
+                      aria-label="Remove image"
                     >
                       <X className="h-3 w-3" />
                     </button>

@@ -7,6 +7,7 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
+import { ConfirmDialog } from "@/components/ui/confirm-dialog"
 
 interface AdminUser {
   id: string
@@ -20,6 +21,7 @@ export default function AdminsPage() {
   const [admins, setAdmins] = useState<AdminUser[]>([])
   const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState("")
+  const [confirmTarget, setConfirmTarget] = useState<{ id: string; name: string } | null>(null)
 
   useEffect(() => { loadAdmins() }, [])
 
@@ -36,12 +38,12 @@ export default function AdminsPage() {
   }
 
   async function removeAdmin(id: string, name: string) {
-    if (!confirm(`Remove admin role from "${name}"? They will become a customer.`)) return
     await fetch("/api/admin/admins", {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ user_id: id, role: "customer" }),
     })
+    setConfirmTarget(null)
     loadAdmins()
   }
 
@@ -73,7 +75,8 @@ export default function AdminsPage() {
 
       <Card>
         <CardContent className="p-0">
-          <table className="w-full">
+          <div className="overflow-x-auto">
+            <table className="w-full">
             <thead><tr className="border-b">
               <th className="text-left p-4 font-medium">Admin</th>
               <th className="text-left p-4 font-medium">Role</th>
@@ -102,7 +105,7 @@ export default function AdminsPage() {
                   <td className="p-4 text-sm text-muted-foreground">{new Date(admin.created_at).toLocaleDateString()}</td>
                   <td className="p-4 text-right">
                     {admin.role !== "super_admin" && (
-                      <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive" onClick={() => removeAdmin(admin.id, admin.full_name)}>
+                      <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive" onClick={() => setConfirmTarget({ id: admin.id, name: admin.full_name || admin.email })}>
                         <Trash2 className="h-4 w-4" />
                       </Button>
                     )}
@@ -110,9 +113,19 @@ export default function AdminsPage() {
                 </tr>
               ))}
             </tbody>
-          </table>
+            </table>
+          </div>
         </CardContent>
       </Card>
+
+      <ConfirmDialog
+        open={confirmTarget !== null}
+        onOpenChange={(open) => { if (!open) setConfirmTarget(null) }}
+        title="Remove admin"
+        description={`Are you sure you want to remove admin role from "${confirmTarget?.name}"? They will become a customer. This cannot be recovered.`}
+        confirmLabel="Remove"
+        onConfirm={() => confirmTarget && removeAdmin(confirmTarget.id, confirmTarget.name)}
+      />
     </div>
   )
 }
