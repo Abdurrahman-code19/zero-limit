@@ -179,7 +179,7 @@ export default function AddressesPage() {
         onOpenChange={(open) => { if (!open) setConfirmId(null) }}
         title="Delete address"
         description="Are you sure you want to delete this address? This cannot be recovered."
-        onConfirm={() => confirmId && handleDelete(confirmId)}
+        onConfirm={() => { if (confirmId) handleDelete(confirmId) }}
       />
     </div>
   )

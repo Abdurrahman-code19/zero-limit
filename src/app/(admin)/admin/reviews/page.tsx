@@ -140,7 +140,7 @@ export default function ReviewsPage() {
         onOpenChange={(open) => { if (!open) setConfirmId(null) }}
         title="Delete review"
         description="Are you sure you want to delete this review? This cannot be recovered."
-        onConfirm={() => confirmId && handleDelete(confirmId)}
+        onConfirm={() => { if (confirmId) handleDelete(confirmId) }}
       />
     </div>
   )

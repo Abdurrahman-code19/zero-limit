@@ -124,7 +124,7 @@ export default function AdminsPage() {
         title="Remove admin"
         description={`Are you sure you want to remove admin role from "${confirmTarget?.name}"? They will become a customer. This cannot be recovered.`}
         confirmLabel="Remove"
-        onConfirm={() => confirmTarget && removeAdmin(confirmTarget.id, confirmTarget.name)}
+        onConfirm={() => { if (confirmTarget) removeAdmin(confirmTarget.id, confirmTarget.name) }}
       />
     </div>
   )

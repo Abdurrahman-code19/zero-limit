@@ -213,7 +213,7 @@ export default function CategoriesPage() {
         onOpenChange={(open) => { if (!open) setConfirmTarget(null) }}
         title="Delete category"
         description={`Are you sure you want to delete "${confirmTarget?.name}"? Products in this category will lose their category assignment. This cannot be recovered.`}
-        onConfirm={() => confirmTarget && handleDelete(confirmTarget.id, confirmTarget.name)}
+        onConfirm={() => { if (confirmTarget) handleDelete(confirmTarget.id, confirmTarget.name) }}
       />
     </div>
   )

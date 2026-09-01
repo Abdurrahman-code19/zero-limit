@@ -203,7 +203,7 @@ export default function AdminProductsPage() {
         title="Delete product"
         description={`Are you sure you want to delete "${confirmTarget?.name}"? This cannot be recovered.`}
         loading={deletingId !== null}
-        onConfirm={() => confirmTarget && handleDelete(confirmTarget.id, confirmTarget.name)}
+        onConfirm={() => { if (confirmTarget) handleDelete(confirmTarget.id, confirmTarget.name) }}
       />
     </div>
   )

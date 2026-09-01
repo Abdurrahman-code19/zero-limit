@@ -206,7 +206,7 @@ export default function AdminCouponsPage() {
         onOpenChange={(open) => { if (!open) setConfirmId(null) }}
         title="Delete coupon"
         description="Are you sure you want to delete this coupon? This cannot be recovered."
-        onConfirm={() => confirmId && handleDelete(confirmId)}
+        onConfirm={() => { if (confirmId) handleDelete(confirmId) }}
       />
     </div>
   )
